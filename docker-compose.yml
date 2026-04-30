@@ -1,0 +1,60 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: hopp_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - hopp_mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - hopp-network
+
+  wordpress:
+    image: wordpress:6.8-php8.3-apache
+    container_name: hopp_wordpress
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${WORDPRESS_PORT:-8080}:80"
+    environment:
+      VIRTUAL_HOST: ${WORDPRESS_VIRTUAL_HOST}
+      VIRTUAL_PORT: 80
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX:-wp_}
+      WORDPRESS_DEBUG: ${WORDPRESS_DEBUG:-1}
+    volumes:
+      - hopp_wordpress_data:/var/www/html
+      - ./wp-content/themes/hopp:/var/www/html/wp-content/themes/hopp
+    networks:
+      - hopp-network
+      - proxy-network
+
+volumes:
+  hopp_mysql_data:
+  hopp_wordpress_data:
+
+networks:
+  hopp-network:
+    driver: bridge
+
+  proxy-network:
+    external: true

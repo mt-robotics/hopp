@@ -1,0 +1,18 @@
+# Local environment
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+
+# WordPress local runtime data
+wp-content/uploads/
+wp-content/upgrade/
+wp-content/cache/
+
+# Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
