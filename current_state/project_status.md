@@ -17,7 +17,8 @@
 - Public site crawl distilled into `docs/current_site_audit.md`
 - V1 demo design plan documented in `docs/demo_design_plan.md`
 - Current strategy: build a polished local WordPress UI/UX demo first, then perform production integration after WP admin access/export/import
-- **Next:** Implement the V1 demo according to `docs/demo_design_plan.md` 🔲
+- V1 local WordPress UI/UX demo theme implemented and verified at `http://localhost:8080`
+- **Next:** Present the local demo to the team for review and collect feedback 🔲
 
 ---
 
@@ -28,6 +29,7 @@
 | Standard Project Documentation Scaffold | 2026-04-30 | Manual file verification |
 | Design System (DESIGN.md) | 2026-04-30 | — |
 | Current Site Audit + Demo Design Plan | 2026-04-30 | Manual document review |
+| V1 Local WordPress UI/UX Demo Theme | 2026-04-30 | PHP lint, Docker Compose config, local route checks |
 
 → Full details: `current_state/milestone.md`
 
@@ -43,10 +45,10 @@
 - ✅ Local WP Docker environment
 - ✅ Current site audit
 - ✅ Demo design plan
-- 🔲 Build local UI/UX demo theme
-- 🔲 Create placeholder pages/content for review
-- 🔲 Set up local primary navigation
-- 🔲 Test demo locally (desktop/mobile/basic routes)
+- ✅ Build local UI/UX demo theme
+- ✅ Create placeholder pages/content for review
+- ✅ Set up local primary navigation
+- ✅ Test demo locally (desktop/mobile/basic routes)
 - 🔲 Present demo to team for feedback
 - 🔲 Incorporate team feedback
 
@@ -112,6 +114,8 @@ Build a local WordPress theme demo that is strong enough for team review without
 
 **Important:** This is a UI/UX approval demo, not production validation. Products, cart, checkout, and contact form behavior cannot be considered safe until the real plugin setup is inspected and mirrored locally.
 
+**Status:** Completed for V1 review on 2026-04-30. The theme includes a local-only seed guard (`HOPP_ENABLE_DEMO_SEED`) that creates demo pages, primary navigation, and placeholder story posts only when WordPress runs as a local environment.
+
 ---
 
 ### 🔲 V2 Only — Import Live Site Content
@@ -155,6 +159,14 @@ Verify the demo is strong enough for team review.
 - Mobile responsive down to 320px
 - No obvious broken layout or console errors
 
+**Status:** Completed basic local verification on 2026-04-30:
+
+- `docker compose --env-file .env.local config` passes
+- PHP syntax checks pass for theme templates
+- `/`, `/about-us/`, `/products/`, `/stories/`, `/artist/`, `/career/`, `/contact-us/`, and `/cart/` return HTTP 200 locally
+- WordPress container logs show no PHP fatal/warning/parse errors during route checks
+- Playwright browser verification was not run because Playwright is not installed in this project
+
 ---
 
 ### 🔲 V2 Only — Test Production-Critical Flows Locally
@@ -187,6 +199,7 @@ Once local testing is 100% complete, push the theme to the live WordPress site.
 ## Post-V1 Backlog
 
 - 🔲 Set up Git versioning for the theme directory
+- 🔲 Run browser visual QA with screenshots after Playwright or another browser test tool is installed
 - 🔲 Evaluate WooCommerce styling (Products page may need additional theme work)
 - 🔲 Performance audit (Core Web Vitals — LCP, CLS, FID)
 - 🔲 Contact form integration (verify it submits correctly after theme change)

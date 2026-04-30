@@ -8,14 +8,15 @@ The goal is to build a new WordPress theme from the `DESIGN.md` design system, v
 
 - Design system completed in `DESIGN.md`
 - Local WordPress Docker environment scaffolded
+- V1 local WordPress UI/UX demo theme implemented for team review
 - WP admin credentials pending
 - Live theme name and installed plugins not yet confirmed
-- Production site must not be changed until local verification is complete
+- Production site must not be changed until V2 validation against real content/plugins is complete
 
 ## Planned Features
 
 - Custom WordPress theme: `hopp`
-- Page templates for:
+- V1 demo pages for:
   - Home
   - About Us
   - Products
@@ -52,6 +53,8 @@ Expected local services:
 
 - WordPress: `http://localhost:8080`
 - MySQL: internal Docker service
+
+The local Docker config defines `WP_HOME` and `WP_SITEURL` as `http://localhost:8080` and enables local-only demo seeding. Demo content must not be treated as production content.
 
 See `DOCKER_SETUP.md` for the setup plan and environment variable reference.
 

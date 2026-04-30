@@ -18,3 +18,8 @@
 - Moved live WP admin deployment procedure into `docs/live_wordpress_deployment.md` instead of `DOCKER_SETUP.md`
 - User obtained public crawl from `markdown.new/crawl`; created `docs/current_site_audit.md` and `docs/demo_design_plan.md`
 - Current resume point: implement V1 demo from `docs/demo_design_plan.md`, starting with global header/footer/navigation and reusable components
+- Session 3: invoked vibe-code but user clarified frontend work does not need development notes, knowledge assessments, or dataflow diagrams; removed the started dev note and continued with practical frontend implementation
+- Initialized local Git repository on `development` because the project had no `.git`; committed the baseline before feature work
+- Built V1 local WordPress UI/UX demo theme: responsive editorial homepage, page-specific demo layouts, product cards, story cards, demo forms, empty cart state, sticky header, mobile navigation, and footer
+- Added local-only demo seed behavior through Docker `WORDPRESS_CONFIG_EXTRA` and theme guard `HOPP_ENABLE_DEMO_SEED`, creating placeholder pages, stories, and the original nav plus cart only in local WordPress
+- Verified `docker compose --env-file .env.local config`, PHP syntax, local HTTP 200 routes, and WordPress logs; Playwright not available for browser screenshots

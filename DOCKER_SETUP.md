@@ -21,6 +21,15 @@ Guide for the local WordPress development environment for Humans of Phnom Penh.
 
 The Docker environment is scaffolded with `docker-compose.yml`, WordPress, MySQL, persistent named volumes, and a bind-mounted local theme directory.
 
+The local environment also injects WordPress config for:
+
+- `WP_HOME=http://localhost:8080`
+- `WP_SITEURL=http://localhost:8080`
+- `WP_ENVIRONMENT_TYPE=local`
+- `HOPP_ENABLE_DEMO_SEED=true`
+
+The HOPP theme uses those values to seed local demo pages/navigation only in Docker.
+
 Constraints:
 
 - No server access
@@ -103,7 +112,10 @@ Expected first-run flow:
 1. Complete local WordPress installation.
 2. Log in to local WP admin.
 3. Confirm the mounted `hopp` theme appears under Appearance -> Themes.
-4. Activate the theme only after required files exist.
+4. Activate the `HOPP` theme.
+5. Open `http://localhost:8080` and confirm the local demo pages/navigation render.
+
+The HOPP theme seeds V1 demo pages, story posts, and primary navigation after activation when `HOPP_ENABLE_DEMO_SEED` is enabled in the local Docker config.
 
 ---
 
@@ -113,10 +125,21 @@ Theme directory:
 
 ```text
 wp-content/themes/hopp/
-└── .gitkeep
+├── assets/js/navigation.js
+├── style.css
+├── functions.php
+├── front-page.php
+├── page.php
+├── single.php
+├── archive.php
+├── home.php
+├── search.php
+├── 404.php
+├── header.php
+└── footer.php
 ```
 
-The full theme files are not built yet. WordPress requires at least `style.css` with a theme header and `index.php` before the theme appears under Appearance -> Themes.
+The V1 demo theme files are built. WordPress requires at least `style.css` with a theme header and `index.php` before the theme appears under Appearance -> Themes.
 
 Implementation rules:
 
@@ -125,6 +148,15 @@ Implementation rules:
 - Do not assume WooCommerce until confirmed.
 - Keep content editable through WordPress where practical.
 - Test each page locally before deployment.
+- For V1 team review, verify these local routes at minimum:
+  - `/`
+  - `/about-us/`
+  - `/products/`
+  - `/stories/`
+  - `/artist/`
+  - `/career/`
+  - `/contact-us/`
+  - `/cart/`
 
 Live WordPress admin-only deployment is documented separately in `docs/live_wordpress_deployment.md`.
 

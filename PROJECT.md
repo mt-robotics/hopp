@@ -6,7 +6,7 @@
 
 ## Current Focus
 
-**Next:** Scaffold a local WordPress Docker environment.
+**Next:** Present the V1 local WordPress UI/UX demo to the team for review.
 
 Full task spec: `current_state/project_status.md` -> V1 Local WordPress Theme Developed and Verified.
 
@@ -64,6 +64,7 @@ wp-content/
     └── hopp/
         ├── style.css
         ├── functions.php
+        ├── assets/js/navigation.js
         ├── index.php
         ├── header.php
         ├── footer.php
