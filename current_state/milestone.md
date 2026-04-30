@@ -12,6 +12,7 @@
 |---|---|---|
 | Standard Project Documentation Scaffold | 2026-04-30 | Manual file verification |
 | Design System (DESIGN.md) | 2026-04-30 | — |
+| Local WordPress Docker Environment | 2026-04-30 | Docker Compose config, manual WP/theme render |
 | Current Site Audit + Demo Design Plan | 2026-04-30 | Manual document review |
 | V1 Local WordPress UI/UX Demo Theme | 2026-04-30 | PHP lint, Docker Compose config, local route checks |
 
@@ -36,6 +37,28 @@
 - ⚠️ Playwright browser verification not run because Playwright is not installed in this project
 
 **Final state:** Ready for local team review at `http://localhost:8080`. Production integration remains blocked until WP admin access, live content export/import, plugin inspection, and e-commerce/form validation.
+
+---
+
+## ✅ Local WordPress Docker Environment (2026-04-30)
+
+**Infrastructure:** Scaffolded and verified a local WordPress development environment for safe theme work before touching the live site.
+
+- ✅ Created `docker-compose.yml` with WordPress 6.8 PHP 8.3 Apache and MySQL 8.4 services
+- ✅ Added persistent named volumes for WordPress and MySQL runtime data
+- ✅ Added bind mount from `./wp-content/themes/hopp` to the WordPress theme directory
+- ✅ Created `.env.example` and `.env.local` workflow for local runtime values
+- ✅ Documented setup, env vars, and troubleshooting in `DOCKER_SETUP.md`
+- ✅ Verified WordPress was accessible locally and the HOPP theme appeared in WP admin
+- ✅ Confirmed HOPP theme could be activated and rendered on the frontend
+
+**Verification:**
+
+- ✅ `docker compose --env-file .env.local config`
+- ✅ Manual local WordPress install/admin check
+- ✅ Manual theme activation/render check
+
+**Final state:** Local Docker is the safe V1/V2 development environment. Production remains blocked until WP admin credentials, live content export/import, plugin inspection, and rollback details are available.
 
 ---
 

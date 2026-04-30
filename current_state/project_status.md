@@ -28,6 +28,7 @@
 |---|---|---|
 | Standard Project Documentation Scaffold | 2026-04-30 | Manual file verification |
 | Design System (DESIGN.md) | 2026-04-30 | — |
+| Local WordPress Docker Environment | 2026-04-30 | Docker Compose config, manual WP/theme render |
 | Current Site Audit + Demo Design Plan | 2026-04-30 | Manual document review |
 | V1 Local WordPress UI/UX Demo Theme | 2026-04-30 | PHP lint, Docker Compose config, local route checks |
 
@@ -71,52 +72,9 @@
 
 ---
 
-## V1 Task Details
+## Active Task Details
 
-### ✅ Design System (DESIGN.md)
-
-Single source of truth for all visual tokens, typography, components, and do's and don'ts. Uses canonical Google Stitch DESIGN.md format (YAML front matter + markdown sections).
-
-- All 9 color tokens named and documented (6 from tailwind.config + 3 inline hex values promoted to role-based tokens: `sand`, `terracotta`, `paper`)
-- Full typography scale: Playfair Display (headings) + Montserrat (UI/body)
-- Component inventory covers: nav, hero, intro band, portfolio grid, story cards, contact form, footer
-- Nav: Option B — original 7-item nav preserved (Home, About Us, Products, Stories, Artist, Career, Contact Us + cart)
-
----
-
-### ✅ Local WP Docker Environment
-
-Stand up a local WordPress instance using Docker Compose that mirrors the live site.
-
-- ✅ `docker-compose.yml` with WordPress + MySQL services
-- ✅ WordPress accessible locally
-- ✅ Volume mounts for theme development (so edits reflect immediately without container rebuild)
-- ✅ `.env.example` with all required variables (DB name, user, password, WP table prefix)
-- ✅ `.env.local` local runtime env file created and used for Compose validation
-- ✅ `DOCKER_SETUP.md` documenting setup steps
-- ✅ `docker compose --env-file .env.local config` passes
-- ✅ HOPP theme appears in WP admin and renders on frontend
-
-**Constraint:** No server access. This local environment is the only safe place to develop. The live site must not be touched until the theme is verified end-to-end here.
-
----
-
-### ✅ Build Local UI/UX Demo Theme
-
-Build a local WordPress theme demo that is strong enough for team review without requiring live admin access.
-
-- Homepage design from `DESIGN.md`
-- Placeholder pages for: Home, About Us, Products, Stories, Artist, Career, Contact Us
-- Story/post card layouts
-- Header and footer navigation
-- Responsive layout down to 320px
-- Basic WordPress template coverage (`front-page.php`, `page.php`, `single.php`, `archive.php`, `home.php`, `search.php`, `404.php`)
-
-**Important:** This is a UI/UX approval demo, not production validation. Products, cart, checkout, and contact form behavior cannot be considered safe until the real plugin setup is inspected and mirrored locally.
-
-**Status:** Completed for V1 review on 2026-04-30. The theme includes a local-only seed guard (`HOPP_ENABLE_DEMO_SEED`) that creates demo pages, primary navigation, and placeholder story posts only when WordPress runs as a local environment.
-
----
+Completed V1 implementation details are archived in `current_state/milestone.md`. This file now keeps only active tasks, blockers, and next work.
 
 ### 🔲 V2 Only — Import Live Site Content
 
@@ -131,11 +89,9 @@ Populate the local WP instance with content that mirrors the live site so theme 
 
 ---
 
-### 🔲 V1/V2 — Build Custom WP Theme
+### 🔲 V2 Only — Adapt Custom WP Theme to Live Content
 
-Develop a new WordPress theme from scratch (HTML/CSS/JS) based on `DESIGN.md`.
-
-For V1, this means a polished local demo using placeholder/local content. For V2, this means adapting the theme to real imported content and plugin behavior after WP admin access is granted.
+Adapt the V1 HOPP demo theme to real imported content and plugin behavior after WP admin access is granted.
 
 - Theme directory: `wp-content/themes/hopp/` (`hopp` = Humans of Phnom Penh)
 - Required WP theme files: `style.css`, `index.php`, `functions.php`, `header.php`, `footer.php`
@@ -145,27 +101,6 @@ For V1, this means a polished local demo using placeholder/local content. For V2
 - Must preserve all original content (posts, images, menus, cart) — no data loss
 
 **Critical:** Replacing a theme on a live site without server access means no easy rollback. The V1 demo can be shown to the team, but production activation must wait for V2 validation against real content/plugins.
-
----
-
-### ✅ V1 — Test Demo Locally
-
-Verify the demo is strong enough for team review.
-
-- Homepage renders
-- Placeholder pages render
-- Stories/posts render
-- Header/footer/navigation render
-- Mobile responsive down to 320px
-- No obvious broken layout or console errors
-
-**Status:** Completed basic local verification on 2026-04-30:
-
-- `docker compose --env-file .env.local config` passes
-- PHP syntax checks pass for theme templates
-- `/`, `/about-us/`, `/products/`, `/stories/`, `/artist/`, `/career/`, `/contact-us/`, and `/cart/` return HTTP 200 locally
-- WordPress container logs show no PHP fatal/warning/parse errors during route checks
-- Playwright browser verification was not run because Playwright is not installed in this project
 
 ---
 
