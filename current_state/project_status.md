@@ -101,7 +101,7 @@ Stand up a local WordPress instance using Docker Compose that mirrors the live s
 
 ---
 
-### 🔲 Build Local UI/UX Demo Theme
+### ✅ Build Local UI/UX Demo Theme
 
 Build a local WordPress theme demo that is strong enough for team review without requiring live admin access.
 
@@ -148,7 +148,7 @@ For V1, this means a polished local demo using placeholder/local content. For V2
 
 ---
 
-### 🔲 V1 — Test Demo Locally
+### ✅ V1 — Test Demo Locally
 
 Verify the demo is strong enough for team review.
 
