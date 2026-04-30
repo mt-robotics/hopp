@@ -13,6 +13,29 @@
 | Standard Project Documentation Scaffold | 2026-04-30 | Manual file verification |
 | Design System (DESIGN.md) | 2026-04-30 | — |
 | Current Site Audit + Demo Design Plan | 2026-04-30 | Manual document review |
+| V1 Local WordPress UI/UX Demo Theme | 2026-04-30 | PHP lint, Docker Compose config, local route checks |
+
+---
+
+## ✅ V1 Local WordPress UI/UX Demo Theme (2026-04-30)
+
+**Implementation:** Built a local WordPress theme demo from `DESIGN.md` and `docs/demo_design_plan.md` for team UI/UX review before live admin access is available.
+
+- ✅ Added local-only demo seed behavior guarded by `WP_ENVIRONMENT_TYPE=local` and `HOPP_ENABLE_DEMO_SEED`
+- ✅ Seeded placeholder top-level pages for About Us, Products, Stories, Artist, Career, Contact Us, and Cart
+- ✅ Seeded demo story posts and primary navigation preserving Home, About Us, Products, Stories, Artist, Career, Contact Us, plus Cart
+- ✅ Built responsive sticky header, mobile menu toggle, editorial homepage, page heroes, story cards, product cards, demo forms, empty cart state, and footer
+- ✅ Forced local WordPress URLs to `http://localhost:8080` through Docker `WORDPRESS_CONFIG_EXTRA`
+
+**Verification:**
+
+- ✅ `docker compose --env-file .env.local config`
+- ✅ PHP syntax checks for theme templates
+- ✅ HTTP 200 route checks for `/`, `/about-us/`, `/products/`, `/stories/`, `/artist/`, `/career/`, `/contact-us/`, `/cart/`
+- ✅ WordPress logs checked for PHP fatal/warning/parse errors
+- ⚠️ Playwright browser verification not run because Playwright is not installed in this project
+
+**Final state:** Ready for local team review at `http://localhost:8080`. Production integration remains blocked until WP admin access, live content export/import, plugin inspection, and e-commerce/form validation.
 
 ---
 

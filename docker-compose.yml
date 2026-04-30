@@ -41,6 +41,11 @@ services:
       WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
       WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX:-wp_}
       WORDPRESS_DEBUG: ${WORDPRESS_DEBUG:-1}
+      WORDPRESS_CONFIG_EXTRA: |
+        define( 'WP_HOME', 'http://localhost:8080' );
+        define( 'WP_SITEURL', 'http://localhost:8080' );
+        define( 'WP_ENVIRONMENT_TYPE', 'local' );
+        define( 'HOPP_ENABLE_DEMO_SEED', true );
     volumes:
       - hopp_wordpress_data:/var/www/html
       - ./wp-content/themes/hopp:/var/www/html/wp-content/themes/hopp
