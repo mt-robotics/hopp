@@ -31,7 +31,12 @@ DB_SERVICE := db
 WORDPRESS_CONTAINER := hopp_wordpress
 DB_CONTAINER := hopp_mysql
 
-.PHONY: init gcp-init up down restart rebuild ps gcp-up gcp-down gcp-rebuild gcp-ps logs logs-db shell-wordpress shell-db clean help
+ifneq (,$(wildcard .env.gcp))
+include .env.gcp
+export
+endif
+
+.PHONY: init gcp-init up down restart rebuild ps gcp-up gcp-down gcp-rebuild gcp-ps gcp-cert logs logs-db shell-wordpress shell-db clean help
 
 init:
 	@if [ -f "$(ENV_FILE)" ]; then \
@@ -82,6 +87,12 @@ gcp-rebuild:
 
 gcp-ps:
 	docker compose --env-file $(GCP_ENV_FILE) -f $(COMPOSE_FILE) -f $(GCP_OVERRIDE) ps
+
+gcp-cert:
+	@test -n "$(DOMAIN_NAME)" || (echo "Set DOMAIN_NAME in .env.gcp"; exit 1)
+	@test -n "$(LETSENCRYPT_EMAIL)" || (echo "Set LETSENCRYPT_EMAIL in .env.gcp"; exit 1)
+	@echo "Requesting Let's Encrypt certificate for $(DOMAIN_NAME)..."
+	docker compose --env-file $(GCP_ENV_FILE) -f $(COMPOSE_FILE) -f $(GCP_OVERRIDE) run --rm certbot certonly --webroot -w /var/www/certbot -d $(DOMAIN_NAME) --email $(LETSENCRYPT_EMAIL) --agree-tos --no-eff-email
 
 logs:
 	@echo "Following WordPress logs (Ctrl+C to stop)..."

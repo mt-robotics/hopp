@@ -44,6 +44,10 @@ Constraints:
 
 If you are preparing the GCP-hosted public preview, use `docker-compose.gcp.yml` together with `make gcp-up`. This file stays focused on local Docker workflow.
 
+For HTTPS on the GCP preview, the nginx template exposes `/.well-known/acme-challenge/` and the GCP compose file includes a `certbot` service. Populate `DOMAIN_NAME` and `LETSENCRYPT_EMAIL` in `.env.gcp`, then use the `certbot/certbot` container with the shared webroot volume to request the certificate before switching `WORDPRESS_PUBLIC_URL` to `https://...`.
+
+The Makefile includes `make gcp-cert` for that certificate request step.
+
 ---
 
 ## Prerequisites
