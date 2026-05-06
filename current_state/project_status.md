@@ -1,24 +1,29 @@
 # Project Status
 
-**Last Updated:** 2026-04-30
+**Last Updated:** 2026-05-06
 
 ---
 
 ## Current State
 
-- No server access — working locally only
+- GCP server access established — VM (e2-micro) running in us-west1
+- Static External IP (35.252.238.69) reserved and mapped to `hopp.delvedeepasia.org`
+- SSH access configured from local laptop via SSH keys
+- Docker and Docker Compose installed and verified on GCP server
+- Nginx templates prepared for automatic variable substitution
 - No WP admin credentials yet (pending from client)
 - No current theme name known
 - `DESIGN.md` written — all color tokens reconciled, nav Option B (original 7-item nav preserved)
 - Standard project documentation scaffold created (`CLAUDE.md`, `PROJECT.md`, `README.md`, `DOCKER_SETUP.md`, `.env.example`, `docs/error_log.md`)
-- Local WordPress Docker scaffold created (`docker-compose.yml`, `.env.local`, theme bind-mount directory); Compose config validates
+- Local WordPress Docker scaffold created (`docker-compose.yml`, `docker-compose.local.yml`, `.env.local`, theme bind-mount directory); Compose config validates
 - Local WordPress is running and the HOPP theme pipeline is verified
 - Live admin-only deployment runbook documented in `docs/live_wordpress_deployment.md`
 - Public site crawl distilled into `docs/current_site_audit.md`
 - V1 demo design plan documented in `docs/demo_design_plan.md`
-- Current strategy: build a polished local WordPress UI/UX demo first, then perform production integration after WP admin access/export/import
-- V1 local WordPress UI/UX demo theme implemented and verified at `http://localhost:8080`
-- **Next:** Present the local demo to the team for review and collect feedback 🔲
+- Current strategy: share the V1 local WordPress UI/UX demo with the team for design feedback, then move the approved build to the GCP-hosted public preview for longer-lived external access
+- V1 local WordPress UI/UX demo theme implemented and verified locally and over LAN
+- Team review note prepared at `archive/20260504_team_confirmation.md`
+- **Next:** Deploy the WordPress site to the GCP-hosted public preview. 🔲
 
 ---
 
@@ -31,6 +36,7 @@
 | Local WordPress Docker Environment | 2026-04-30 | Docker Compose config, manual WP/theme render |
 | Current Site Audit + Demo Design Plan | 2026-04-30 | Manual document review |
 | V1 Local WordPress UI/UX Demo Theme | 2026-04-30 | PHP lint, Docker Compose config, local route checks |
+| GCP Infrastructure Setup | 2026-05-06 | SSH, Docker, IP ping |
 
 → Full details: `current_state/milestone.md`
 
@@ -52,6 +58,7 @@
 - ✅ Test demo locally (desktop/mobile/basic routes)
 - 🔲 Present demo to team for feedback
 - 🔲 Incorporate team feedback
+- 🔄 Set up GCP-hosted public preview
 
 ---
 
@@ -75,6 +82,20 @@
 ## Active Task Details
 
 Completed V1 implementation details are archived in `current_state/milestone.md`. This file now keeps only active tasks, blockers, and next work.
+
+### 🔄 Set up GCP-hosted public preview
+
+Move the working local WordPress demo onto a free GCP VM so the team can access it from any browser without keeping a laptop online.
+
+- ✅ Provision VM on GCP Always Free Tier (e2-micro, us-west1)
+- ✅ Reserve Static IP and point domain
+- ✅ Configure SSH access with keys
+- ✅ Install Docker and Docker Compose on VM
+- 🔲 Clone repo on VM using Deploy Key
+- 🔲 Configure production `.env.gcp`
+- 🔲 Run `docker-compose -f docker-compose.yml -f docker-compose.gcp.yml --env-file .env.gcp up -d`
+- 🔲 Verify public access at `http://hopp.delvedeepasia.org`
+- 🔲 Share URL with the team
 
 ### 🔲 V2 Only — Import Live Site Content
 
@@ -138,3 +159,5 @@ Once local testing is 100% complete, push the theme to the live WordPress site.
 - 🔲 Evaluate WooCommerce styling (Products page may need additional theme work)
 - 🔲 Performance audit (Core Web Vitals — LCP, CLS, FID)
 - 🔲 Contact form integration (verify it submits correctly after theme change)
+
+## Post-V1 Task Details

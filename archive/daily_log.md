@@ -23,3 +23,16 @@
 - Built V1 local WordPress UI/UX demo theme: responsive editorial homepage, page-specific demo layouts, product cards, story cards, demo forms, empty cart state, sticky header, mobile navigation, and footer
 - Added local-only demo seed behavior through Docker `WORDPRESS_CONFIG_EXTRA` and theme guard `HOPP_ENABLE_DEMO_SEED`, creating placeholder pages, stories, and the original nav plus cart only in local WordPress
 - Verified `docker compose --env-file .env.local config`, PHP syntax, local HTTP 200 routes, and WordPress logs; Playwright not available for browser screenshots
+
+## 2026-05-04
+
+- Diagnosed local 503 on `humansofphnompenh.local` as nginx-proxy receiving an empty `VIRTUAL_HOST` because `docker compose up -d` was run without `--env-file .env.local`
+- Added a repo Makefile to make `.env.local` the default startup path and reduce repeat setup mistakes: `make init`, `make up`, `make down`, `make restart`, `make rebuild`, `make ps`, `make logs`, `make logs-db`
+- Updated `README.md` and `DOCKER_SETUP.md` to steer local setup through the new Makefile and call out the explicit env file requirement
+- Switched the next hosting step to Oracle Always Free so the team can review the demo without the developer's laptop staying online
+- Documented the Oracle-hosted preview workflow in `docs/oracle_preview_deployment.md` so the deployment plan is easy to follow later
+- Moved the Oracle preview runbook into `deliverables/software_ai_engineering/infrastructure/oracle_preview_deployment.md` and left a symlink at `archive/oracle_preview_deployment.md`
+- Split the Docker setup into shared, local, and Oracle override compose files so local and cloud preview settings can differ cleanly
+- Confirmed LAN sharing for the local WordPress demo by setting `WORDPRESS_LOCAL_URL` to the laptop's Wi-Fi URL and recreating the stack
+- Prepared `archive/20260504_team_confirmation.md` as a concise team-facing review note for comparing the local demo against three reference sites
+- Updated `current_state/project_status.md` so the immediate next task is team feedback collection, with Oracle preview kept as the longer-lived hosting option

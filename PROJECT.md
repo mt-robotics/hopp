@@ -6,9 +6,9 @@
 
 ## Current Focus
 
-**Next:** Present the V1 local WordPress UI/UX demo to the team for review.
+**Next:** Deploy the WordPress site to the GCP-hosted public preview.
 
-Full task spec: `current_state/project_status.md` -> V1 Local WordPress Theme Developed and Verified.
+Full task spec: `current_state/project_status.md` -> GCP-hosted public preview task.
 
 ---
 
@@ -23,6 +23,7 @@ Full task spec: `current_state/project_status.md` -> V1 Local WordPress Theme De
 | Database | MySQL via Docker Compose for local WordPress |
 | E-commerce | Unknown WordPress plugin; likely WooCommerce, but not verified |
 | Local infra | Docker Compose, WordPress container, MySQL container, named volumes |
+| Cloud hosting | Google Cloud Platform (GCP) - Always Free Tier (e2-micro) |
 | Production access | Pending WP admin credentials; no server access |
 
 ---
@@ -36,6 +37,9 @@ Full task spec: `current_state/project_status.md` -> V1 Local WordPress Theme De
 ├── DOCKER_SETUP.md            # Local WordPress Docker guide
 ├── PROJECT.md                 # Internal project navigation hub
 ├── README.md                  # Public-facing project overview and setup
+├── Makefile                   # Local Docker shortcuts for setup and runtime tasks
+├── docker-compose.local.yml   # Local WordPress override
+├── docker-compose.gcp.yml     # GCP preview override
 ├── .env.example               # Safe env var reference
 ├── archive/
 │   └── daily_log.md           # Session log
@@ -47,7 +51,7 @@ Full task spec: `current_state/project_status.md` -> V1 Local WordPress Theme De
 │   ├── current_site_audit.md  # Public site content/component audit
 │   ├── demo_design_plan.md    # V1 demo page/component design plan
 │   └── live_wordpress_deployment.md # Live WP admin deployment runbook
-├── docker-compose.yml         # Local WordPress + MySQL environment
+├── docker-compose.yml         # Shared WordPress + MySQL base
 ├── index.html                 # Current static prototype/reference
 └── resources/
     └── context.md             # Legacy website and business context
@@ -95,9 +99,10 @@ wp-content/
 | `current_state/milestone.md` | Completed milestone details |
 | `DESIGN.md` | Visual tokens, layout rules, component inventory |
 | `resources/context.md` | Legacy site description and constraints |
-| `docs/current_site_audit.md` | Public site page inventory, components, forms, e-commerce risk classification |
-| `docs/demo_design_plan.md` | V1 demo design direction, page plans, component plan, implementation order |
-| `DOCKER_SETUP.md` | Docker setup, env vars, local workflow |
+| docs/current_site_audit.md | Public site page inventory, components, forms, e-commerce risk classification |
+| docs/demo_design_plan.md | V1 demo design direction, page plans, component plan, implementation order |
+| DOCKER_SETUP.md | Docker setup, env vars, local workflow |
+
 | `docs/live_wordpress_deployment.md` | Live WordPress admin-only deployment runbook |
 | `.env.example` | Safe environment variable reference |
 | `.env.local` | Local Docker runtime environment file, ignored by Git |
@@ -120,6 +125,7 @@ wp-content/
 
 | What you need | File |
 |---|---|
+| Local Docker shortcuts | `Makefile` |
 | Active task list and next step | `current_state/project_status.md` |
 | Completed work detail | `current_state/milestone.md` |
 | Visual implementation rules | `DESIGN.md` |
@@ -137,4 +143,5 @@ wp-content/
 | Environment | URL |
 |---|---|
 | Production website | `https://www.humansofphnompenh.com` |
-| Local WordPress | `http://localhost:8080` after `docker compose --env-file .env.local up -d` |
+| Local WordPress | `http://localhost:8080` after `make up` |
+| GCP preview | `http://hopp.delvedeepasia.org` after deployment |

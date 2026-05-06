@@ -16,3 +16,9 @@ wp-content/cache/
 .vscode/
 *.swp
 *.swo
+
+# Other
+archive/
+!archive/daily_log.md
+CLAUDE.md
+.claude/

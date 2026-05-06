@@ -19,7 +19,12 @@ Guide for the local WordPress development environment for Humans of Phnom Penh.
 
 ## Current Status
 
-The Docker environment is scaffolded with `docker-compose.yml`, WordPress, MySQL, persistent named volumes, and a bind-mounted local theme directory.
+The Docker environment is scaffolded with a shared `docker-compose.yml`, plus environment-specific override files:
+
+- `docker-compose.local.yml`
+- `docker-compose.gcp.yml`
+
+WordPress, MySQL, persistent named volumes, and a bind-mounted local theme directory are part of the shared stack. The local runtime values live in `docker-compose.local.yml`.
 
 The local environment also injects WordPress config for:
 
@@ -36,6 +41,8 @@ Constraints:
 - No WP admin credentials yet
 - Live active theme name unknown
 - Installed e-commerce plugin unknown
+
+If you are preparing the GCP-hosted public preview, use `docker-compose.gcp.yml` together with `make gcp-up`. This file stays focused on local Docker workflow.
 
 ---
 
@@ -86,6 +93,7 @@ MYSQL_PASSWORD=change_me
 MYSQL_ROOT_PASSWORD=change_me_root
 WORDPRESS_TABLE_PREFIX=wp_
 WORDPRESS_DEBUG=1
+WORDPRESS_VIRTUAL_HOST=humansofphnompenh.local
 ```
 
 Do not commit local runtime env files with real credentials.
@@ -95,10 +103,20 @@ Do not commit local runtime env files with real credentials.
 
 ## Setup Workflow
 
+Preferred workflow:
+
+```bash
+make init
+make up
+make ps
+```
+
+Direct Docker Compose workflow:
+
 ```bash
 cp .env.example .env.local
-docker compose --env-file .env.local up -d
-docker compose --env-file .env.local ps
+docker compose --env-file .env.local -f docker-compose.yml -f docker-compose.local.yml up -d
+docker compose --env-file .env.local -f docker-compose.yml -f docker-compose.local.yml ps
 ```
 
 Open:
@@ -106,6 +124,8 @@ Open:
 ```text
 http://localhost:8080
 ```
+
+If you use `humansofphnompenh.local`, make sure the container was started with `make up` or the full local compose command above. Running plain `docker compose up -d` falls back to the default `.env` lookup and can leave `WORDPRESS_VIRTUAL_HOST` empty.
 
 Expected first-run flow:
 
@@ -194,8 +214,8 @@ Rollback procedure cannot be finalized until the current live theme name is know
 Check containers:
 
 ```bash
-docker compose --env-file .env.local ps
-docker compose --env-file .env.local logs wordpress
+docker compose --env-file .env.local -f docker-compose.yml -f docker-compose.local.yml ps
+docker compose --env-file .env.local -f docker-compose.yml -f docker-compose.local.yml logs wordpress
 ```
 
 ### Database connection error
@@ -214,4 +234,4 @@ Verify the theme directory contains:
 - `style.css` with a WordPress theme header
 - `index.php`
 
-Then check the volume mount in `docker-compose.yml`.
+Then check the volume mount in `docker-compose.yml` and the local override in `docker-compose.local.yml`.

@@ -1,0 +1,25 @@
+services:
+  # The gate keeper
+  nginx:
+    image: nginx:stable-alpine
+    container_name: hopp_nginx
+    ports:
+      - "80:80" # just use 80 and 443 directly, these ports are never changed in production. No need to use `WORDPRESS_PUBLIC_PORT`
+      - "443:443"
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates:ro
+    networks:
+      - hopp-network
+    depends_on:
+      - wordpress
+
+  wordpress:
+    environment:
+      WORDPRESS_DEBUG: ${WORDPRESS_DEBUG:-0}
+      WORDPRESS_CONFIG_EXTRA: |
+        define( 'WP_HOME', '${WORDPRESS_PUBLIC_URL}' );
+        define( 'WP_SITEURL', '${WORDPRESS_PUBLIC_URL}' );
+        define( 'WP_ENVIRONMENT_TYPE', 'staging' );
+        define( 'HOPP_ENABLE_DEMO_SEED', true );
