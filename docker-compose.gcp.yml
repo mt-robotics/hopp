@@ -10,10 +10,19 @@ services:
       - DOMAIN_NAME=${DOMAIN_NAME}
     volumes:
       - ./nginx/templates:/etc/nginx/templates:ro
+      - hopp_letsencrypt:/etc/letsencrypt:ro
+      - hopp_acme_webroot:/var/www/certbot
     networks:
       - hopp-network
     depends_on:
       - wordpress
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: hopp_certbot
+    volumes:
+      - hopp_letsencrypt:/etc/letsencrypt
+      - hopp_acme_webroot:/var/www/certbot
 
   wordpress:
     environment:
@@ -23,3 +32,7 @@ services:
         define( 'WP_SITEURL', '${WORDPRESS_PUBLIC_URL}' );
         define( 'WP_ENVIRONMENT_TYPE', 'staging' );
         define( 'HOPP_ENABLE_DEMO_SEED', true );
+
+volumes:
+  hopp_letsencrypt:
+  hopp_acme_webroot:
