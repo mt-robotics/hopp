@@ -42,16 +42,16 @@
 
 ## ✅ Completed Milestones
 
-| Milestone | Completed | Tests |
-|---|---|---|
-| Standard Project Documentation Scaffold | 2026-04-30 | Manual file verification |
-| Design System (DESIGN.md) | 2026-04-30 | — |
-| Local WordPress Docker Environment | 2026-04-30 | Docker Compose config, manual WP/theme render |
-| Current Site Audit + Demo Design Plan | 2026-04-30 | Manual document review |
-| V1 Local WordPress UI/UX Demo Theme | 2026-04-30 | PHP lint, Docker Compose config, local route checks |
-| GCP Infrastructure Setup | 2026-05-06 | SSH, Docker, IP ping |
+| Milestone                                            | Completed  | Tests                                                    |
+| ---------------------------------------------------- | ---------- | -------------------------------------------------------- |
+| Standard Project Documentation Scaffold              | 2026-04-30 | Manual file verification                                 |
+| Design System (DESIGN.md)                            | 2026-04-30 | —                                                        |
+| Local WordPress Docker Environment                   | 2026-04-30 | Docker Compose config, manual WP/theme render            |
+| Current Site Audit + Demo Design Plan                | 2026-04-30 | Manual document review                                   |
+| V1 Local WordPress UI/UX Demo Theme                  | 2026-04-30 | PHP lint, Docker Compose config, local route checks      |
+| GCP Infrastructure Setup                             | 2026-05-06 | SSH, Docker, IP ping                                     |
 | Live Export, Local Import, and ABA Checkout Recovery | 2026-05-08 | Manual admin inspection, XML import, checkout smoke test |
-| Frontend Standards — HIGH Priority Fixes | 2026-05-08 | Manual visual review |
+| Frontend Standards — HIGH Priority Fixes             | 2026-05-08 | Manual visual review                                     |
 
 → Full details: `current_state/milestone.md`
 
@@ -74,12 +74,13 @@
 - 🔲 Present demo to team for feedback
 - 🔲 Incorporate team feedback
 - ✅ Fix HIGH-priority frontend standards violations
-- ⏸ Set up GCP-hosted public preview
+- 🔲 Plan sponsored GCP deployment for the live WordPress site
+- 🔄 Set up GCP-hosted public preview
 - ✅ Inspect live admin settings, active theme, menus, plugins, and e-commerce setup
 - ✅ Export live site content
 - ✅ Import live content into local WordPress
 - ✅ Install/mirror required plugins locally, especially e-commerce/contact form plugins
-- ✅ Stabilize ABA PayWay gateway for deployment
+- 🔄 Stabilize ABA PayWay gateway for deployment
 - ✅ Adapt HOPP theme to real content and plugin behavior
 - ✅ Test production-critical flows locally
 
@@ -102,7 +103,7 @@ Use the live WordPress admin access plus exported content and plugin inventory t
 - 🔲 Define the redeployment steps for the final server
 - 🔲 Only after the plan is clear, provision the new GCP server and migrate
 
-### 🔲 Stabilize ABA PayWay for deployment
+### 🔄 Stabilize ABA PayWay gateway for deployment
 
 Keep the payment gateway behavior from drifting when the server is rebuilt or redeployed.
 
@@ -112,9 +113,9 @@ Keep the payment gateway behavior from drifting when the server is rebuilt or re
 - 🔲 Persist the plugin fix in the deployment artifact or runtime layer before any rebuild
 - 🔲 Keep the production success/pushback URLs on `humansofphnompenh.com`
 
-### ⏸ Historical — GCP-hosted public preview
+### 🔄 Set up GCP-hosted public preview
 
-The free-tier preview path was completed first and then superseded by the sponsor-funded deployment plan. Keep this record because the same repo, domain, and Docker wiring were reused as part of the transition.
+The free-tier preview path was completed first and then superseded by the sponsor-funded deployment plan. Kept as historical record because the same repo, domain, and Docker wiring were reused as part of the transition.
 
 - ✅ Provision VM on GCP Always Free Tier (e2-micro, us-west1)
 - ✅ Reserve Static IP and point domain
@@ -124,7 +125,7 @@ The free-tier preview path was completed first and then superseded by the sponso
 - ✅ Configure production `.env.gcp`
 - ✅ Run `docker-compose -f docker-compose.yml -f docker-compose.gcp.yml --env-file .env.gcp up -d`
 - ✅ Verify public access at `http://hopp.delvedeepasia.org`
-- ⏸ Share URL with the team
+- 🔄 Share URL with the team
 
 Transition note: this path proved the preview stack, but the sponsored project now needs a server plan sized from the real WordPress workload, not the free-tier demo constraints.
 
@@ -138,6 +139,43 @@ Transition note: this path proved the preview stack, but the sponsored project n
 - 🔲 Fix MEDIUM/LOW frontend standards violations (from 2026-05-08 audit)
 
 ## Post-V1 Task Details
+
+### 🔲 Set up Git versioning for the theme directory
+
+The theme lives in `wp-content/themes/hopp/` which is bind-mounted into the Docker container. A dedicated Git setup or `.gitattributes` strategy is needed so theme changes are versioned cleanly and don't get tangled with WordPress core files.
+
+- Decide whether to version the theme directory separately or keep it in the repo root
+- Confirm `.gitignore` correctly excludes WordPress core and only tracks theme + project files
+
+### 🔲 Run browser visual QA with screenshots
+
+No automated browser testing has been run. A visual pass across all pages on both desktop and mobile viewports is needed to catch layout regressions before the site goes live.
+
+- Install Playwright or equivalent browser tool in the project
+- Run screenshot captures for all primary routes: `/`, `/about-us/`, `/products/`, `/stories/`, `/artist/`, `/career/`, `/contact-us/`, `/cart/`, and a single product and story page
+- Review screenshots for layout breakages, spacing issues, and mobile overflow
+
+### 🔲 Evaluate WooCommerce styling
+
+The Products page and single-product pages use WooCommerce default markup mixed with custom HOPP theme templates. A styling audit is needed to ensure WooCommerce UI elements (notices, quantity inputs, cart table, order summary) match the HOPP design system.
+
+- Review WooCommerce notices, form elements, and cart/checkout layout against `DESIGN.md` tokens
+- Identify any WooCommerce default styles leaking through that conflict with the HOPP visual system
+
+### 🔲 Performance audit (Core Web Vitals)
+
+No performance measurement has been done on the imported-content staging site. LCP, CLS, and FID should be measured against Google's thresholds before the GCP deployment.
+
+- Run Lighthouse or PageSpeed Insights against the local staging site (or the GCP preview once deployed)
+- Address any LCP element not loading eagerly, CLS from layout shifts, or blocking scripts
+
+### 🔲 Contact form integration (verify it submits correctly after theme change)
+
+The live site uses Forminator forms. These were imported locally. The demo form in `page.php` (Artist/Career/Contact) is still a local-only demo — it needs to be replaced with the live Forminator shortcode and verified end-to-end.
+
+- Confirm the Forminator plugin is active and the imported form is available via shortcode
+- Replace the `page.php` demo form block with `[forminator_form id="..."]` for the appropriate pages
+- Verify form submission, email delivery, and error handling in staging before going live
 
 ### 🔲 Fix MEDIUM/LOW frontend standards violations
 
