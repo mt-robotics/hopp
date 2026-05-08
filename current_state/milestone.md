@@ -1,6 +1,6 @@
 # Completed Milestones
 
-**Last Updated:** 2026-04-30
+**Last Updated:** 2026-05-08
 
 > Full details of every completed task. For active tasks and roadmap, see `current_state/project_status.md`.
 
@@ -10,6 +10,7 @@
 
 | Milestone | Completed | Tests |
 |---|---|---|
+| Frontend Standards — HIGH Priority Fixes | 2026-05-08 | Manual visual review |
 | Standard Project Documentation Scaffold | 2026-04-30 | Manual file verification |
 | Design System (DESIGN.md) | 2026-04-30 | — |
 | Local WordPress Docker Environment | 2026-04-30 | Docker Compose config, manual WP/theme render |
@@ -118,3 +119,45 @@
 - ✅ `/design-md` agent skill created at `agent_core/skills/design-md/SKILL.md` — reusable across future frontend projects; always fetches live spec before writing
 
 **Final state:** No tests applicable (design system document).
+
+---
+
+## ✅ Live Export, Local Import, and ABA Checkout Recovery (2026-05-08)
+
+**Implementation:** Exported the live WordPress content, imported it into a clean local staging database, and repaired the ABA PayWay checkout flow so the staging site matches the live commerce structure closely enough for review.
+
+- ✅ Exported the live site as a WordPress XML/WXR file and saved it in `archive/humansofphnompenh.WordPress.2026-05-08.xml`
+- ✅ Recorded the live theme, active plugins, WooCommerce page assignments, menu structure, and Reading settings in project docs
+- ✅ Reset the local WordPress database, imported the XML cleanly, and mirrored the live menu/Reading/WooCommerce assignments
+- ✅ Confirmed Divi-only layout post types were skipped intentionally because the new custom HOPP theme does not depend on them
+- ✅ Patched the ABA PayWay gateway runtime so `payment_options` is normalized before checkout rendering and checkout no longer fatals on PHP 8.3
+- ✅ Synced the saved ABA gateway methods locally so the checkout page renders the four live payment rows again
+- ✅ Verified that the local checkout still depends on PayWay's whitelisted production domain, so local `localhost` submission is not expected to complete as a real payment
+
+**Verification:**
+
+- ✅ Local content counts match the live snapshot for pages, posts, products, attachments, nav menu items, and forms
+- ✅ `php -l` passes on the patched ABA gateway file
+- ✅ Local checkout HTML now includes the ABA gateway payload and the four payment rows
+- ✅ The live payment-method selection is mirrored in the staging database
+- ⚠️ PayWay domain whitelist still blocks local payment completion on `localhost`; production must use the registered `humansofphnompenh.com` host
+
+**Final state:** Local staging is ready for UI and content review. The remaining work is production deployment planning, persistence of the ABA gateway patch in the deployment artifact, and later polish items such as footer links and favicon.
+
+---
+
+## ✅ Frontend Standards — HIGH Priority Fixes (2026-05-08)
+
+All items were identified during a full frontend standards audit against `frontend-standards.md` and `ux-standards.md` on 2026-05-08. Two extra fixes were added in the same session.
+
+- ✅ CSS token: added `--hopp-black: #000000` to `:root`; replaced hardcoded `#000000` at `style.css` (`.page-hero--product` and `.single_add_to_cart_button`)
+- ✅ Font sizes raised to 0.875rem minimum: `.card-kicker`, `.site-nav__list a`, `.button-primary/.button-outline/.demo-form button`, `.product-card__footer`
+- ✅ Product card hover/focus: replaced `color: inherit` (no feedback) with `opacity: 0.88` on hover and `outline: 2px solid var(--hopp-beige)` on `focus-visible`
+- ✅ Heading hierarchy: story card titles changed from `<h3>` to `<h2>` on the Stories page; updated CSS selector `.story-card h3` → `.story-card h2`
+- ✅ Mobile-first CSS refactor: all base styles now target mobile; replaced both `max-width` media queries with `@media (min-width: 641px)` (tablet) and `@media (min-width: 961px)` (desktop)
+- ✅ Demo form: changed button `type="button"` → `type="submit"`; restructured form with explicit `label[for]`/`input[id]` pairs, `required`, and `<span class="demo-form__error">` placeholders; added inline JS validation (blur/change/submit) with per-field error messages using color + ✕ icon
+- ✅ Footer: removed hardcoded "Demo theme for local review." from copyright bar
+- ✅ Footer: added "Designed by Macro Solutions" credit with link to macrosolutions.asia (extra request)
+- ✅ WooCommerce price format: updated DB settings to `currency=USD`, `decimal_sep=.`, `thousand_sep=,`, `currency_pos=left`; flushed WC transients; PHP filters added to `functions.php` as override safety net (extra request)
+
+**Final state:** No tests apply — visual/accessibility fixes. Manual review required in browser.

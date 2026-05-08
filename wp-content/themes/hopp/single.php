@@ -24,7 +24,7 @@ get_header();
 			<?php endif; ?>
 
 			<div class="single-content__body">
-				<?php the_content(); ?>
+				<?php hopp_render_imported_content( get_the_content( null, false, get_the_ID() ) ); ?>
 			</div>
 		</article>
 		<?php

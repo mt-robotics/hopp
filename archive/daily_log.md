@@ -36,3 +36,29 @@
 - Confirmed LAN sharing for the local WordPress demo by setting `WORDPRESS_LOCAL_URL` to the laptop's Wi-Fi URL and recreating the stack
 - Prepared `archive/20260504_team_confirmation.md` as a concise team-facing review note for comparing the local demo against three reference sites
 - Updated `current_state/project_status.md` so the immediate next task is team feedback collection, with Oracle preview kept as the longer-lived hosting option
+
+## 2026-05-08
+
+- Reoriented the deployment plan from the old free-tier preview path to a sponsor-funded GCP deployment sized from the real WordPress workload
+- Confirmed WordPress admin access on the live site, but plugin installation is restricted for this account, so All-in-One WP Migration is not available as a self-serve full-clone path
+- Verified that the live site uses WooCommerce plus several standard third-party plugins, including ABA PayWay Payment Gateway, Checkout Field Editor, Code Snippets, Forminator, Smart Slider 3, WP Menu Cart, Divi Torque Lite, Popups for Divi, PostX, Simple Custom CSS and JS, Supreme Modules Lite, and Lead Form Builder
+- Captured WooCommerce ABA PayWay settings from the admin screen so the payment configuration can be recreated on the new server
+- Updated `PROJECT.md` and `current_state/project_status.md` to reflect the export-first, rebuild-on-our-own-server plan and preserve the earlier preview work as history
+- Created `docs/live_site_settings.md` and `docs/local_import_checklist.md` to separate the live snapshot from the local import workflow
+- Linked both docs from `PROJECT.md` and `current_state/project_status.md` so the import handoff is easy to find
+- Reset the local WordPress database, installed WooCommerce and Forminator locally, imported the live XML cleanly, and mirrored the live menu/Reading/WooCommerce assignments
+- Confirmed the imported counts match the live snapshot for pages, posts, products, attachments, nav menu items, and Forminator forms; Divi-only layout post types were skipped locally
+- Fixed the local staging runtime so pretty permalinks are enforced automatically and WooCommerce store visibility is turned off in local mode
+- Cleaned the imported story and product rendering paths so stories no longer show raw Divi shortcode junk and product cards now link to real product URLs
+- Confirmed the live-exported WooCommerce product content still contains Divi builder structure in `post_content`, so the remaining product-detail text fidelity question needs a live-site check before adding any placeholder copy
+- Added a custom `single-product.php` template plus an XML-derived product profile map so imported product pages now show the real recovered descriptions where the export provided them
+- Confirmed the live checkout payment rows are injected by the ABA PayWay plugin's JavaScript, not by WooCommerce defaults
+- Patched the ABA PayWay gateway runtime so it normalizes `payment_options` and no longer crashes checkout on PHP 8.3
+- Synced the local ABA gateway settings so `ABA KHQR`, `Credit/Debit Card`, `WeChat`, and `Alipay` appear again on checkout
+- Verified the PayWay domain whitelist still blocks local payment completion on `localhost`; production must keep the registered `humansofphnompenh.com` URLs
+- Logged the live export/import snapshot, staging behavior, and deployment notes in `current_state/project_status.md` and `current_state/milestone.md`
+- Folded the old V2 roadmap into V1 in `current_state/project_status.md`, removed the redundant V2 section, and pruned the obsolete Post-V1 item that had already been completed
+- Tightened the V1 goal wording so it matches the current imported-content staging review instead of the pre-access demo-only framing
+- Full frontend standards HIGH-priority fix pass on `feat/frontend-standards-high-priority`: added `--hopp-black` token, replaced both `#000000` hardcodes with the token, raised 4 font sizes to 0.875rem minimum, fixed product card hover/focus state (opacity + focus-visible outline), changed story card headings h3→h2 to fix heading skip, refactored entire style.css from desktop-first (max-width) to mobile-first (min-width) with 641px and 961px breakpoints, restructured demo form with explicit labels/error spans/required fields, added inline JS validation (blur + change + submit with error messaging + color/icon), changed form button type="button"→"submit", removed "Demo theme for local review." from footer copyright
+- Added "Designed by Macro Solutions" credit to footer bar (clickable, links to macrosolutions.asia, rel=noopener noreferrer)
+- Fixed WooCommerce product price display: DB had KHR decimal/thousand separators from live import; updated woocommerce_currency=USD, price_decimal_sep=`.`, price_thousand_sep=`,`, currency_pos=left directly in the DB; flushed WC transients and restarted WordPress container; PHP filters in functions.php kept as override safety net

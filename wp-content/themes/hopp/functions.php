@@ -4,6 +4,8 @@
  */
 
 define( 'HOPP_DEMO_SEED_VERSION', '20260430.3' );
+define( 'HOPP_LOCAL_PERMALINK_VERSION', '20260508.1' );
+define( 'HOPP_LOCAL_WOOCOMMERCE_VISIBILITY_VERSION', '20260508.1' );
 
 function hopp_setup(): void {
 	add_theme_support( 'title-tag' );
@@ -225,6 +227,139 @@ add_action( 'after_switch_theme', 'hopp_seed_local_demo_content' );
 add_action( 'admin_init', 'hopp_seed_local_demo_content' );
 add_action( 'init', 'hopp_seed_local_demo_content' );
 
+function hopp_sync_local_permalink_structure(): void {
+	if ( 'local' !== wp_get_environment_type() ) {
+		return;
+	}
+
+	$target_structure = '/%postname%/';
+	$current_structure = (string) get_option( 'permalink_structure' );
+
+	if ( $current_structure !== $target_structure ) {
+		update_option( 'permalink_structure', $target_structure, false );
+		flush_rewrite_rules( false );
+		update_option( 'hopp_permalink_structure_version', HOPP_LOCAL_PERMALINK_VERSION, false );
+
+		return;
+	}
+
+	if ( HOPP_LOCAL_PERMALINK_VERSION !== get_option( 'hopp_permalink_structure_version' ) ) {
+		flush_rewrite_rules( false );
+		update_option( 'hopp_permalink_structure_version', HOPP_LOCAL_PERMALINK_VERSION, false );
+	}
+}
+add_action( 'init', 'hopp_sync_local_permalink_structure', 1 );
+
+function hopp_sync_local_woocommerce_visibility(): void {
+	if ( 'local' !== wp_get_environment_type() ) {
+		return;
+	}
+
+	if ( 'no' !== (string) get_option( 'woocommerce_coming_soon' ) ) {
+		update_option( 'woocommerce_coming_soon', 'no', false );
+	}
+
+	if ( 'no' !== (string) get_option( 'woocommerce_feature_site_visibility_badge_enabled' ) ) {
+		update_option( 'woocommerce_feature_site_visibility_badge_enabled', 'no', false );
+	}
+
+	if ( HOPP_LOCAL_WOOCOMMERCE_VISIBILITY_VERSION !== get_option( 'hopp_local_woocommerce_visibility_version' ) ) {
+		update_option( 'hopp_local_woocommerce_visibility_version', HOPP_LOCAL_WOOCOMMERCE_VISIBILITY_VERSION, false );
+	}
+}
+add_action( 'init', 'hopp_sync_local_woocommerce_visibility', 2 );
+
+function hopp_default_checkout_country(): string {
+	return 'KH';
+}
+add_filter( 'default_checkout_billing_country', 'hopp_default_checkout_country' );
+add_filter( 'default_checkout_shipping_country', 'hopp_default_checkout_country' );
+
+function hopp_default_checkout_state(): string {
+	return '';
+}
+add_filter( 'default_checkout_billing_state', 'hopp_default_checkout_state' );
+add_filter( 'default_checkout_shipping_state', 'hopp_default_checkout_state' );
+
+function hopp_customize_checkout_fields( array $fields ): array {
+	if ( isset( $fields['billing']['billing_first_name'] ) ) {
+		$fields['billing']['billing_first_name']['label'] = __( 'First name', 'hopp' );
+		$fields['billing']['billing_first_name']['priority'] = 10;
+	}
+
+	if ( isset( $fields['billing']['billing_last_name'] ) ) {
+		$fields['billing']['billing_last_name']['label'] = __( 'Last name', 'hopp' );
+		$fields['billing']['billing_last_name']['priority'] = 20;
+	}
+
+	if ( isset( $fields['billing']['billing_phone'] ) ) {
+		$fields['billing']['billing_phone']['label'] = __( 'Phone', 'hopp' );
+		$fields['billing']['billing_phone']['required'] = true;
+		$fields['billing']['billing_phone']['priority'] = 30;
+	}
+
+	$fields['billing']['billing_alt_phone'] = array(
+		'type'        => 'tel',
+		'label'       => __( 'Alternate Number', 'hopp' ),
+		'placeholder' => __( 'Alternate Phone Number', 'hopp' ),
+		'required'    => false,
+		'class'       => array( 'form-row-wide' ),
+		'priority'    => 40,
+		'autocomplete' => 'tel',
+	);
+
+	if ( isset( $fields['billing']['billing_email'] ) ) {
+		$fields['billing']['billing_email']['label'] = __( 'Email address', 'hopp' );
+		$fields['billing']['billing_email']['required'] = true;
+		$fields['billing']['billing_email']['priority'] = 50;
+	}
+
+	if ( isset( $fields['billing']['billing_country'] ) ) {
+		$fields['billing']['billing_country']['label'] = __( 'Country / Region', 'hopp' );
+		$fields['billing']['billing_country']['default'] = 'KH';
+		$fields['billing']['billing_country']['priority'] = 60;
+	}
+
+	if ( isset( $fields['billing']['billing_address_1'] ) ) {
+		$fields['billing']['billing_address_1']['label'] = __( 'Address', 'hopp' );
+		$fields['billing']['billing_address_1']['placeholder'] = __( 'House number, street name, apartment, suite, unit, etc.', 'hopp' );
+		$fields['billing']['billing_address_1']['priority'] = 70;
+	}
+
+	$fields['billing']['billing_landmark'] = array(
+		'type'        => 'text',
+		'label'       => __( 'Landmark', 'hopp' ),
+		'placeholder' => __( 'Landmark', 'hopp' ),
+		'required'    => true,
+		'class'       => array( 'form-row-wide' ),
+		'priority'    => 80,
+	);
+
+	if ( isset( $fields['billing']['billing_city'] ) ) {
+		$fields['billing']['billing_city']['label'] = __( 'Town / City', 'hopp' );
+		$fields['billing']['billing_city']['required'] = true;
+		$fields['billing']['billing_city']['priority'] = 90;
+	}
+
+	$fields['billing']['billing_state'] = array(
+		'type'        => 'text',
+		'label'       => __( 'State / County', 'hopp' ),
+		'placeholder' => __( 'State / County', 'hopp' ),
+		'required'    => true,
+		'class'       => array( 'form-row-wide' ),
+		'priority'    => 100,
+	);
+
+	if ( isset( $fields['billing']['billing_postcode'] ) ) {
+		$fields['billing']['billing_postcode']['label'] = __( 'Postcode / ZIP', 'hopp' );
+		$fields['billing']['billing_postcode']['required'] = true;
+		$fields['billing']['billing_postcode']['priority'] = 110;
+	}
+
+	return $fields;
+}
+add_filter( 'woocommerce_checkout_fields', 'hopp_customize_checkout_fields', 20 );
+
 function hopp_demo_asset_gradient( string $variant = 'brown' ): string {
 	$gradients = array(
 		'brown'      => 'linear-gradient(135deg, #33231a 0%, #7b4b34 52%, #c47254 100%)',
@@ -292,3 +427,273 @@ function hopp_render_page_hero( string $eyebrow, string $title, string $intro, s
 	</section>
 	<?php
 }
+
+function hopp_clean_imported_content( string $content ): string {
+	$patterns = array(
+		'/<!--\s*wp:divi\/placeholder\s*-->/i',
+		'/<!--\s*\/wp:divi\/placeholder\s*-->/i',
+		'/\[(?:\/)?et_pb_[^\]]*\]/i',
+	);
+
+	return trim( preg_replace( $patterns, '', $content ) );
+}
+
+function hopp_render_imported_content( string $content ): void {
+	echo apply_filters( 'the_content', hopp_clean_imported_content( $content ) );
+}
+
+function hopp_clean_product_content_for_display( string $content ): string {
+	if ( is_admin() || ! function_exists( 'get_post_type' ) || 'product' !== get_post_type() ) {
+		return $content;
+	}
+
+	return hopp_clean_imported_content( $content );
+}
+add_filter( 'the_content', 'hopp_clean_product_content_for_display', 9 );
+
+function hopp_clean_product_structured_data( array $markup, $product ): array {
+	if ( 'local' !== wp_get_environment_type() || empty( $markup['description'] ) ) {
+		return $markup;
+	}
+
+	$clean_description = trim( wp_strip_all_tags( hopp_clean_imported_content( (string) $markup['description'] ) ) );
+	$markup['description'] = $clean_description;
+
+	return $markup;
+}
+add_filter( 'woocommerce_structured_data_product', 'hopp_clean_product_structured_data', 50, 2 );
+
+function hopp_get_story_cards( int $limit = 9 ): array {
+	if ( ! function_exists( 'get_posts' ) ) {
+		return array();
+	}
+
+	return get_posts(
+		array(
+			'post_type'      => 'post',
+			'post_status'    => 'publish',
+			'numberposts'    => $limit,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'suppress_filters' => false,
+		)
+	);
+}
+
+function hopp_get_product_cards( int $limit = 9 ): array {
+	if ( ! function_exists( 'wc_get_products' ) ) {
+		return array();
+	}
+
+	return wc_get_products(
+		array(
+			'limit'   => $limit,
+			'status'  => 'publish',
+			'orderby' => 'date',
+			'order'   => 'DESC',
+			'return'  => 'objects',
+		)
+	);
+}
+
+function hopp_get_imported_product_profiles(): array {
+	static $profiles = null;
+
+	if ( null !== $profiles ) {
+		return $profiles;
+	}
+
+	$profiles = array();
+	$file     = get_stylesheet_directory() . '/data/imported-product-profiles.php';
+
+	if ( is_readable( $file ) ) {
+		$loaded = require $file;
+		if ( is_array( $loaded ) ) {
+			$profiles = $loaded;
+		}
+	}
+
+	return $profiles;
+}
+
+function hopp_get_imported_product_profile( $product ): array {
+	$product_id = 0;
+
+	if ( is_numeric( $product ) ) {
+		$product_id = (int) $product;
+	} elseif ( is_object( $product ) && method_exists( $product, 'get_id' ) ) {
+		$product_id = (int) $product->get_id();
+	} elseif ( is_object( $product ) && isset( $product->ID ) ) {
+		$product_id = (int) $product->ID;
+	}
+
+	if ( ! $product_id ) {
+		return array();
+	}
+
+	$slug     = (string) get_post_field( 'post_name', $product_id );
+	$profiles = hopp_get_imported_product_profiles();
+
+	return $profiles[ $slug ] ?? array();
+}
+
+function hopp_format_imported_product_excerpt( string $excerpt ): string {
+	$excerpt = trim( preg_replace( '/\s+/u', ' ', $excerpt ) );
+
+	if ( '' === $excerpt ) {
+		return '';
+	}
+
+	$matches = array();
+	if ( preg_match( '/^(.*?)(?:\s+Artist:\s*(.*?)\s+Medium:\s*(.*?)\s+Dimensions:\s*(.*))$/su', $excerpt, $matches ) ) {
+		$intro     = trim( $matches[1] );
+		$artist    = trim( $matches[2] );
+		$medium    = trim( $matches[3] );
+		$dimension = trim( $matches[4] );
+
+		$html = '';
+		if ( '' !== $intro ) {
+			$html .= '<p>' . esc_html( $intro ) . '</p>';
+		}
+
+		foreach (
+			array(
+				'Artist'     => $artist,
+				'Medium'     => $medium,
+				'Dimensions' => $dimension,
+			) as $label => $value
+		) {
+			if ( '' === $value ) {
+				continue;
+			}
+
+			$html .= '<p><strong>' . esc_html( $label ) . ':</strong> ' . esc_html( $value ) . '</p>';
+		}
+
+		return $html;
+	}
+
+	return '<p>' . esc_html( $excerpt ) . '</p>';
+}
+
+function hopp_get_product_detail_html( $product ): string {
+	$profile = hopp_get_imported_product_profile( $product );
+	$excerpt  = isset( $profile['excerpt'] ) ? trim( (string) $profile['excerpt'] ) : '';
+
+	if ( '' !== $excerpt ) {
+		return hopp_format_imported_product_excerpt( $excerpt );
+	}
+
+	if ( ! is_object( $product ) ) {
+		return '';
+	}
+
+	$content = '';
+	if ( method_exists( $product, 'get_short_description' ) ) {
+		$content = $product->get_short_description();
+	}
+
+	if ( '' === trim( (string) $content ) && method_exists( $product, 'get_description' ) ) {
+		$content = $product->get_description();
+	}
+
+	$clean = trim( wp_strip_all_tags( hopp_clean_imported_content( (string) $content ) ) );
+
+	if ( '' === $clean ) {
+		return '';
+	}
+
+	return '<p>' . esc_html( $clean ) . '</p>';
+}
+
+function hopp_get_product_category_label( int $product_id ): string {
+	if ( ! function_exists( 'wc_get_product_category_list' ) ) {
+		return __( 'Product', 'hopp' );
+	}
+
+	$label = trim( wp_strip_all_tags( wc_get_product_category_list( $product_id, ', ' ) ) );
+
+	return '' !== $label ? $label : __( 'Product', 'hopp' );
+}
+
+function hopp_get_product_summary( $product, int $word_count = 22 ): string {
+	if ( ! is_object( $product ) || ! method_exists( $product, 'get_short_description' ) || ! method_exists( $product, 'get_description' ) ) {
+		return '';
+	}
+
+	$profile = hopp_get_imported_product_profile( $product );
+	if ( ! empty( $profile['excerpt'] ) ) {
+		$raw = $profile['excerpt'];
+	} else {
+		$raw = $product->get_short_description() ?: $product->get_description();
+	}
+	$clean = trim( wp_strip_all_tags( hopp_clean_imported_content( (string) $raw ) ) );
+
+	if ( '' === $clean ) {
+		return '';
+	}
+
+	return wp_trim_words( $clean, $word_count, '...' );
+}
+
+function hopp_get_related_product_objects( int $product_id, int $limit = 3 ): array {
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return array();
+	}
+
+	$related_products = array();
+
+	if ( function_exists( 'wc_get_related_products' ) ) {
+		$related_ids = wc_get_related_products( $product_id, $limit, array( $product_id ) );
+		foreach ( $related_ids as $related_id ) {
+			$product = wc_get_product( $related_id );
+			if ( $product ) {
+				$related_products[] = $product;
+			}
+		}
+	}
+
+	if ( count( $related_products ) >= $limit || ! function_exists( 'wc_get_products' ) ) {
+		return array_slice( $related_products, 0, $limit );
+	}
+
+	$latest_products = wc_get_products(
+		array(
+			'limit'   => $limit + 6,
+			'status'  => 'publish',
+			'orderby' => 'date',
+			'order'   => 'DESC',
+			'return'  => 'objects',
+		)
+	);
+
+	foreach ( $latest_products as $candidate ) {
+		if ( ! $candidate || $candidate->get_id() === $product_id ) {
+			continue;
+		}
+
+		$already_added = false;
+		foreach ( $related_products as $existing ) {
+			if ( $existing->get_id() === $candidate->get_id() ) {
+				$already_added = true;
+				break;
+			}
+		}
+
+		if ( $already_added ) {
+			continue;
+		}
+
+		$related_products[] = $candidate;
+
+		if ( count( $related_products ) >= $limit ) {
+			break;
+		}
+	}
+
+	return array_slice( $related_products, 0, $limit );
+}
+
+add_filter( 'woocommerce_currency', fn() => 'USD' );
+add_filter( 'woocommerce_price_thousand_sep', fn() => ',' );
+add_filter( 'woocommerce_price_decimal_sep', fn() => '.' );

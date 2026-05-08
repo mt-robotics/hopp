@@ -6,9 +6,9 @@
 
 ## Current Focus
 
-**Next:** Deploy the WordPress site to the GCP-hosted public preview.
+**Next:** Finish validating the imported staging site, including the custom single-product layout and any remaining content gaps, then size the sponsor-funded GCP deployment from the real workload.
 
-Full task spec: `current_state/project_status.md` -> GCP-hosted public preview task.
+Full task spec: `current_state/project_status.md` -> sponsored GCP deployment plan.
 
 ---
 
@@ -21,10 +21,10 @@ Full task spec: `current_state/project_status.md` -> GCP-hosted public preview t
 | Styling | HTML, CSS, JavaScript; Tailwind CDN or local Tailwind build to be decided during theme implementation |
 | Design source | `DESIGN.md` using Google Stitch DESIGN.md format |
 | Database | MySQL via Docker Compose for local WordPress |
-| E-commerce | Unknown WordPress plugin; likely WooCommerce, but not verified |
+| E-commerce | WooCommerce |
 | Local infra | Docker Compose, WordPress container, MySQL container, named volumes |
-| Cloud hosting | Google Cloud Platform (GCP) - Always Free Tier (e2-micro) |
-| Production access | Pending WP admin credentials; no server access |
+| Cloud hosting | Google Cloud Platform (GCP) - sponsor-funded Compute Engine target, size to be determined from the cloned workload |
+| Production access | WP admin access available; live server access unavailable but not required for the import-first plan |
 
 ---
 
@@ -79,15 +79,17 @@ wp-content/
 
 ## Key Decisions
 
-**Keep WordPress:** The existing live site is WordPress and server access is unavailable. A custom WordPress theme is the standard safe path because it preserves the CMS/content model and avoids a full-stack migration.
+**Keep WordPress:** The existing live site is WordPress. The safe path is to export the live site, inspect and adapt the clone locally, and keep the CMS/content model intact instead of migrating to a different stack.
 
 **Local-first workflow:** Theme work must happen in Docker first. The live site should only receive the theme after local verification across pages, responsive sizes, product/cart behavior, forms, and browser console checks.
+
+**Import-first workflow:** The live site has already been exported and imported locally. Use the imported stack to inspect the real theme/plugins/media footprint and runtime needs before any final server is created.
 
 **Design source of truth:** `DESIGN.md` defines the palette, typography, components, and navigation decision. The theme should implement these tokens directly instead of inventing a separate visual system.
 
 **Navigation preserved:** The original 7-item nav remains: Home, About Us, Products, Stories, Artist, Career, Contact Us, plus cart.
 
-**Plugin uncertainty:** Products/cart behavior suggests an e-commerce plugin, probably WooCommerce, but this is not confirmed. Avoid plugin-specific assumptions until admin access or local import confirms the real setup.
+**Plugin stack confirmed:** WooCommerce is active on the live site and is mirrored locally for the imported workload. Divi-only builder layouts were not imported because the live Divi stack is not present locally.
 
 ---
 
@@ -97,6 +99,8 @@ wp-content/
 |---|---|
 | `current_state/project_status.md` | Current status, active V1 checklist, blockers |
 | `current_state/milestone.md` | Completed milestone details |
+| `docs/live_site_settings.md` | Live admin snapshot: theme, plugins, WooCommerce, menus, reading settings |
+| `docs/local_import_checklist.md` | Step-by-step local import checklist for the live XML export |
 | `DESIGN.md` | Visual tokens, layout rules, component inventory |
 | `resources/context.md` | Legacy site description and constraints |
 | docs/current_site_audit.md | Public site page inventory, components, forms, e-commerce risk classification |
@@ -114,10 +118,8 @@ wp-content/
 
 | Blocker | Impact |
 |---|---|
-| No WP admin credentials | Cannot export live content, inspect active theme, confirm plugins, or upload final theme |
-| No server access | Theme rollback is limited to what WP admin allows |
-| Current theme name unknown | Production rollback procedure cannot be finalized |
-| E-commerce plugin unknown | Products/cart template requirements cannot be confirmed yet |
+| Divi builder layouts not imported locally | The live stack uses Divi-specific post types that are not available in the current local theme stack |
+| Sponsor-funded GCP size not yet chosen | Final server layout cannot be locked until the clone is measured |
 
 ---
 
@@ -144,4 +146,4 @@ wp-content/
 |---|---|
 | Production website | `https://www.humansofphnompenh.com` |
 | Local WordPress | `http://localhost:8080` after `make up` |
-| GCP preview | `http://hopp.delvedeepasia.org` after deployment |
+| Historical GCP preview | `http://hopp.delvedeepasia.org` (legacy preview path) |
