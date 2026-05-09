@@ -1,6 +1,6 @@
 # Completed Milestones
 
-**Last Updated:** 2026-05-08
+**Last Updated:** 2026-05-09
 
 > Full details of every completed task. For active tasks and roadmap, see `current_state/project_status.md`.
 
@@ -10,6 +10,9 @@
 
 | Milestone | Completed | Tests |
 |---|---|---|
+| Fix MEDIUM/LOW Frontend Standards Violations | 2026-05-09 | PHP lint, manual review |
+| Evaluate WooCommerce Styling | 2026-05-09 | Manual visual review |
+| Set up Git Versioning for Theme Directory | 2026-05-09 | `git ls-files` verification |
 | Frontend Standards — HIGH Priority Fixes | 2026-05-08 | Manual visual review |
 | Standard Project Documentation Scaffold | 2026-04-30 | Manual file verification |
 | Design System (DESIGN.md) | 2026-04-30 | — |
@@ -161,3 +164,45 @@ All items were identified during a full frontend standards audit against `fronte
 - ✅ WooCommerce price format: updated DB settings to `currency=USD`, `decimal_sep=.`, `thousand_sep=,`, `currency_pos=left`; flushed WC transients; PHP filters added to `functions.php` as override safety net (extra request)
 
 **Final state:** No tests apply — visual/accessibility fixes. Manual review required in browser.
+
+---
+
+## ✅ Set up Git Versioning for Theme Directory (2026-05-09)
+
+- ✅ `.gitignore` verified: excludes `wp-content/uploads/`, `wp-content/upgrade/`, `wp-content/cache/`
+- ✅ No WordPress core files tracked: confirmed via `git ls-files wp-content/` returning only `themes/hopp/` paths
+- ✅ Theme stays in the repo root — no sub-repo needed
+
+**Final state:** No tests apply — configuration verification only.
+
+---
+
+## ✅ Evaluate WooCommerce Styling (2026-05-09)
+
+WooCommerce default styles are active (theme does not declare `add_theme_support('woocommerce')`). Targeted overrides were added to `style.css` to align WooCommerce-generated elements with HOPP design tokens.
+
+- ✅ WooCommerce notices (`.woocommerce-message`, `.woocommerce-error`, `.woocommerce-info`) — overridden: HOPP cream background, sand/rust top-border by notice type, brown text; replaces WooCommerce green/blue/red
+- ✅ WooCommerce breadcrumb (`.woocommerce-breadcrumb`) — overridden: muted gray text, beige link color, rust hover, uppercase tracking to match HOPP nav style
+- ✅ WooCommerce buttons (`.woocommerce button.button`, `.button.alt`, input buttons, `#respond input#submit`) — overridden to HOPP beige/brown with rust hover; `min-height: 44px` for touch target compliance
+- Single-product detail layout is fully custom — no WooCommerce default layout styles used
+- Cart/checkout shortcode pages: deep table/form override deferred to post-V1 styling pass
+
+**Final state:** No tests apply — visual audit. Manual review in browser required.
+
+---
+
+## ✅ Fix MEDIUM/LOW Frontend Standards Violations (2026-05-09)
+
+All 8 active violations fixed. One audit item (aria-expanded) verified as a non-issue.
+
+- ✅ Body text line length: added `--hopp-prose: 38rem` CSS token; applied to `.prose-section > *` and `.single-content__article` — body text now ≤ 80 chars/line; `--hopp-content` kept at 56rem for section headers
+- ✅ Duplicate product heading: `single-product.php` detail `<h2>` changed to `<p class="product-detail__name">`; added `.product-detail__name` CSS with explicit `font-family`, `color`, and sizing — one `<h1>` per product page
+- ✅ Nav touch target: `.site-nav__list a` now has `min-height: 44px; align-items: center` — meets 44px minimum
+- ✅ `aria-expanded` — verified non-violation: `navigation.js` correctly toggles `aria-expanded` on every click; initial `false` value is semantically correct
+- ✅ LCP images: `archive.php` and `home.php` first-iteration thumbnail passes `fetchpriority="high" loading="eager"` via `$wp_query->current_post === 0` check; subsequent images use default lazy
+- ✅ `front-page.php` stories empty state: `WP_Query` restructured — `.card-grid` only rendered when posts exist; `.empty-state` div shown outside grid when empty
+- ✅ `archive-product.php` empty state: product list restructured — empty array renders `.empty-state` in its own `<section>` (not inside the CSS grid)
+- ✅ Active nav second visual cue: `.current-menu-item > a { font-weight: 700 }` added — bold + underline = two distinct cues; rust color rejected (3:1 contrast only, fails WCAG AA on dark header)
+- ✅ `archive.php` and `home.php` empty states: bare `<p>` replaced with styled `.empty-state` div with contextual copy; `.empty-state` CSS updated to add `padding: 4rem 1.25rem`
+
+**Final state:** PHP lint passes on all 5 modified templates. No automated tests — manual browser review required.

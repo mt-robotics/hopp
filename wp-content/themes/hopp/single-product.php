@@ -46,7 +46,7 @@ get_header();
 
 				<div class="product-detail__summary">
 					<p class="product-detail__eyebrow"><?php echo esc_html( $category_label ); ?></p>
-					<h2><?php echo esc_html( get_the_title() ); ?></h2>
+					<p class="product-detail__name"><?php echo esc_html( get_the_title() ); ?></p>
 
 					<div class="product-detail__price">
 						<?php

@@ -64,3 +64,14 @@
 - Fixed WooCommerce product price display: DB had KHR decimal/thousand separators from live import; updated woocommerce_currency=USD, price_decimal_sep=`.`, price_thousand_sep=`,`, currency_pos=left directly in the DB; flushed WC transients and restarted WordPress container; PHP filters in functions.php kept as override safety net
 - Ran project_status.md alignment audit: added missing "Plan sponsored GCP deployment" checklist entry, changed ABA PayWay checklist symbol ✅→🔄 (still has open sub-tasks), aligned detail heading names to match checklist exactly, added 5 missing Post-V1 detail sections (Git versioning, browser QA, WooCommerce styling, performance audit, contact form integration)
 - Decided to implement all remaining Post-V1 tasks in next session (MEDIUM/LOW violations + WooCommerce styling are pure code changes; browser QA and performance audit need Playwright/Lighthouse tooling setup)
+
+## 2026-05-09
+
+- Completed all Post-V1 code-change tasks: 8 MEDIUM/LOW frontend standards fixes, Git versioning audit, WooCommerce styling audit
+- Frontend standards fixes: added `--hopp-prose: 38rem` token for body text width; fixed duplicate `h1/h2` on single-product by changing detail `<h2>` to `<p class="product-detail__name">`; nav touch targets now 44px via `min-height: 44px`; active nav now uses bold + underline (two visual cues); first-image LCP eager loading on archive.php and home.php; styled `.empty-state` divs added to front-page.php stories, archive-product.php, archive.php, home.php (all outside grid containers); `aria-expanded` item verified as non-violation
+- WooCommerce styling: overrode notice colors (message/info/error) to HOPP palette; styled breadcrumb typography; overrode WooCommerce button colors to match HOPP beige/rust system; cart/checkout deep override deferred to post-V1
+- Git versioning: confirmed clean — only `wp-content/themes/hopp/` tracked, no WP core or uploads leaking
+- Reviewed crucial_notes.md §13 (UI Update) and §14 (Form Submission); discussed and resolved all open decisions with user
+- Decisions made: Contact Us page does NOT repeat social links (footer is canonical); ADD TO CART fix = Option A (AJAX + dismissing toast, not page reload); /series/ surfaces on Stories page (not main nav — already at 7 items); all forms site-wide use Forminator; rename "Pitch Your Pal: Phnom Penh" → "Pitch Your Pal"; X (@HoPP_Kh) added to footer
+- Transferred all items from crucial_notes.md §13-14 to project_status.md as 12 new V1 tasks with full detail sections; "Contact form integration" elevated from Post-V1 to V1 (as Forminator migration task)
+- Next session: start implementing in order — quick CSS wins first (hide coupon, fix button colors), then page builds (Artist, Career, Contact Us), then AJAX add-to-cart, then investigation tasks (blank images, Forminator audit)

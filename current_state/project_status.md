@@ -1,6 +1,6 @@
 # Project Status
 
-**Last Updated:** 2026-05-08
+**Last Updated:** 2026-05-09
 
 ---
 
@@ -71,8 +71,6 @@
 - ✅ Create placeholder pages/content for review
 - ✅ Set up local primary navigation
 - ✅ Test demo locally (desktop/mobile/basic routes)
-- 🔲 Present demo to team for feedback
-- 🔲 Incorporate team feedback
 - ✅ Fix HIGH-priority frontend standards violations
 - 🔲 Plan sponsored GCP deployment for the live WordPress site
 - 🔄 Set up GCP-hosted public preview
@@ -83,6 +81,17 @@
 - 🔄 Stabilize ABA PayWay gateway for deployment
 - ✅ Adapt HOPP theme to real content and plugin behavior
 - ✅ Test production-critical flows locally
+- 🔲 Build Artist page UI
+- 🔲 Build Career page UI
+- 🔲 Build Contact Us page + update footer (add X / @HoPP_Kh)
+- 🔲 Rename and redesign "Pitch Your Pal: Phnom Penh" page
+- 🔲 Fix ADD TO CART UX (AJAX add-to-cart + dismissing toast)
+- 🔲 Fix WooCommerce button colors (ADD TO CART, UPDATE CART, VIEW CART, Proceed to checkout)
+- 🔲 Hide cart coupon section
+- 🔲 Fix blank image placeholders (investigate + re-link featured images)
+- 🔲 Surface /series/ on Stories page
+- 🔲 Audit and apply hover effects consistently across all pages
+- 🔲 Migrate all forms to Forminator and verify end-to-end submission
 
 ---
 
@@ -129,23 +138,113 @@ The free-tier preview path was completed first and then superseded by the sponso
 
 Transition note: this path proved the preview stack, but the sponsored project now needs a server plan sized from the real WordPress workload, not the free-tier demo constraints.
 
+### 🔲 Build Artist page UI
+
+Implement the Artist page based on the live site content captured in `archive/crucial_notes.md §13`.
+
+- Hero banner with background image and page title
+- "Calling All Artists!" content section with body text and a "Contest Guidelines & Terms & Conditions" hyperlink pointing to `/contest-guidelines/`
+- "SHOWCASE YOUR ARTWORK" Forminator form (form ID 617): Name, Phone Number, Email Address, Story of Your Art textarea, file upload, "I agree to the terms and conditions" checkbox (link → `/termsandconditions-artist/`), CONTRIBUTE submit button
+- "Why contribute" closing section with two sub-sections: "Why contribute to Humans of Phnom Penh?" and "How to contribute your art?"
+
+### 🔲 Build Career page UI
+
+Implement the Career page based on screenshots `archive/hopp_careers_1.png` through `archive/hopp_careers_4.png`.
+
+- Hero: "CAREERS" title with dark overlay background image, HoPP mission subtext
+- Volunteer opportunities section: 4 role cards with photos — Writers, Photographers, Videographers, SM Managers — each with description text
+- Internship opportunities section: 4 text-only cards — Journalism Interns, Photography Interns, Videography Interns, Social Media Interns
+- Qualifications section: 3 bullet points
+- Application instruction paragraph
+- "APPLY NOW / Be A Part Of Winning Team" Forminator form: Name, Phone Number, Email Address, "Position applying for" textarea (180 char limit), Upload CV (file), Upload Cover letter (file), "I agree to the terms and conditions" checkbox, SUBMIT button
+- Career form is already a Forminator form (Edit form link visible in admin)
+
+### 🔲 Build Contact Us page + update footer (add X / @HoPP_Kh)
+
+Implement the Contact Us page with real contact details and update the footer social links.
+
+- Contact details: Phone +85581363753, Email info@humansofphnompenh.com, Address: Morgan Tower, Street Sopheak Mongkol Rd, Koh Pich, Phnom Penh 120101
+- Embedded Google Map for the address
+- No social media links on Contact Us page — footer is the canonical location
+- Add X (@HoPP_Kh, https://x.com/HoPP_Kh) to the footer social icon bar alongside existing channels
+
+### 🔲 Rename and redesign "Pitch Your Pal: Phnom Penh" page
+
+The page has no design — raw plain text. Apply consistent HOPP design. Also shorten the name.
+
+- Rename menu label and page title from "Pitch Your Pal: Phnom Penh" to "Pitch Your Pal"
+- Apply consistent HOPP page design (hero banner, content sections, typography)
+- Preserve all existing content while applying the design system
+
+### 🔲 Fix ADD TO CART UX (AJAX add-to-cart + dismissing toast)
+
+Currently clicking ADD TO CART on a single product page causes a full page reload and renders a raw WooCommerce banner. Fix: eliminate the reload and replace with a toast.
+
+- Enable WooCommerce AJAX add-to-cart for single product pages via custom JS (intercept form submit, fire AJAX request, update cart count)
+- Replace the raw WooCommerce `.woocommerce-message` banner with a styled toast (3–5s auto-dismiss, HOPP design tokens)
+- Cart count in the nav header must update live without reload
+- Decision rationale: page reload is the core UX problem; styling the banner alone (Option B) doesn't fix it
+
+### 🔲 Fix WooCommerce button colors (ADD TO CART, UPDATE CART, VIEW CART, Proceed to checkout)
+
+Some WooCommerce buttons are still showing wrong colors — ADD TO CART matches the menu background, Proceed to checkout is purple. Audit and fix.
+
+- Audit `style.css` WooCommerce overrides for any hardcoded hex values
+- Ensure ADD TO CART, UPDATE CART, VIEW CART, and Proceed to checkout all use HOPP design tokens (beige/rust system)
+- No hardcoded colors in component files — use CSS variables only
+
+### 🔲 Hide cart coupon section
+
+The cart page (`/cart/`) shows a coupon input section that should not be visible.
+
+- Hide via CSS override in `style.css` (target WooCommerce `.coupon` selector)
+- No WooCommerce admin config needed
+
+### 🔲 Fix blank image placeholders
+
+Many posts and products show blank image placeholders. Images exist in the Media library but are not linked to their posts as featured images.
+
+- Root cause: WordPress XML import creates attachment posts but `_thumbnail_id` meta references old site attachment IDs — new local IDs differ
+- Investigate: run WP-CLI query to check how many posts have `_thumbnail_id` set vs how many have that ID actually existing as a local attachment
+- Fix: use WP-CLI or a plugin to re-link attachments to their posts, or run an ID remapping script
+- If automated re-linking fails, identify which posts need manual featured image assignment from the Media library
+
+### 🔲 Surface /series/ on Stories page
+
+The `/series/` page is currently hidden — only reachable from `/stories/`. Poor UX for valuable content.
+
+- Do NOT add to the main nav (already at 7 items, at the frontend standards limit)
+- Add a "Browse by Series" section or tab on the Stories page (`home.php` or `archive.php`) with a prominent link or section surfacing the series listing
+- Decision rationale: /series/ is a subset/view of /stories/ content — it belongs contextually inside the Stories page, not as a top-level nav item
+
+### 🔲 Audit and apply hover effects consistently across all pages
+
+Product cards have a blur/opacity hover effect. Check if this is applied consistently to all interactive elements.
+
+- Audit hover states across all pages: text buttons, CTA buttons, story cards, product cards, nav links
+- Apply consistent hover behavior (opacity + subtle lift or outline) to any interactive element missing it
+- Ensure focus-visible states are also consistent (per frontend standards §5)
+
+### 🔲 Migrate all forms to Forminator and verify end-to-end submission
+
+Decision: all forms site-wide use Forminator so the admin can edit fields from wp-admin without touching code.
+
+- Artist form (ID 617): already Forminator — verify submission, email delivery, and file upload work in staging
+- Career form: already Forminator (Edit form link visible in admin) — verify same
+- Contact Us form: check if a Forminator form exists; if not, create one in wp-admin with appropriate fields
+- Replace any hardcoded demo form HTML in theme PHP files with `[forminator_form id="..."]` shortcode
+- Test all 3 forms end-to-end: field validation, submission, confirmation message, email delivery
+
 ## Post-V1 Backlog
 
-- 🔲 Set up Git versioning for the theme directory
+- ✅ Set up Git versioning for the theme directory
 - 🔲 Run browser visual QA with screenshots after Playwright or another browser test tool is installed
-- 🔲 Evaluate WooCommerce styling (Products page may need additional theme work)
+- ✅ Evaluate WooCommerce styling (Products page may need additional theme work)
 - 🔲 Performance audit (Core Web Vitals — LCP, CLS, FID)
-- 🔲 Contact form integration (verify it submits correctly after theme change)
-- 🔲 Fix MEDIUM/LOW frontend standards violations (from 2026-05-08 audit)
+- ✅ Contact form integration (elevated to V1 — Migrate all forms to Forminator)
+- ✅ Fix MEDIUM/LOW frontend standards violations (from 2026-05-08 audit)
 
 ## Post-V1 Task Details
-
-### 🔲 Set up Git versioning for the theme directory
-
-The theme lives in `wp-content/themes/hopp/` which is bind-mounted into the Docker container. A dedicated Git setup or `.gitattributes` strategy is needed so theme changes are versioned cleanly and don't get tangled with WordPress core files.
-
-- Decide whether to version the theme directory separately or keep it in the repo root
-- Confirm `.gitignore` correctly excludes WordPress core and only tracks theme + project files
 
 ### 🔲 Run browser visual QA with screenshots
 
@@ -155,13 +254,6 @@ No automated browser testing has been run. A visual pass across all pages on bot
 - Run screenshot captures for all primary routes: `/`, `/about-us/`, `/products/`, `/stories/`, `/artist/`, `/career/`, `/contact-us/`, `/cart/`, and a single product and story page
 - Review screenshots for layout breakages, spacing issues, and mobile overflow
 
-### 🔲 Evaluate WooCommerce styling
-
-The Products page and single-product pages use WooCommerce default markup mixed with custom HOPP theme templates. A styling audit is needed to ensure WooCommerce UI elements (notices, quantity inputs, cart table, order summary) match the HOPP design system.
-
-- Review WooCommerce notices, form elements, and cart/checkout layout against `DESIGN.md` tokens
-- Identify any WooCommerce default styles leaking through that conflict with the HOPP visual system
-
 ### 🔲 Performance audit (Core Web Vitals)
 
 No performance measurement has been done on the imported-content staging site. LCP, CLS, and FID should be measured against Google's thresholds before the GCP deployment.
@@ -169,24 +261,4 @@ No performance measurement has been done on the imported-content staging site. L
 - Run Lighthouse or PageSpeed Insights against the local staging site (or the GCP preview once deployed)
 - Address any LCP element not loading eagerly, CLS from layout shifts, or blocking scripts
 
-### 🔲 Contact form integration (verify it submits correctly after theme change)
 
-The live site uses Forminator forms. These were imported locally. The demo form in `page.php` (Artist/Career/Contact) is still a local-only demo — it needs to be replaced with the live Forminator shortcode and verified end-to-end.
-
-- Confirm the Forminator plugin is active and the imported form is available via shortcode
-- Replace the `page.php` demo form block with `[forminator_form id="..."]` for the appropriate pages
-- Verify form submission, email delivery, and error handling in staging before going live
-
-### 🔲 Fix MEDIUM/LOW frontend standards violations
-
-Logged from the full frontend standards audit (2026-05-08). Not blocking deployment but required before the site is production-quality.
-
-- 🔲 `style.css:785` and `style.css:27`: `--hopp-content: 56rem` yields ~108 chars/line on body text — reduce to stay within 60–80 char limit
-- 🔲 `single-product.php:23` and `single-product.php:49`: product title rendered as both `<h1>` in hero and `<h2>` in detail — duplicate headings confuse screen reader navigation; remove or reclassify one
-- 🔲 `style.css:129`: `.site-nav__list a` has `padding: 0.35rem 0` — total tap height ≈ 27px on mobile, below the 44×44px touch target minimum; increase padding
-- 🔲 `header.php:18`: `aria-expanded="false"` is hardcoded on the mobile nav toggle — verify `assets/js/navigation.js` toggles this attribute on open/close; fix if not
-- 🔲 `archive.php` and `home.php`: `the_post_thumbnail()` uses default `loading="lazy"` — the first thumbnail is likely the LCP element; pass `fetchpriority="high" loading="eager"` to the first image only
-- 🔲 `front-page.php:41–58`: story cards section has no empty state — when `$stories->have_posts()` is false, the section header renders with a silently blank grid; add a styled empty state message
-- 🔲 `archive-product.php:13–36`: no `else` branch after the product `foreach` — if WooCommerce returns zero products the section is blank; add an empty state
-- 🔲 `style.css:152`: active nav item uses only one visual cue (underline via `::after`) — §11 requires two distinct cues (e.g., color + bold, or color + background)
-- 🔲 `archive.php:44–46` and `home.php:46–48`: bare `<p>No posts/stories found.</p>` empty states — replace with a styled empty state component with contextual messaging

@@ -9,9 +9,12 @@ get_header();
 <main>
 	<?php hopp_render_page_hero( __( 'Products', 'hopp' ), post_type_archive_title( '', false ) ?: __( 'Products', 'hopp' ), __( 'Browse the imported product catalog and open each item for details.', 'hopp' ), 'terracotta' ); ?>
 
-	<section class="section section--paper product-grid">
-		<?php if ( function_exists( 'wc_get_products' ) ) : ?>
-			<?php foreach ( hopp_get_product_cards( 12 ) as $product ) : ?>
+	<?php
+	$products = function_exists( 'wc_get_products' ) ? hopp_get_product_cards( 12 ) : array();
+	?>
+	<?php if ( ! empty( $products ) ) : ?>
+		<section class="section section--paper product-grid">
+			<?php foreach ( $products as $product ) : ?>
 				<?php
 				$product_id = $product->get_id();
 				$thumbnail  = get_the_post_thumbnail_url( $product_id, 'medium_large' );
@@ -34,8 +37,14 @@ get_header();
 					</a>
 				</article>
 			<?php endforeach; ?>
-		<?php endif; ?>
-	</section>
+		</section>
+	<?php else : ?>
+		<section class="section section--paper">
+			<div class="empty-state">
+				<p><?php esc_html_e( 'No products available at this time.', 'hopp' ); ?></p>
+			</div>
+		</section>
+	<?php endif; ?>
 </main>
 
 <?php

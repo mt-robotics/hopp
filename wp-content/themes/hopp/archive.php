@@ -22,7 +22,7 @@ get_header();
 					<a class="archive-card__link" href="<?php the_permalink(); ?>">
 						<?php if ( has_post_thumbnail() ) : ?>
 							<figure class="archive-card__media">
-								<?php the_post_thumbnail( 'medium_large' ); ?>
+								<?php the_post_thumbnail( 'medium_large', 0 === $wp_query->current_post ? array( 'fetchpriority' => 'high', 'loading' => 'eager' ) : array() ); ?>
 							</figure>
 						<?php endif; ?>
 
@@ -42,7 +42,9 @@ get_header();
 			<?php the_posts_pagination(); ?>
 		</nav>
 	<?php else : ?>
-		<p><?php esc_html_e( 'No posts found.', 'hopp' ); ?></p>
+		<div class="empty-state">
+			<p><?php esc_html_e( 'Nothing here yet. Check back soon for new content.', 'hopp' ); ?></p>
+		</div>
 	<?php endif; ?>
 </main>
 

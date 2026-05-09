@@ -30,15 +30,17 @@ get_header();
 			<p class="section-label"><?php esc_html_e( 'Latest Stories', 'hopp' ); ?></p>
 			<h2><?php esc_html_e( 'People, craft, neighborhoods, and quiet city details.', 'hopp' ); ?></h2>
 		</div>
-		<div class="card-grid">
-			<?php
-			$stories = new WP_Query(
-				array(
-					'posts_per_page' => 3,
-					'post_status'    => 'publish',
-				)
-			);
-			if ( $stories->have_posts() ) :
+		<?php
+		$stories = new WP_Query(
+			array(
+				'posts_per_page' => 3,
+				'post_status'    => 'publish',
+			)
+		);
+		if ( $stories->have_posts() ) :
+			?>
+			<div class="card-grid">
+				<?php
 				while ( $stories->have_posts() ) :
 					$stories->the_post();
 					?>
@@ -55,9 +57,13 @@ get_header();
 					<?php
 				endwhile;
 				wp_reset_postdata();
-			endif;
-			?>
-		</div>
+				?>
+			</div>
+		<?php else : ?>
+			<div class="empty-state">
+				<p><?php esc_html_e( 'No stories published yet.', 'hopp' ); ?></p>
+			</div>
+		<?php endif; ?>
 	</section>
 
 	<section class="section section--cream split-section">

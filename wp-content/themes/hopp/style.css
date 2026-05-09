@@ -26,6 +26,7 @@ Text Domain: hopp
 	--hopp-gray-border: #e5e7eb;
 	--hopp-gray-muted: #6b7280;
 	--hopp-content: 56rem;
+	--hopp-prose: 38rem;
 	--hopp-wide: 80rem;
 }
 
@@ -128,6 +129,8 @@ textarea:focus-visible {
 .site-nav__list a {
 	position: relative;
 	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
 	padding: 0.35rem 0;
 	color: var(--hopp-white);
 	font-size: 0.875rem;
@@ -153,6 +156,10 @@ textarea:focus-visible {
 .site-nav__list a:focus::after,
 .current-menu-item > a::after {
 	transform: scaleX(1);
+}
+
+.current-menu-item > a {
+	font-weight: 700;
 }
 
 .menu-item-cart a {
@@ -613,8 +620,10 @@ h3 {
 	text-transform: uppercase;
 }
 
-.product-detail__summary h2 {
+.product-detail__name {
 	margin-bottom: 1rem;
+	color: var(--hopp-brown);
+	font-family: "Playfair Display", serif;
 	font-size: clamp(2.2rem, 5vw, 4rem);
 	font-weight: 400;
 	letter-spacing: 0.08em;
@@ -717,7 +726,7 @@ h3 {
 }
 
 .prose-section > * {
-	width: min(100%, var(--hopp-content));
+	width: min(100%, var(--hopp-prose));
 	margin-right: auto;
 	margin-left: auto;
 }
@@ -801,6 +810,7 @@ h3 {
 .empty-state {
 	width: min(100%, var(--hopp-content));
 	margin: 0 auto;
+	padding: 4rem 1.25rem;
 	text-align: center;
 }
 
@@ -820,7 +830,7 @@ h3 {
 }
 
 .single-content__article {
-	max-width: 48rem;
+	max-width: var(--hopp-prose);
 }
 
 .page-content__header,
@@ -1109,4 +1119,86 @@ h3 {
 		grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) auto;
 		gap: 3rem;
 	}
+}
+
+/* ─── WooCommerce overrides ─── */
+
+.woocommerce-breadcrumb {
+	width: min(100%, var(--hopp-wide));
+	margin: 0 auto 1.5rem;
+	color: var(--hopp-gray-muted);
+	font-size: 0.8125rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.woocommerce-breadcrumb a {
+	color: var(--hopp-beige);
+}
+
+.woocommerce-breadcrumb a:hover {
+	color: var(--hopp-rust);
+}
+
+.woocommerce-message,
+.woocommerce-info,
+.woocommerce-error {
+	padding: 1rem 1.25rem;
+	margin-bottom: 1.5rem;
+	border-top: 3px solid var(--hopp-beige);
+	background: var(--hopp-cream);
+	color: var(--hopp-brown);
+	font-size: 0.9375rem;
+	list-style: none;
+}
+
+.woocommerce-message {
+	border-top-color: var(--hopp-sand);
+}
+
+.woocommerce-error {
+	border-top-color: var(--hopp-rust);
+}
+
+.woocommerce-message a.button,
+.woocommerce-info a.button,
+.woocommerce button.button,
+.woocommerce input.button,
+.woocommerce #respond input#submit {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: 0.75rem 1.5rem;
+	border: 1px solid var(--hopp-beige);
+	background: var(--hopp-beige);
+	color: var(--hopp-white);
+	font-family: "Montserrat", sans-serif;
+	font-size: 0.875rem;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	transition: background 180ms ease, border-color 180ms ease;
+}
+
+.woocommerce-message a.button:hover,
+.woocommerce-info a.button:hover,
+.woocommerce button.button:hover,
+.woocommerce input.button:hover,
+.woocommerce #respond input#submit:hover {
+	border-color: var(--hopp-rust);
+	background: var(--hopp-rust);
+	color: var(--hopp-white);
+}
+
+.woocommerce button.button.alt,
+.woocommerce input.button.alt {
+	border-color: var(--hopp-brown);
+	background: var(--hopp-brown);
+}
+
+.woocommerce button.button.alt:hover,
+.woocommerce input.button.alt:hover {
+	border-color: var(--hopp-rust);
+	background: var(--hopp-rust);
 }
