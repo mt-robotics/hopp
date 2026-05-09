@@ -75,3 +75,23 @@
 - Decisions made: Contact Us page does NOT repeat social links (footer is canonical); ADD TO CART fix = Option A (AJAX + dismissing toast, not page reload); /series/ surfaces on Stories page (not main nav — already at 7 items); all forms site-wide use Forminator; rename "Pitch Your Pal: Phnom Penh" → "Pitch Your Pal"; X (@HoPP_Kh) added to footer
 - Transferred all items from crucial_notes.md §13-14 to project_status.md as 12 new V1 tasks with full detail sections; "Contact form integration" elevated from Post-V1 to V1 (as Forminator migration task)
 - Next session: start implementing in order — quick CSS wins first (hide coupon, fix button colors), then page builds (Artist, Career, Contact Us), then AJAX add-to-cart, then investigation tasks (blank images, Forminator audit)
+
+## 2026-05-09 (continued)
+
+- Committed "Frontend Standards HIGH-priority fixes" from previous session (was uncommitted) to feat/frontend-standards-high-priority branch
+- Created feat/v1-ui-tasks branch and implemented all 11 remaining V1 UI tasks in one session
+- Artist page: hero + "Calling All Artists!" content section (all 4 bullet points + contest-guidelines link) + Forminator form 617 + "Why Contribute" two-column section
+- Career page: hero + intro + 4 benefit cards + volunteer role grid (Writers/Photographers/Videographers/SM Managers with HOPP palette backgrounds) + 4 internship text cards + qualifications section + Forminator form 1256 (career form placeholder — admin must create proper career form in wp-admin)
+- Contact Us page: hero + real contact details (phone +85581363753, email, address) + Google Maps embed + Forminator form 628
+- Pitch Your Pal: HOPP-designed hero ("Pitch Your Pal" title override) + Forminator form 1259; menu label renamed via wp_nav_menu_objects filter (no wp-admin needed)
+- Stories page: Browse by Series section added with h2 + body text + "Browse All Series" CTA linking to /series/
+- Story cards: front-page.php and page.php now use actual featured images when available, falling back to gradient placeholder
+- Footer: X (@HoPP_Kh) social icon added alongside existing Fb/Ig/In/Tg
+- WooCommerce buttons: all .button.alt (ADD TO CART, UPDATE CART, Proceed to checkout) overridden to --hopp-beige with --hopp-rust hover; single-product ADD TO CART changed from --hopp-black to --hopp-beige
+- Cart coupon section hidden via CSS
+- AJAX add-to-cart: hopp-cart.js intercepts single-product form submit, fires wc-ajax=add_to_cart, shows dismissing toast; enqueued only on is_product() pages
+- Hover effects: story-card and archive-card get opacity 0.88 on hover (matching product cards); volunteer-cards same
+- Blank image investigation: 107 attachments all exist on disk; 9 posts have valid thumbnail_id pointing to real attachments; root cause was story-card template using hardcoded gradient instead of actual thumbnail — fixed in both front-page.php and page.php
+- Forminator overrides: submit buttons styled to HOPP beige/rust, inputs use border-radius: 0 to match editorial aesthetic
+- All PHP linted clean; no fatal errors detected in runtime bootstrap checks
+- Committed as single feat commit (99671cc) on feat/v1-ui-tasks

@@ -10,6 +10,7 @@
 
 | Milestone | Completed | Tests |
 |---|---|---|
+| V1 UI Tasks — All 11 Pages, WooCommerce, AJAX, Forms | 2026-05-09 | PHP lint, WP runtime bootstrap |
 | Fix MEDIUM/LOW Frontend Standards Violations | 2026-05-09 | PHP lint, manual review |
 | Evaluate WooCommerce Styling | 2026-05-09 | Manual visual review |
 | Set up Git Versioning for Theme Directory | 2026-05-09 | `git ls-files` verification |
@@ -206,3 +207,20 @@ All 8 active violations fixed. One audit item (aria-expanded) verified as a non-
 - ✅ `archive.php` and `home.php` empty states: bare `<p>` replaced with styled `.empty-state` div with contextual copy; `.empty-state` CSS updated to add `padding: 4rem 1.25rem`
 
 **Final state:** PHP lint passes on all 5 modified templates. No automated tests — manual browser review required.
+
+## ✅ V1 UI Tasks — All 11 Pages, WooCommerce, AJAX, Forms (2026-05-09)
+
+- ✅ Artist page: hero (terracotta) + "Calling All Artists!" content section with contest-guidelines hyperlink + Forminator form 617 + "Why Contribute" two-column feature-grid
+- ✅ Career page: hero (sand) + intro paragraph + 4 benefit cards + volunteer role grid (Writers/Photographers/Videographers/SM Managers with HOPP palette backgrounds as image placeholders) + 4 internship text cards + qualifications section + Forminator form 1256 (placeholder — admin must create proper career form in wp-admin)
+- ✅ Contact Us page: hero (terracotta) + contact details (phone/email/address) + Google Maps embed + Forminator form 628 (message-us-2)
+- ✅ Footer X icon: `𝕏` icon linking to https://x.com/HoPP_Kh added alongside Fb/Ig/In/Tg
+- ✅ Pitch Your Pal: HOPP-designed hero showing "Pitch Your Pal" title (overrides "Pitch Your Pal: Phnom Penh" WP title) + Forminator form 1259 + menu label renamed via `wp_nav_menu_objects` filter in functions.php
+- ✅ Story cards: front-page.php and page.php now show actual featured images (get_the_post_thumbnail_url) with gradient fallback; blank image investigation confirmed all 107 attachment files exist on disk with 0 broken _thumbnail_id links
+- ✅ Browse by Series: section added to Stories page with h2 + descriptive body text + "Browse All Series" CTA button linking to /series/
+- ✅ WooCommerce button colors: all .button.alt (ADD TO CART archive, UPDATE CART, Proceed to checkout) overridden to --hopp-beige with --hopp-rust hover via !important selectors; single-product ADD TO CART changed from --hopp-black to --hopp-beige
+- ✅ Cart coupon hidden: `.woocommerce-cart .coupon` display:none !important
+- ✅ AJAX add-to-cart: hopp-cart.js intercepts single-product form submit, fires `?wc-ajax=add_to_cart`, shows HOPP toast (4s auto-dismiss, role=alert), prevents page reload; enqueued only on is_product() pages via hopp_enqueue_cart_assets()
+- ✅ Hover effects: story-card links and archive-card links get `opacity: 0.88` on hover (consistent with product cards); volunteer-card same
+- ✅ Forminator overrides: submit buttons styled to --hopp-beige/--hopp-rust, border-radius: 0 on inputs, Montserrat font enforced
+- Commit: `99671cc` on `feat/v1-ui-tasks`
+- Note: Career Forminator form requires creation in wp-admin; currently uses form 1256 as visual placeholder
