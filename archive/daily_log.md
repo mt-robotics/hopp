@@ -95,3 +95,20 @@
 - Forminator overrides: submit buttons styled to HOPP beige/rust, inputs use border-radius: 0 to match editorial aesthetic
 - All PHP linted clean; no fatal errors detected in runtime bootstrap checks
 - Committed as single feat commit (99671cc) on feat/v1-ui-tasks
+
+## 2026-05-09 (post-compact session)
+
+- Investigated 5 UI bugs reported via screenshots (ui_issues_*.png):
+  1. Forminator form styling misaligned with DESIGN.md
+  2. "Register Me ($5)" button on Career page → was form 1256's custom submit text; behavior was redirect to live checkout (humansofphnompenh.com/?add-to-cart=1268) — fixed in DB: button → "Submit Application", behavior → thank-you message
+  3. Form submission investigation: AJAX handler confirmed registered; 2 submissions already in DB; email won't work locally (Docker has no SMTP, mailserver=mail.example.com default) — works on real server
+  4. Cart not in header — added SVG cart icon + count badge to header.php; mobile: brand→cart→hamburger; desktop: brand→nav→cart; badge increments after AJAX add
+  5. "Pitch Your Pal" menu rename not working — filter was checking item->post_name (nav_menu_item ID like "1300") instead of the linked page slug; fixed to use get_post(object_id)->post_name; added terracotta color + underline for visual distinction
+- Discovered root causes of Forminator styling failure:
+  - Forminator loads forminator-ui.min.css (~500KB) with [data-design=default] attribute selectors that beat class-only overrides
+  - Dropdowns are Select2 (custom JS widget), not native <select> — previous CSS targeted wrong element
+  - Artist/Contact Us forms had empty field_label values in DB — rendered placeholder-only with no <label> — fixed in DB for forms 617 and 628
+- Confirmed: checkout page uses WooCommerce Gutenberg blocks (not Forminator) — that's why it looks clean
+- Decision: replace all four Forminator forms with Contact Form 7 (CF7) — minimal CSS, no skin system, full HTML control. Forminator's ~500KB CSS framework makes reliable styling impossible without matching its [data-design=X] specificity throughout
+- Committed: fix: cart icon, menu rename, Forminator CSS, WC notices, form 1256 (d079604)
+- Current state: all file fixes committed; DB fixes (form labels, form 1256 behavior) live in Docker volume; Forminator replacement with CF7 is next task

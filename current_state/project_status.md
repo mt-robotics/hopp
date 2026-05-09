@@ -37,8 +37,11 @@
 - V1 local WordPress UI/UX demo theme implemented and verified locally and over LAN
 - Team review note prepared at `archive/20260504_team_confirmation.md`
 - All 11 V1 UI tasks completed on feat/v1-ui-tasks: Artist, Career, Contact Us, Pitch Your Pal pages built; AJAX add-to-cart + toast; WooCommerce button color fixes; coupon hidden; hover effects consistent; story card images fixed; Browse by Series on Stories page; X icon in footer; all forms migrated to Forminator
-- Career Forminator form is using form 1256 as placeholder — admin must create the proper career application form in wp-admin and update the shortcode ID in page.php
-- **Next:** Plan sponsored GCP deployment, stabilize ABA PayWay patch for deployment, then PR and deploy 🔲
+- Cart icon with count badge added to the header (mobile: brand→cart→hamburger; desktop: brand→nav→cart); count increments live after AJAX add-to-cart
+- "Pitch Your Pal" menu rename filter fixed (was checking wrong property); item now displays in terracotta color to distinguish it from standard nav items
+- Forminator forms cannot be reliably styled — its ~500KB CSS (`forminator-ui.min.css`) uses `[data-design=default]` attribute selectors that beat any class-only override; dropdowns use Select2 (not native select), making them doubly hard to target
+- Decision: replace all four Forminator forms (617 Artist, 628 Contact Us, 1256 Career, 1259 Pitch Your Pal) with Contact Form 7 (CF7) — minimal CSS, no skin system, full HTML control
+- **Next:** Replace Forminator forms with CF7 on all four pages, then plan sponsored GCP deployment 🔲
 
 ---
 
@@ -93,13 +96,24 @@
 - ✅ Fix blank image placeholders (investigate + re-link featured images)
 - ✅ Surface /series/ on Stories page
 - ✅ Audit and apply hover effects consistently across all pages
-- ✅ Migrate all forms to Forminator and verify end-to-end submission
+- 🔲 Replace Forminator forms with Contact Form 7 (CF7) on Artist, Career, Contact Us, Pitch Your Pal pages
 
 ---
 
 ## Active Task Details
 
 Completed V1 implementation details are archived in `current_state/milestone.md`. This file now keeps only active tasks, blockers, and next work.
+
+### 🔲 Replace Forminator forms with Contact Form 7 (CF7)
+
+Forminator's `[data-design=default]` CSS framework (~500KB, includes Select2) cannot be reliably overridden with class selectors. CF7 has minimal CSS, no skin system, and gives full HTML control via its tag-based template syntax.
+
+- 🔲 Verify CF7 plugin is active locally; install if missing
+- 🔲 Create four CF7 forms: Artist (file upload + checkbox), Career (file upload + selects + checkbox), Contact Us (textarea), Pitch Your Pal (textarea)
+- 🔲 Replace `do_shortcode('[forminator_form id="N"]')` calls in `page.php` with `do_shortcode('[contact-form-7 id="N"]')` for each slug
+- 🔲 Style CF7 fields in `style.css` using `.wpcf7` selectors — no `!important` battles needed
+- 🔲 Verify email notifications deliver (CF7 uses `wp_mail()` same as Forminator)
+- Note: Forminator submission entries in DB (2 test entries) are non-critical and can be left as-is
 
 ### 🔲 Plan sponsored GCP deployment for the live WordPress site
 
