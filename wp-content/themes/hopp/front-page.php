@@ -43,10 +43,15 @@ get_header();
 				<?php
 				while ( $stories->have_posts() ) :
 					$stories->the_post();
+					$story_thumb = get_the_post_thumbnail_url( get_the_ID(), 'medium_large' );
 					?>
 					<article class="story-card">
 						<a href="<?php the_permalink(); ?>">
-							<div class="story-card__media" style="background: <?php echo esc_attr( hopp_demo_asset_gradient( 'teal' ) ); ?>"></div>
+							<div class="story-card__media"<?php echo $story_thumb ? '' : ' style="background: ' . esc_attr( hopp_demo_asset_gradient( 'teal' ) ) . '"'; ?>>
+								<?php if ( $story_thumb ) : ?>
+									<img src="<?php echo esc_url( $story_thumb ); ?>" alt="<?php the_title_attribute(); ?>" loading="lazy">
+								<?php endif; ?>
+							</div>
 							<div class="story-card__body">
 								<p class="card-kicker"><?php echo esc_html( get_the_date() ); ?></p>
 								<h3><?php the_title(); ?></h3>

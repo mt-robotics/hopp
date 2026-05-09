@@ -46,6 +46,30 @@ function hopp_enqueue_assets(): void {
 }
 add_action( 'wp_enqueue_scripts', 'hopp_enqueue_assets' );
 
+function hopp_enqueue_cart_assets(): void {
+	if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+		return;
+	}
+	wp_enqueue_script(
+		'hopp-cart',
+		get_template_directory_uri() . '/assets/js/hopp-cart.js',
+		array(),
+		wp_get_theme()->get( 'Version' ),
+		true
+	);
+}
+add_action( 'wp_enqueue_scripts', 'hopp_enqueue_cart_assets' );
+
+function hopp_filter_nav_menu_item_titles( array $items ): array {
+	foreach ( $items as $item ) {
+		if ( 'pitch-your-pal-phnom-penh' === $item->post_name ) {
+			$item->title = __( 'Pitch Your Pal', 'hopp' );
+		}
+	}
+	return $items;
+}
+add_filter( 'wp_nav_menu_objects', 'hopp_filter_nav_menu_item_titles' );
+
 function hopp_is_local_demo_environment(): bool {
 	return defined( 'HOPP_ENABLE_DEMO_SEED' )
 		&& true === HOPP_ENABLE_DEMO_SEED

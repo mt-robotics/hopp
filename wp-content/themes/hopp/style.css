@@ -1202,3 +1202,431 @@ h3 {
 	border-color: var(--hopp-rust);
 	background: var(--hopp-rust);
 }
+
+/* ─── Fix: WooCommerce button.alt (ADD TO CART archive, UPDATE CART, Proceed to checkout) ─── */
+
+.woocommerce button.button.alt,
+.woocommerce input.button.alt,
+.woocommerce a.button.alt,
+.woocommerce .checkout-button {
+	border-color: var(--hopp-beige) !important;
+	background: var(--hopp-beige) !important;
+	color: var(--hopp-white) !important;
+}
+
+.woocommerce button.button.alt:hover,
+.woocommerce input.button.alt:hover,
+.woocommerce a.button.alt:hover,
+.woocommerce .checkout-button:hover {
+	border-color: var(--hopp-rust) !important;
+	background: var(--hopp-rust) !important;
+	color: var(--hopp-white) !important;
+}
+
+/* Fix: single-product ADD TO CART button — was --hopp-black */
+
+.product-detail__cart .single_add_to_cart_button {
+	background: var(--hopp-beige);
+}
+
+.product-detail__cart .single_add_to_cart_button:hover,
+.product-detail__cart .single_add_to_cart_button:focus {
+	background: var(--hopp-rust);
+}
+
+/* ─── Hide cart coupon section ─── */
+
+.woocommerce-cart .coupon,
+.cart_totals .coupon,
+form.woocommerce-cart-form .coupon {
+	display: none !important;
+}
+
+/* ─── Hover effects — consistent across all interactive cards ─── */
+
+.story-card a {
+	transition: opacity 180ms ease;
+}
+
+.story-card a:hover,
+.story-card a:focus-within {
+	opacity: 0.88;
+}
+
+.archive-card__link {
+	transition: opacity 180ms ease;
+}
+
+.archive-card__link:hover,
+.archive-card__link:focus-visible {
+	opacity: 0.88;
+}
+
+/* ─── Artist page ─── */
+
+.artist-intro {
+	width: min(100%, var(--hopp-content));
+	margin: 0 auto;
+}
+
+.artist-intro__list {
+	margin: 1rem 0 1.5rem;
+	padding-left: 1.5rem;
+	color: var(--hopp-gray-text);
+}
+
+.artist-intro__list li {
+	margin-bottom: 0.5rem;
+}
+
+.forminator-wrap {
+	width: min(100%, var(--hopp-prose));
+	margin: 0 auto;
+}
+
+/* ─── Career page ─── */
+
+.career-intro {
+	width: min(100%, var(--hopp-content));
+	margin: 0 auto 3rem;
+	color: var(--hopp-gray-text);
+}
+
+.career-intro p {
+	margin-bottom: 1rem;
+}
+
+.career-benefits {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 1.5rem;
+	width: min(100%, var(--hopp-wide));
+	margin: 0 auto;
+}
+
+.career-benefit {
+	padding: 1.5rem;
+	background: var(--hopp-white);
+	border: 1px solid rgba(51, 35, 26, 0.08);
+	text-align: center;
+}
+
+.career-benefit__icon {
+	margin: 0 0 0.75rem;
+	color: var(--hopp-beige);
+	font-size: 1.5rem;
+}
+
+.career-benefit h3 {
+	margin-bottom: 0.5rem;
+	font-size: 1rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.career-benefit p {
+	margin: 0;
+	color: var(--hopp-gray-text);
+	font-size: 0.875rem;
+}
+
+.volunteer-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 1.5rem;
+	width: min(100%, var(--hopp-wide));
+	margin: 0 auto;
+}
+
+.volunteer-card {
+	background: var(--hopp-white);
+	border: 1px solid rgba(51, 35, 26, 0.08);
+	transition: opacity 180ms ease;
+}
+
+.volunteer-card:hover {
+	opacity: 0.88;
+}
+
+.volunteer-card__media {
+	aspect-ratio: 4 / 3;
+	background: var(--hopp-cream);
+}
+
+.volunteer-card__media--writers      { background: var(--hopp-sand); }
+.volunteer-card__media--photographers { background: var(--hopp-beige); }
+.volunteer-card__media--videographers { background: var(--hopp-brown); }
+.volunteer-card__media--social        { background: var(--hopp-terracotta); }
+
+.volunteer-card__media img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.volunteer-card__body {
+	padding: 1.5rem;
+}
+
+.volunteer-card h3 {
+	margin-bottom: 0.5rem;
+	font-size: 1.125rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.volunteer-card p {
+	margin: 0;
+	color: var(--hopp-gray-text);
+	font-size: 0.875rem;
+}
+
+.intern-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 1.5rem;
+	width: min(100%, var(--hopp-wide));
+	margin: 0 auto;
+}
+
+.intern-card {
+	padding: 1.5rem;
+	background: var(--hopp-white);
+	border: 1px solid rgba(51, 35, 26, 0.08);
+	text-align: center;
+}
+
+.intern-card h3 {
+	margin-bottom: 0.75rem;
+	font-size: 1rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.intern-card p {
+	margin: 0;
+	color: var(--hopp-gray-text);
+	font-size: 0.875rem;
+}
+
+.career-qualifications {
+	width: min(100%, var(--hopp-content));
+	margin: 0 auto;
+}
+
+.career-qualifications h2 {
+	margin-bottom: 1.5rem;
+	font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.qualifications-list {
+	margin: 0 0 1.5rem;
+	padding-left: 1.5rem;
+	color: var(--hopp-gray-text);
+}
+
+.qualifications-list li {
+	margin-bottom: 0.75rem;
+}
+
+.career-qualifications p {
+	color: var(--hopp-gray-text);
+}
+
+.apply-section .forminator-wrap {
+	max-width: 48rem;
+}
+
+/* ─── Contact Us page ─── */
+
+.contact-layout {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 3rem;
+	width: min(100%, var(--hopp-wide));
+	margin: 0 auto;
+}
+
+.contact-details h2 {
+	margin-bottom: 1.5rem;
+	font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.contact-list {
+	margin: 0 0 2rem;
+	padding: 0;
+	list-style: none;
+}
+
+.contact-list__item {
+	display: grid;
+	gap: 0.25rem;
+	margin-bottom: 1.25rem;
+}
+
+.contact-list__label {
+	color: var(--hopp-beige);
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.contact-list__item a,
+.contact-list__item address {
+	color: var(--hopp-brown);
+	font-size: 1rem;
+	font-style: normal;
+}
+
+.contact-list__item a:hover {
+	color: var(--hopp-rust);
+}
+
+.contact-map {
+	overflow: hidden;
+	border: 1px solid var(--hopp-gray-border);
+}
+
+.contact-map iframe {
+	display: block;
+}
+
+.contact-form .section-label {
+	margin-bottom: 1rem;
+}
+
+/* ─── Pitch Your Pal page ─── */
+
+.pitch-intro {
+	width: min(100%, var(--hopp-content));
+	margin: 0 auto;
+	color: var(--hopp-gray-text);
+}
+
+.pitch-intro h2 {
+	margin-bottom: 1rem;
+	color: var(--hopp-brown);
+}
+
+/* ─── Browse by Series (Stories page) ─── */
+
+.series-teaser__inner {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 2rem;
+	align-items: center;
+	width: min(100%, var(--hopp-content));
+	margin: 0 auto;
+}
+
+.series-teaser__inner h2 {
+	margin-bottom: 0.75rem;
+	font-size: clamp(1.75rem, 4vw, 2.75rem);
+}
+
+.series-teaser__inner p {
+	margin: 0;
+	color: var(--hopp-gray-text);
+}
+
+/* ─── AJAX cart toast ─── */
+
+.hopp-toast {
+	position: fixed;
+	right: 1.5rem;
+	bottom: 2rem;
+	z-index: 9999;
+	max-width: 22rem;
+	padding: 1rem 1.5rem;
+	background: var(--hopp-brown);
+	color: var(--hopp-white);
+	font-size: 0.9375rem;
+	font-weight: 500;
+	opacity: 0;
+	transform: translateY(0.75rem);
+	transition: opacity 250ms ease, transform 250ms ease;
+	pointer-events: none;
+}
+
+.hopp-toast--error {
+	background: var(--hopp-rust);
+}
+
+.hopp-toast--visible {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+/* ─── Forminator overrides ─── */
+
+.forminator-ui .forminator-custom-form .forminator-input,
+.forminator-ui .forminator-custom-form .forminator-textarea,
+.forminator-ui .forminator-custom-form select {
+	border-radius: 0 !important;
+	font-family: "Montserrat", sans-serif !important;
+}
+
+.forminator-ui .forminator-custom-form .forminator-btn {
+	border-radius: 0 !important;
+	background: var(--hopp-beige) !important;
+	border-color: var(--hopp-beige) !important;
+	color: var(--hopp-white) !important;
+	font-family: "Montserrat", sans-serif !important;
+	font-weight: 600 !important;
+	letter-spacing: 0.14em !important;
+	text-transform: uppercase !important;
+	transition: background 180ms ease, border-color 180ms ease !important;
+}
+
+.forminator-ui .forminator-custom-form .forminator-btn:hover,
+.forminator-ui .forminator-custom-form .forminator-btn:focus {
+	background: var(--hopp-rust) !important;
+	border-color: var(--hopp-rust) !important;
+}
+
+/* ─── Responsive additions ─── */
+
+@media (min-width: 641px) {
+	.career-benefits {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.volunteer-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.intern-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.series-teaser__inner {
+		grid-template-columns: 1fr auto;
+		gap: 3rem;
+	}
+
+	.series-teaser__inner > a {
+		flex-shrink: 0;
+		white-space: nowrap;
+	}
+}
+
+@media (min-width: 961px) {
+	.career-benefits {
+		grid-template-columns: repeat(4, 1fr);
+	}
+
+	.volunteer-grid {
+		grid-template-columns: repeat(4, 1fr);
+	}
+
+	.intern-grid {
+		grid-template-columns: repeat(4, 1fr);
+	}
+
+	.contact-layout {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: 5rem;
+	}
+}

@@ -19,6 +19,7 @@
 			<a href="https://www.instagram.com/humansofphnompenhofficial/" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Instagram', 'hopp' ); ?>">Ig</a>
 			<a href="https://www.linkedin.com/company/humansofphnompenh/" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'LinkedIn', 'hopp' ); ?>">In</a>
 			<a href="https://t.me/humansofpp" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Telegram', 'hopp' ); ?>">Tg</a>
+			<a href="https://x.com/HoPP_Kh" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'X (Twitter)', 'hopp' ); ?>">𝕏</a>
 		</div>
 	</div>
 
