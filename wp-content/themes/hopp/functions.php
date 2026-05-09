@@ -62,8 +62,12 @@ add_action( 'wp_enqueue_scripts', 'hopp_enqueue_cart_assets' );
 
 function hopp_filter_nav_menu_item_titles( array $items ): array {
 	foreach ( $items as $item ) {
-		if ( 'pitch-your-pal-phnom-penh' === $item->post_name ) {
-			$item->title = __( 'Pitch Your Pal', 'hopp' );
+		if ( 'post_type' === $item->type ) {
+			$linked = get_post( $item->object_id );
+			if ( $linked && 'pitch-your-pal-phnom-penh' === $linked->post_name ) {
+				$item->title = __( 'Pitch Your Pal', 'hopp' );
+				$item->classes[] = 'menu-item-pitch';
+			}
 		}
 	}
 	return $items;

@@ -162,9 +162,64 @@ textarea:focus-visible {
 	font-weight: 700;
 }
 
+.menu-item-pitch > a {
+	color: var(--hopp-terracotta);
+}
+
+.menu-item-pitch > a::after {
+	background: var(--hopp-terracotta);
+}
+
 .menu-item-cart a {
 	padding-inline: 0.75rem;
 	border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+/* ─── Header cart icon ─── */
+
+.site-cart {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	flex-shrink: 0;
+	color: var(--hopp-white);
+	order: 2;
+}
+
+.site-cart:hover {
+	opacity: 0.8;
+}
+
+.site-cart svg {
+	display: block;
+}
+
+.site-nav-toggle {
+	order: 3;
+}
+
+.site-cart__count {
+	position: absolute;
+	top: 4px;
+	right: 2px;
+	display: none;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 3px;
+	background: var(--hopp-rust);
+	color: var(--hopp-white);
+	font-size: 0.625rem;
+	font-weight: 700;
+	line-height: 18px;
+	text-align: center;
+	border-radius: 9px;
+}
+
+.site-cart__count--visible {
+	display: block;
 }
 
 .site-nav {
@@ -1055,9 +1110,15 @@ h3 {
 		display: none;
 	}
 
+	.site-cart {
+		order: 4;
+	}
+
 	.site-nav {
 		position: static;
 		display: block;
+		flex: 1;
+		order: 3;
 		padding: 0;
 		background: transparent;
 	}
@@ -1065,6 +1126,7 @@ h3 {
 	.site-nav__list {
 		flex-direction: row;
 		align-items: center;
+		justify-content: flex-end;
 		gap: 1.25rem;
 	}
 
@@ -1559,24 +1621,133 @@ form.woocommerce-cart-form .coupon {
 	transform: translateY(0);
 }
 
-/* ─── Forminator overrides ─── */
+/* ─── Forminator overrides — comprehensive ─── */
 
-.forminator-ui .forminator-custom-form .forminator-input,
-.forminator-ui .forminator-custom-form .forminator-textarea,
-.forminator-ui .forminator-custom-form select {
-	border-radius: 0 !important;
+/* Strip Forminator's default skin (box border, background, padding) */
+.forminator-ui.forminator-custom-form,
+.forminator-ui.forminator-custom-form.forminator-design--default {
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+}
+
+/* Remove any background Forminator tries to apply to the form container */
+.forminator-ui .forminator-custom-form {
+	background: transparent !important;
+}
+
+/* Montserrat everywhere: labels, descriptions, errors, option text */
+.forminator-ui .forminator-custom-form,
+.forminator-ui .forminator-custom-form label,
+.forminator-ui .forminator-custom-form .forminator-label,
+.forminator-ui .forminator-custom-form .forminator-description,
+.forminator-ui .forminator-custom-form .forminator-error-message,
+.forminator-ui .forminator-custom-form .forminator-response-container,
+.forminator-ui .forminator-custom-form .forminator-field-option label {
 	font-family: "Montserrat", sans-serif !important;
 }
 
+/* Field labels: small, uppercase, brown */
+.forminator-ui .forminator-custom-form .forminator-label {
+	color: var(--hopp-brown) !important;
+	font-size: 0.8125rem !important;
+	font-weight: 600 !important;
+	letter-spacing: 0.06em !important;
+	text-transform: uppercase !important;
+	margin-bottom: 0.375rem !important;
+}
+
+/* Text inputs and textareas */
+.forminator-ui .forminator-custom-form .forminator-input,
+.forminator-ui .forminator-custom-form .forminator-textarea {
+	border-radius: 0 !important;
+	border: 1px solid var(--hopp-gray-border) !important;
+	background: #fff !important;
+	color: var(--hopp-brown) !important;
+	font-family: "Montserrat", sans-serif !important;
+	font-size: 0.9375rem !important;
+	box-shadow: none !important;
+}
+
+/* Select dropdowns: solid white background so options don't bleed */
+.forminator-ui .forminator-custom-form .forminator-select,
+.forminator-ui .forminator-custom-form select {
+	border-radius: 0 !important;
+	border: 1px solid var(--hopp-gray-border) !important;
+	background: #fff !important;
+	color: var(--hopp-brown) !important;
+	font-family: "Montserrat", sans-serif !important;
+	font-size: 0.9375rem !important;
+	box-shadow: none !important;
+}
+
+/* Focus ring on all interactive fields */
+.forminator-ui .forminator-custom-form .forminator-input:focus,
+.forminator-ui .forminator-custom-form .forminator-textarea:focus,
+.forminator-ui .forminator-custom-form select:focus {
+	border-color: var(--hopp-beige) !important;
+	outline: none !important;
+	box-shadow: 0 0 0 2px rgba(156, 132, 105, 0.25) !important;
+}
+
+/* Error messages: rust, clearly readable */
+.forminator-ui .forminator-custom-form .forminator-error-message,
+.forminator-ui .forminator-custom-form .forminator-field--error .forminator-error-message {
+	color: var(--hopp-rust) !important;
+	background: transparent !important;
+	font-family: "Montserrat", sans-serif !important;
+	font-size: 0.8125rem !important;
+	font-weight: 500 !important;
+	margin-top: 0.25rem !important;
+}
+
+/* Error border on invalid fields */
+.forminator-ui .forminator-custom-form .forminator-field--error .forminator-input,
+.forminator-ui .forminator-custom-form .forminator-field--error .forminator-textarea,
+.forminator-ui .forminator-custom-form .forminator-field--error select {
+	border-color: var(--hopp-rust) !important;
+}
+
+/* Field description/hint text */
+.forminator-ui .forminator-custom-form .forminator-description {
+	color: var(--hopp-gray-muted) !important;
+	font-family: "Montserrat", sans-serif !important;
+	font-size: 0.8125rem !important;
+}
+
+/* Success response */
+.forminator-ui .forminator-response-container.forminator-success {
+	background: var(--hopp-cream) !important;
+	border-left: 3px solid var(--hopp-beige) !important;
+	color: var(--hopp-brown) !important;
+	font-family: "Montserrat", sans-serif !important;
+	border-radius: 0 !important;
+}
+
+/* Error response banner */
+.forminator-ui .forminator-response-container.forminator-error {
+	background: #fff5f2 !important;
+	border-left: 3px solid var(--hopp-rust) !important;
+	color: var(--hopp-rust) !important;
+	font-family: "Montserrat", sans-serif !important;
+	border-radius: 0 !important;
+}
+
+/* Submit button */
 .forminator-ui .forminator-custom-form .forminator-btn {
 	border-radius: 0 !important;
 	background: var(--hopp-beige) !important;
 	border-color: var(--hopp-beige) !important;
 	color: var(--hopp-white) !important;
 	font-family: "Montserrat", sans-serif !important;
+	font-size: 0.875rem !important;
 	font-weight: 600 !important;
 	letter-spacing: 0.14em !important;
 	text-transform: uppercase !important;
+	min-height: 44px !important;
+	padding: 0.625rem 2rem !important;
+	box-shadow: none !important;
 	transition: background 180ms ease, border-color 180ms ease !important;
 }
 
@@ -1584,6 +1755,132 @@ form.woocommerce-cart-form .coupon {
 .forminator-ui .forminator-custom-form .forminator-btn:focus {
 	background: var(--hopp-rust) !important;
 	border-color: var(--hopp-rust) !important;
+}
+
+/* Checkbox / radio labels */
+.forminator-ui .forminator-custom-form .forminator-checkbox-options .forminator-checkbox,
+.forminator-ui .forminator-custom-form .forminator-radio-options .forminator-radio {
+	color: var(--hopp-brown) !important;
+	font-family: "Montserrat", sans-serif !important;
+	font-size: 0.9375rem !important;
+}
+
+/* ─── Select2 overrides (Forminator uses Select2, not native <select>) ─── */
+
+/* Visible selection box */
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+	border: 1px solid var(--hopp-gray-border) !important;
+	border-radius: 0 !important;
+	background: #fff !important;
+	min-height: 44px !important;
+	display: flex !important;
+	align-items: center !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+	color: var(--hopp-brown) !important;
+	font-family: "Montserrat", sans-serif !important;
+	font-size: 0.9375rem !important;
+	line-height: 44px !important;
+	padding-left: 0.875rem !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+	color: var(--hopp-gray-muted) !important;
+}
+
+/* Dropdown panel — solid white so it doesn't bleed over other fields */
+.select2-container--default .select2-dropdown {
+	background: #fff !important;
+	border: 1px solid var(--hopp-gray-border) !important;
+	border-radius: 0 !important;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+	z-index: 99999 !important;
+}
+
+/* Options */
+.select2-container--default .select2-results__option {
+	color: var(--hopp-brown) !important;
+	font-family: "Montserrat", sans-serif !important;
+	font-size: 0.9375rem !important;
+	background: #fff !important;
+	padding: 0.5rem 0.875rem !important;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected],
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+	background: var(--hopp-cream) !important;
+	color: var(--hopp-brown) !important;
+}
+
+.select2-container--default .select2-results__option[aria-selected="true"] {
+	background: var(--hopp-beige) !important;
+	color: var(--hopp-white) !important;
+}
+
+/* ─── WooCommerce cart & notices ─── */
+
+/* Remove WooCommerce emoji/icon from notice text */
+.woocommerce-message::before,
+.woocommerce-info::before {
+	display: none !important;
+}
+
+/* Notice layout reset */
+.woocommerce-message,
+.woocommerce-info,
+.woocommerce-error {
+	display: block !important;
+	padding: 1rem 1.25rem !important;
+	margin-bottom: 1rem !important;
+	border-radius: 0 !important;
+	font-family: "Montserrat", sans-serif !important;
+	font-size: 0.9375rem !important;
+}
+
+.woocommerce-message {
+	background: var(--hopp-cream) !important;
+	border-top: 3px solid var(--hopp-beige) !important;
+	color: var(--hopp-brown) !important;
+}
+
+.woocommerce-info {
+	background: var(--hopp-cream) !important;
+	border-top: 3px solid var(--hopp-sand) !important;
+	color: var(--hopp-brown) !important;
+}
+
+.woocommerce-error {
+	background: #fff5f2 !important;
+	border-top: 3px solid var(--hopp-rust) !important;
+	color: var(--hopp-rust) !important;
+}
+
+/* "Return to shop" and inline notice buttons */
+.woocommerce-message .button,
+.woocommerce-info .button,
+.woocommerce-error .button,
+.woocommerce .return-to-shop .button {
+	display: inline-block !important;
+	margin-top: 0.75rem !important;
+	padding: 0.625rem 1.5rem !important;
+	background: var(--hopp-beige) !important;
+	color: var(--hopp-white) !important;
+	border: none !important;
+	border-radius: 0 !important;
+	font-family: "Montserrat", sans-serif !important;
+	font-size: 0.875rem !important;
+	font-weight: 600 !important;
+	letter-spacing: 0.14em !important;
+	text-transform: uppercase !important;
+	cursor: pointer !important;
+}
+
+.woocommerce-message .button:hover,
+.woocommerce-info .button:hover,
+.woocommerce .return-to-shop .button:hover {
+	background: var(--hopp-rust) !important;
 }
 
 /* ─── Responsive additions ─── */

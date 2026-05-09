@@ -43,6 +43,7 @@
 						( addBtn.dataset.orig || 'Item' ) + ' added to your cart.',
 						'success'
 					);
+					hopp_update_cart_count( parseInt( quantity, 10 ) || 1 );
 				}
 			} )
 			.catch( function () {
@@ -51,6 +52,14 @@
 				hopp_toast( 'Something went wrong. Please try again.', 'error' );
 			} );
 	} );
+
+	function hopp_update_cart_count( added ) {
+		var el = document.querySelector( '.site-cart__count' );
+		if ( ! el ) return;
+		var current = parseInt( el.textContent, 10 ) || 0;
+		el.textContent = current + added;
+		el.classList.add( 'site-cart__count--visible' );
+	}
 
 	function hopp_toast( msg, type ) {
 		var prev = document.querySelector( '.hopp-toast' );
