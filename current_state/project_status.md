@@ -1,18 +1,31 @@
 # Project Status
 
-**Last Updated:** 2026-05-06
+**Last Updated:** 2026-05-11 (LAN access fix and hero background images applied)
 
 ---
 
 ## Current State
 
-- GCP server access established — VM (e2-micro) running in us-west1
+- Google Cloud sponsor access is now available, so infrastructure sizing must be done conservatively and with the full workload in view before spending credits
+- WordPress admin access for `humansofphnompenh.com` is available, so the live site has now been exported and imported locally
+- Live admin theme, plugin, WooCommerce, menu, and Reading settings are captured in `docs/live_site_settings.md`
+- The local import checklist is now documented in `docs/local_import_checklist.md`
+- The live XML import into local WordPress is complete: pages, posts, products, attachments, menu items, and forms match the live snapshot; HOPP is active locally with live menu, Reading, and WooCommerce assignments mirrored
+- Divi-only `et_*` layout post types were skipped during import; the custom HOPP theme does not depend on them for the new UI
+- Local staging runtime now auto-enforces pretty permalinks and disables WooCommerce "coming soon" mode so `/products/`, `/stories/`, and product/story permalinks resolve correctly
+- Story pages now render without raw Divi shortcode junk, and product cards are clickable and point to real product URLs
+- WooCommerce single-product pages now use a custom theme template plus an XML-derived product profile map so recovered descriptions render in a clean code-driven layout
+- Two imported products still have no recoverable body copy in the export data, so those pages intentionally show image/title/price/add-to-cart/category without invented placeholder text
+- ABA PayWay checkout is restored in local staging: the gateway settings mirror the live payment-method selection, the gateway plugin was patched to normalize `payment_options`, and checkout now renders the four live payment rows; local order submission still hits PayWay's domain whitelist on `localhost`, so the production host must remain the whitelisted `humansofphnompenh.com`
+- The ABA PayWay runtime fix is active in local staging, but the deployment artifact still needs to carry that patch forward before any rebuild or cutover
+- The sponsor-funded GCP path is now the only active deployment route; the next step is to inspect the imported stack, preserve the ABA PayWay fix, estimate resource needs, and design the smallest reliable GCP deployment
+- The live admin account can inspect plugins and WooCommerce settings, but it cannot install new plugins, so All-in-One WP Migration is not available from this account
+- GCP server access established — VM (e2-micro) running in us-west1 (personal-account legacy preview VM; no longer used for the sponsor-funded deployment)
 - Static External IP (35.252.238.69) reserved and mapped to `hopp.delvedeepasia.org`
 - SSH access configured from local laptop via SSH keys
 - Docker and Docker Compose installed and verified on GCP server
 - Nginx templates prepared for automatic variable substitution
-- No WP admin credentials yet (pending from client)
-- No current theme name known
+- Current live theme confirmed: `Divi`
 - `DESIGN.md` written — all color tokens reconciled, nav Option B (original 7-item nav preserved)
 - Standard project documentation scaffold created (`CLAUDE.md`, `PROJECT.md`, `README.md`, `DOCKER_SETUP.md`, `.env.example`, `docs/error_log.md`)
 - Local WordPress Docker scaffold created (`docker-compose.yml`, `docker-compose.local.yml`, `.env.local`, theme bind-mount directory); Compose config validates
@@ -20,23 +33,46 @@
 - Live admin-only deployment runbook documented in `docs/live_wordpress_deployment.md`
 - Public site crawl distilled into `docs/current_site_audit.md`
 - V1 demo design plan documented in `docs/demo_design_plan.md`
-- Current strategy: share the V1 local WordPress UI/UX demo with the team for design feedback, then move the approved build to the GCP-hosted public preview for longer-lived external access
+- Current strategy: inspect the imported live stack, inventory any remaining runtime gaps, then size the smallest reliable sponsor-funded GCP deployment before redeploying anything
 - V1 local WordPress UI/UX demo theme implemented and verified locally and over LAN
 - Team review note prepared at `archive/20260504_team_confirmation.md`
-- **Next:** Deploy the WordPress site to the GCP-hosted public preview. 🔲
+- All 11 V1 UI tasks completed on feat/v1-ui-tasks: Artist, Career, Contact Us, Pitch Your Pal pages built; AJAX add-to-cart + toast; WooCommerce button color fixes; coupon hidden; hover effects consistent; story card images fixed; Browse by Series on Stories page; X icon in footer; all forms migrated to Forminator
+- Cart icon with count badge added to the header (mobile: brand→cart→hamburger; desktop: brand→nav→cart); count increments live after AJAX add-to-cart
+- "Pitch Your Pal" menu rename filter fixed (was checking wrong property); item now displays in terracotta color to distinguish it from standard nav items
+- Forminator forms could not be reliably styled — its ~500KB CSS (`forminator-ui.min.css`) uses `[data-design=default]` attribute selectors that beat any class-only override; dropdowns use Select2 (not native select), making them doubly hard to target
+- All four Forminator render points have been replaced with Contact Form 7 forms: Artist, Career, Contact Us, and Pitch Your Pal now resolve CF7 forms by title and use `.wpcf7` theme styling
+- Local Docker PHP upload limits are now set to `upload_max_filesize=10M` and `post_max_size=12M` so CF7 artwork/CV upload forms pass CF7 configuration validation
+- CF7 mail templates are configured and pass CF7 validation; actual email delivery still needs SMTP/live-host verification because the local Docker stack has no mail delivery service
+- Production deployment requires Contact Form 7 to be installed/activated on the new user-managed GCP WordPress host; the current third-party live server's plugin restrictions do not block the planned GCP deployment
+- Home Products and Artists teaser sections now render real imagery dynamically: Products uses the newest published WooCommerce product image with page-banner fallback; Artists uses artist-tagged/category post imagery with Artist page banner fallback
+- About Us was rebuilt from the live-site mission/vision/objectives content and then redesigned after screenshot review. The final version removes the disconnected word panel, boxed Mission/Vision cards, and broken 6-column objectives mosaic; it now uses a restrained editorial intro, Mission/Vision text columns, and stable numbered objective rows.
+- About redesign was checked with local Chrome screenshots saved in `archive/about_us_redesign_viewport_check.png` and `archive/about_us_redesign_final_check.png`. `claude -p` was used as an external design advisor; `gemini` failed due to unavailable configured model and broken local rule imports.
+- Products page cards, Registration Fee product detail, and Registration Fee cart item now use a theme-owned registration/access-pass SVG thumbnail for the non-physical product; product cards also use character-based summaries and a consistent three-line summary area so card footers align without inventing missing product copy.
+- Story/archive/search cards now use the same character-based summary helper as Products, replacing `wp_trim_words()` and raw `the_excerpt()` card rendering for consistent truncation.
+- Stories now surfaces Series before the story grid instead of burying it at the bottom; `/series/` is a dedicated YouTube playlist-card landing page with 5 external playlist links, and the primary nav exposes `Browse by Series` as a child under `Stories` without adding an 8th top-level nav item.
+- Local LAN access is restored at `http://192.168.11.155:8080`; after `WORDPRESS_LOCAL_URL` changes, use `make rebuild` so the WordPress container is recreated and `WP_HOME`/`WP_SITEURL` are reinjected.
+- Page hero background images are now mapped from the imported uploads for Home, About Us, Artist, Career, Stories, Products, and Pitch Your Pal; Contact Us intentionally remains color-only.
+- **Next:** Plan sponsored GCP deployment 🔲
 
 ---
 
 ## ✅ Completed Milestones
 
-| Milestone | Completed | Tests |
-|---|---|---|
-| Standard Project Documentation Scaffold | 2026-04-30 | Manual file verification |
-| Design System (DESIGN.md) | 2026-04-30 | — |
-| Local WordPress Docker Environment | 2026-04-30 | Docker Compose config, manual WP/theme render |
-| Current Site Audit + Demo Design Plan | 2026-04-30 | Manual document review |
-| V1 Local WordPress UI/UX Demo Theme | 2026-04-30 | PHP lint, Docker Compose config, local route checks |
-| GCP Infrastructure Setup | 2026-05-06 | SSH, Docker, IP ping |
+| Milestone                                            | Completed  | Tests                                                    |
+| ---------------------------------------------------- | ---------- | -------------------------------------------------------- |
+| Standard Project Documentation Scaffold              | 2026-04-30 | Manual file verification                                 |
+| Design System (DESIGN.md)                            | 2026-04-30 | —                                                        |
+| Local WordPress Docker Environment                   | 2026-04-30 | Docker Compose config, manual WP/theme render            |
+| Current Site Audit + Demo Design Plan                | 2026-04-30 | Manual document review                                   |
+| V1 Local WordPress UI/UX Demo Theme                  | 2026-04-30 | PHP lint, Docker Compose config, local route checks      |
+| GCP Infrastructure Setup                             | 2026-05-06 | SSH, Docker, IP ping                                     |
+| Live Export, Local Import, and ABA Checkout Recovery | 2026-05-08 | Manual admin inspection, XML import, checkout smoke test |
+| Frontend Standards — HIGH Priority Fixes             | 2026-05-08 | Manual visual review                                     |
+| Contact Form 7 Forms Migration                       | 2026-05-09 | PHP lint, Compose config, CF7 validator, route checks    |
+| Home/About UI Refinements                            | 2026-05-09 | PHP lint, Chrome screenshot review                       |
+| Products Page UI Refinement                          | 2026-05-09 | PHP lint, rendered HTML check, Chrome screenshot review  |
+| Stories/Series UI Refinement                         | 2026-05-09 | PHP lint, JS syntax check, rendered HTML, screenshots    |
+| Hero Background Image Mapping                        | 2026-05-11 | PHP lint, HTTP 200 image checks, rendered HTML checks    |
 
 → Full details: `current_state/milestone.md`
 
@@ -44,7 +80,7 @@
 
 ## V1 — Local WordPress UI/UX Demo for Team Review
 
-**Goal:** A polished local WordPress theme demo built from `DESIGN.md`, using placeholder/local content, so the team can review and approve the UI/UX direction before live WP admin access is granted.
+**Goal:** A polished local WordPress theme demo and imported-content staging review built from `DESIGN.md`, so the team can review and approve the UI/UX direction and real site behavior before deployment.
 
 ### Task Checklist
 
@@ -56,26 +92,32 @@
 - ✅ Create placeholder pages/content for review
 - ✅ Set up local primary navigation
 - ✅ Test demo locally (desktop/mobile/basic routes)
-- 🔲 Present demo to team for feedback
-- 🔲 Incorporate team feedback
+- ✅ Fix HIGH-priority frontend standards violations
+- 🔲 Plan sponsored GCP deployment for the live WordPress site
 - 🔄 Set up GCP-hosted public preview
-
----
-
-## V2 — Production Integration After Admin Access
-
-**Goal:** Import the real live site content/plugins into local WordPress, adapt the HOPP theme to the actual site structure and e-commerce flow, test thoroughly, then upload through WP admin.
-
-### Task Checklist
-
-- 🔲 Inspect live admin settings, active theme, menus, plugins, and e-commerce setup
-- 🔲 Export live site content
-- 🔲 Import live content into local WordPress
-- 🔲 Install/mirror required plugins locally, especially e-commerce/contact form plugins
-- 🔲 Adapt HOPP theme to real content and plugin behavior
-- 🔲 Test production-critical flows locally
-- 🔲 Package and upload theme through live WP admin
-- 🔲 Smoke-test live site and rollback if needed
+- ✅ Inspect live admin settings, active theme, menus, plugins, and e-commerce setup
+- ✅ Export live site content
+- ✅ Import live content into local WordPress
+- ✅ Install/mirror required plugins locally, especially e-commerce/contact form plugins
+- 🔄 Stabilize ABA PayWay gateway for deployment
+- ✅ Adapt HOPP theme to real content and plugin behavior
+- ✅ Test production-critical flows locally
+- ✅ Build Artist page UI
+- ✅ Build Career page UI
+- ✅ Build Contact Us page + update footer (add X / @HoPP_Kh)
+- ✅ Rename and redesign "Pitch Your Pal: Phnom Penh" page
+- ✅ Fix ADD TO CART UX (AJAX add-to-cart + dismissing toast)
+- ✅ Fix WooCommerce button colors (ADD TO CART, UPDATE CART, VIEW CART, Proceed to checkout)
+- ✅ Hide cart coupon section
+- ✅ Fix blank image placeholders (investigate + re-link featured images)
+- ✅ Surface /series/ on Stories page
+- ✅ Audit and apply hover effects consistently across all pages
+- ✅ Replace Forminator forms with Contact Form 7 (CF7) on Artist, Career, Contact Us, Pitch Your Pal pages
+- ✅ Restore HOME teaser images dynamically for Products and Artists
+- ✅ Redesign About Us using live-site content and screenshot-driven QA
+- ✅ Refine Products page registration thumbnail and product-card summaries
+- ✅ Refine Stories/Series IA, playlist cards, and card summary consistency
+- ✅ Apply imported hero background images to key pages
 
 ---
 
@@ -83,81 +125,69 @@
 
 Completed V1 implementation details are archived in `current_state/milestone.md`. This file now keeps only active tasks, blockers, and next work.
 
+### 🔲 Plan sponsored GCP deployment for the live WordPress site
+
+Use the live WordPress admin access plus exported content and plugin inventory to size the smallest reliable GCP deployment before creating a new production server.
+
+- ✅ Export the live WordPress project content locally
+- ✅ Identify the actual theme, plugins, media volume, and database shape
+- ✅ Reconcile the skipped Divi-only layout post types or document them as intentionally unsupported locally
+- 🔲 Measure the runtime footprint of the imported stack
+- 🔲 Decide whether the deployment should stay on one VM or split services
+- 🔲 Choose the smallest reliable GCP machine type, disk size, and backup shape
+- 🔲 Include Contact Form 7 installation/activation in the new GCP WordPress deployment steps
+- 🔲 Verify CF7 notification delivery through the final SMTP/live-host mail path
+- 🔲 Define the redeployment steps for the final server
+- 🔲 Only after the plan is clear, provision the new GCP server and migrate
+
+### 🔄 Stabilize ABA PayWay gateway for deployment
+
+Keep the payment gateway behavior from drifting when the server is rebuilt or redeployed.
+
+- ✅ Capture the live ABA PayWay settings and selected payment methods
+- ✅ Patch the gateway plugin locally so `payment_options` is normalized before checkout rendering
+- ✅ Verify the four ABA payment rows render on the checkout page
+- 🔲 Persist the plugin fix in the deployment artifact or runtime layer before any rebuild
+- 🔲 Keep the production success/pushback URLs on `humansofphnompenh.com`
+
 ### 🔄 Set up GCP-hosted public preview
 
-Move the working local WordPress demo onto a free GCP VM so the team can access it from any browser without keeping a laptop online.
+The free-tier preview path was completed first and then superseded by the sponsor-funded deployment plan. Kept as historical record because the same repo, domain, and Docker wiring were reused as part of the transition.
 
 - ✅ Provision VM on GCP Always Free Tier (e2-micro, us-west1)
 - ✅ Reserve Static IP and point domain
 - ✅ Configure SSH access with keys
 - ✅ Install Docker and Docker Compose on VM
-- 🔲 Clone repo on VM using Deploy Key
-- 🔲 Configure production `.env.gcp`
-- 🔲 Run `docker-compose -f docker-compose.yml -f docker-compose.gcp.yml --env-file .env.gcp up -d`
-- 🔲 Verify public access at `http://hopp.delvedeepasia.org`
-- 🔲 Share URL with the team
+- ✅ Clone repo on VM using Deploy Key
+- ✅ Configure production `.env.gcp`
+- ✅ Run `docker-compose -f docker-compose.yml -f docker-compose.gcp.yml --env-file .env.gcp up -d`
+- ✅ Verify public access at `http://hopp.delvedeepasia.org`
+- 🔄 Share URL with the team
 
-### 🔲 V2 Only — Import Live Site Content
-
-Populate the local WP instance with content that mirrors the live site so theme development is realistic.
-
-- Export content from `humansofphnompenh.com` WP admin (requires admin credentials — blocked until access granted)
-- Import via WP XML export (`Tools > Export > All content`)
-- Re-upload media assets if needed
-- Verify pages, posts, menus, and widgets render correctly
-
-**Blocked by:** WP admin credentials from client.
-
----
-
-### 🔲 V2 Only — Adapt Custom WP Theme to Live Content
-
-Adapt the V1 HOPP demo theme to real imported content and plugin behavior after WP admin access is granted.
-
-- Theme directory: `wp-content/themes/hopp/` (`hopp` = Humans of Phnom Penh)
-- Required WP theme files: `style.css`, `index.php`, `functions.php`, `header.php`, `footer.php`
-- Page templates for: Home, About Us, Products, Stories, Artist, Career, Contact Us
-- Tailwind CSS via CDN (matching `index.html` setup) or compiled locally
-- No WordPress page builder — pure custom theme
-- Must preserve all original content (posts, images, menus, cart) — no data loss
-
-**Critical:** Replacing a theme on a live site without server access means no easy rollback. The V1 demo can be shown to the team, but production activation must wait for V2 validation against real content/plugins.
-
----
-
-### 🔲 V2 Only — Test Production-Critical Flows Locally
-
-Verify the theme is production-safe before any push.
-
-- All 7 nav pages render correctly
-- Mobile responsive (320px minimum viewport)
-- Products page + shopping cart functional (WooCommerce or existing plugin)
-- No broken images, missing fonts, or console errors
-- Accessibility: focus indicators visible, semantic HTML, heading hierarchy correct
-- Cross-browser: Chrome, Safari, Firefox
-
----
-
-### 🔲 V2 Only — Push Theme to Live Site
-
-Once local testing is 100% complete, push the theme to the live WordPress site.
-
-- Upload via WP admin > Appearance > Themes > Add New > Upload (requires admin credentials)
-- Activate theme
-- Verify live site matches local
-- Follow the admin-only deployment runbook in `docs/live_wordpress_deployment.md`
-- Rollback procedure: re-activate previous theme from Appearance > Themes
-
-**Blocked by:** WP admin credentials from client AND completion of all prior tasks.
-
----
+Transition note: this path proved the preview stack, but the sponsored project now needs a server plan sized from the real WordPress workload, not the free-tier demo constraints.
 
 ## Post-V1 Backlog
 
-- 🔲 Set up Git versioning for the theme directory
+- ✅ Set up Git versioning for the theme directory
 - 🔲 Run browser visual QA with screenshots after Playwright or another browser test tool is installed
-- 🔲 Evaluate WooCommerce styling (Products page may need additional theme work)
+- ✅ Evaluate WooCommerce styling (Products page may need additional theme work)
 - 🔲 Performance audit (Core Web Vitals — LCP, CLS, FID)
-- 🔲 Contact form integration (verify it submits correctly after theme change)
+- ✅ Contact form integration (elevated to V1 — Migrate all forms to Forminator)
+- ✅ Fix MEDIUM/LOW frontend standards violations (from 2026-05-08 audit)
 
 ## Post-V1 Task Details
+
+### 🔲 Run browser visual QA with screenshots
+
+No automated browser testing has been run. A visual pass across all pages on both desktop and mobile viewports is needed to catch layout regressions before the site goes live.
+
+- Install Playwright or equivalent browser tool in the project
+- Run screenshot captures for all primary routes: `/`, `/about-us/`, `/products/`, `/stories/`, `/artist/`, `/career/`, `/contact-us/`, `/cart/`, and a single product and story page
+- Review screenshots for layout breakages, spacing issues, and mobile overflow
+
+### 🔲 Performance audit (Core Web Vitals)
+
+No performance measurement has been done on the imported-content staging site. LCP, CLS, and FID should be measured against Google's thresholds before the GCP deployment.
+
+- Run Lighthouse or PageSpeed Insights against the local staging site (or the GCP preview once deployed)
+- Address any LCP element not loading eagerly, CLS from layout shifts, or blocking scripts

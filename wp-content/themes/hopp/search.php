@@ -36,7 +36,9 @@ get_header();
 						<div class="archive-card__body">
 							<p class="archive-card__meta"><?php echo esc_html( get_post_type() ); ?></p>
 							<h2><?php the_title(); ?></h2>
-							<?php the_excerpt(); ?>
+							<?php if ( $summary = hopp_get_post_card_summary( get_the_ID() ) ) : ?>
+								<p class="card-summary"><?php echo esc_html( $summary ); ?></p>
+							<?php endif; ?>
 						</div>
 					</a>
 				</article>

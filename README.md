@@ -10,8 +10,10 @@ The goal is to build a new WordPress theme from the `DESIGN.md` design system, v
 - Local WordPress Docker environment scaffolded
 - V1 local WordPress UI/UX demo theme implemented for team review
 - GCP-hosted public preview stack scaffolded in the repo
-- WP admin credentials pending
-- Live theme name and installed plugins not yet confirmed
+- Live WordPress content export imported locally
+- Live theme and plugin stack confirmed through WP admin
+- Custom single-product template now renders recovered product copy from the XML export where available
+- Form pages migrated from Forminator to Contact Form 7 in local staging
 - Production site must not be changed until V2 validation against real content/plugins is complete
 
 ## Planned Features
@@ -38,6 +40,7 @@ The goal is to build a new WordPress theme from the `DESIGN.md` design system, v
 | Database | MySQL |
 | Local environment | Docker Compose |
 | Theme | Custom WordPress theme |
+| Forms | Contact Form 7 |
 | Frontend | HTML, CSS, JavaScript |
 | Design source | `DESIGN.md` |
 
@@ -55,7 +58,7 @@ Expected local services:
 - WordPress: `http://localhost:8080`
 - MySQL: internal Docker service
 
-The local Docker override defines `WP_HOME` and `WP_SITEURL` as `http://localhost:8080` and enables local-only demo seeding. Demo content must not be treated as production content.
+The local Docker override defines `WP_HOME` and `WP_SITEURL` as `http://localhost:8080` and keeps demo seeding disabled so the clean-import workflow starts from the imported live content instead of placeholder data.
 
 Use `make help` to see the available shortcuts for starting, stopping, rebuilding, and opening shells in the containers.
 

@@ -24,23 +24,30 @@ The Docker environment is scaffolded with a shared `docker-compose.yml`, plus en
 - `docker-compose.local.yml`
 - `docker-compose.gcp.yml`
 
-WordPress, MySQL, persistent named volumes, and a bind-mounted local theme directory are part of the shared stack. The local runtime values live in `docker-compose.local.yml`.
+WordPress, MySQL, persistent named volumes, a bind-mounted local theme directory, and a PHP upload-limit override are part of the shared stack. The local runtime values live in `docker-compose.local.yml`.
 
 The local environment also injects WordPress config for:
 
 - `WP_HOME=http://localhost:8080`
 - `WP_SITEURL=http://localhost:8080`
 - `WP_ENVIRONMENT_TYPE=local`
-- `HOPP_ENABLE_DEMO_SEED=true`
+- `HOPP_ENABLE_DEMO_SEED=false`
 
-The HOPP theme uses those values to seed local demo pages/navigation only in Docker.
+The HOPP theme no longer seeds demo pages/navigation in the clean-import workflow.
+
+PHP upload limits are configured in `docker/php/uploads.ini` and mounted into the WordPress container:
+
+- `upload_max_filesize=10M`
+- `post_max_size=12M`
+
+These limits support the Contact Form 7 artwork/CV upload forms and must be preserved in preview or production containers.
 
 Constraints:
 
 - No server access
-- No WP admin credentials yet
-- Live active theme name unknown
-- Installed e-commerce plugin unknown
+- WP admin access is available for live inspection
+- Live active theme is confirmed as Divi
+- Installed e-commerce plugin is confirmed as WooCommerce
 
 If you are preparing the GCP-hosted public preview, use `docker-compose.gcp.yml` together with `make gcp-up`. This file stays focused on local Docker workflow.
 
@@ -54,7 +61,7 @@ The Makefile includes `make gcp-cert` for that certificate request step.
 
 - Docker Desktop
 - Docker Compose V2
-- WP admin credentials, later, for content export/import and final theme upload
+- WP admin credentials for live inspection and final theme upload
 
 ---
 
@@ -137,9 +144,10 @@ Expected first-run flow:
 2. Log in to local WP admin.
 3. Confirm the mounted `hopp` theme appears under Appearance -> Themes.
 4. Activate the `HOPP` theme.
-5. Open `http://localhost:8080` and confirm the local demo pages/navigation render.
+5. Import the live XML export.
+6. Open `http://localhost:8080` and confirm the imported pages/navigation render.
 
-The HOPP theme seeds V1 demo pages, story posts, and primary navigation after activation when `HOPP_ENABLE_DEMO_SEED` is enabled in the local Docker config.
+The HOPP theme no longer seeds V1 demo pages, story posts, or primary navigation in the clean-import path.
 
 ---
 
