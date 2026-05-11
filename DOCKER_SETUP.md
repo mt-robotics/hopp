@@ -24,7 +24,7 @@ The Docker environment is scaffolded with a shared `docker-compose.yml`, plus en
 - `docker-compose.local.yml`
 - `docker-compose.gcp.yml`
 
-WordPress, MySQL, persistent named volumes, and a bind-mounted local theme directory are part of the shared stack. The local runtime values live in `docker-compose.local.yml`.
+WordPress, MySQL, persistent named volumes, a bind-mounted local theme directory, and a PHP upload-limit override are part of the shared stack. The local runtime values live in `docker-compose.local.yml`.
 
 The local environment also injects WordPress config for:
 
@@ -34,6 +34,13 @@ The local environment also injects WordPress config for:
 - `HOPP_ENABLE_DEMO_SEED=false`
 
 The HOPP theme no longer seeds demo pages/navigation in the clean-import workflow.
+
+PHP upload limits are configured in `docker/php/uploads.ini` and mounted into the WordPress container:
+
+- `upload_max_filesize=10M`
+- `post_max_size=12M`
+
+These limits support the Contact Form 7 artwork/CV upload forms and must be preserved in preview or production containers.
 
 Constraints:
 

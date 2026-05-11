@@ -13,6 +13,7 @@ The goal is to build a new WordPress theme from the `DESIGN.md` design system, v
 - Live WordPress content export imported locally
 - Live theme and plugin stack confirmed through WP admin
 - Custom single-product template now renders recovered product copy from the XML export where available
+- Form pages migrated from Forminator to Contact Form 7 in local staging
 - Production site must not be changed until V2 validation against real content/plugins is complete
 
 ## Planned Features
@@ -39,6 +40,7 @@ The goal is to build a new WordPress theme from the `DESIGN.md` design system, v
 | Database | MySQL |
 | Local environment | Docker Compose |
 | Theme | Custom WordPress theme |
+| Forms | Contact Form 7 |
 | Frontend | HTML, CSS, JavaScript |
 | Design source | `DESIGN.md` |
 
