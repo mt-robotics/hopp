@@ -112,3 +112,41 @@
 - Decision: replace all four Forminator forms with Contact Form 7 (CF7) — minimal CSS, no skin system, full HTML control. Forminator's ~500KB CSS framework makes reliable styling impossible without matching its [data-design=X] specificity throughout
 - Committed: fix: cart icon, menu rename, Forminator CSS, WC notices, form 1256 (d079604)
 - Current state: all file fixes committed; DB fixes (form labels, form 1256 behavior) live in Docker volume; Forminator replacement with CF7 is next task
+
+## 2026-05-09 (continued)
+
+- Replaced Forminator with Contact Form 7 on Artist, Career, Contact Us, and Pitch Your Pal pages
+- Added title-based CF7 rendering helpers so templates do not depend on environment-specific CF7 IDs
+- Created four local CF7 forms and validated their configurations; added Docker PHP upload limits (`upload_max_filesize=10M`, `post_max_size=12M`) so artwork/CV upload fields can support 10 MB files
+- Replaced Forminator/Select2 CSS with `.wpcf7` theme styling and stripped legacy `[forminator_form ...]` shortcodes from imported content
+- Clarified deployment context: current third-party live server plugin restrictions are not a blocker because the site will be deployed to a new user-managed GCP server; CF7 is a requirement for the new deployment, not the old server
+- Fixed HOME missing teaser images: Products now pulls the newest product image with Products page banner fallback; Artists now pulls artist-related post imagery with Artist page banner fallback; imported upload URLs are normalized to the current site URL
+- Rebuilt About Us using the live-site About/Mission/Vision/Objectives copy
+- User rejected the first About redesign based on `archive/about_us_1.png` through `archive/about_us_4.png`; screenshot review identified concrete failures: oversized text island, disconnected decorative word panel, oversized boxed Mission/Vision cards, broken overlapping Objectives grid, and excessive empty space
+- Asked `claude -p` for senior editorial web-design guidance and followed its recommendation: remove decorative word panel, remove boxed Mission/Vision cards, replace 6-column objective mosaic with stable numbered rows, reduce About typography scale, and keep a restrained editorial layout
+- Tried `gemini`, but it failed due to unavailable configured model and broken local rule imports; no Gemini advice was used
+- Adjusted normal page hero height separately from homepage hero so standard pages do not consume a full desktop viewport before content
+- Verified PHP lint for `functions.php`, `front-page.php`, and `page.php`; rendered `/` and `/about-us/` locally; captured Chrome screenshots for About visual review at `archive/about_us_redesign_viewport_check.png` and `archive/about_us_redesign_final_check.png`
+
+## 2026-05-09 (continued)
+
+- Refined the Products page after user review
+- Added a theme-owned SVG access-pass thumbnail for the non-physical `Registration Fee` product instead of leaving the card as a plain gradient fallback
+- Added reusable product-card thumbnail logic so the registration fallback applies consistently across `/products/`, WooCommerce archive cards, and related-product cards
+- Replaced word-count product excerpts with character-based trimming and reserved a consistent three-line summary area; products with no recoverable imported description get an aria-hidden empty layout placeholder rather than invented copy
+- Verified PHP lint for `functions.php`, `page.php`, `archive-product.php`, and `single-product.php`; confirmed local `/products/` renders the SVG thumbnail and `product-card__summary` markup; captured `archive/products_page_check_final.png`
+- Reused the same saved SVG on `/product/registration-fee/` so the product detail page no longer shows WooCommerce's default placeholder image; confirmed normal products still use the regular WooCommerce image gallery; captured `archive/registration_fee_product_detail_check.png`
+- Reused the same saved SVG on `/cart/` via `woocommerce_cart_item_thumbnail`; confirmed the `Registration Fee` cart row loads `registration-fee-thumbnail.svg`; captured `archive/cart_registration_fee_thumbnail_check.png`
+- Standardized card descriptions across Stories, Home story cards, archives, and search by replacing card-level `wp_trim_words()` / raw `the_excerpt()` with `hopp_get_post_card_summary()` and shared `.card-summary` CSS; captured `archive/stories_card_summary_check.png`
+- Refined Stories/Series IA: asked `claude -p`, moved `Browse by Series` above the story grid, built `/series/` as a YouTube playlist-card landing page, and injected `Browse by Series` as a child under `Stories` without adding an 8th top-level nav item
+- Resolved playlist titles/counts with `yt-dlp`: Dakshin Restaurant Stories (4), Uy Ratha Stories (5), Ley Oudom Stories (5), E Chen Stories (5), Duck Roasted House Stories (5)
+- Verified PHP lint for `functions.php`, `page.php`, and `header.php`; verified JS syntax for `navigation.js`; confirmed `/stories/` and `/series/` rendered expected HTML; captured `archive/stories_series_cta_top_check.png` and `archive/series_youtube_cards_check.png`
+
+## 2026-05-11
+
+- Diagnosed LAN access failure at `http://192.168.11.155:8080`: Docker port binding and Wi-Fi IP were correct, but WordPress redirected LAN requests to `http://localhost:8080/` because the existing container still had old `WP_HOME`/`WP_SITEURL` environment values
+- Confirmed `.env.local` already had `WORDPRESS_LOCAL_URL=http://192.168.11.155:8080`; `make up` kept the existing container, while force-recreating WordPress injected the current value and restored LAN access
+- Logged the Docker/WordPress environment-variable issue in `docs/error_log.md`, added the global error-log index row, and recorded the learning that env-file changes require container recreation (`make rebuild`)
+- Investigated blank page hero backgrounds: current custom page templates were rendering color-only heroes, not broken image URLs; imported Divi background image files existed and resolved over HTTP
+- Applied mapped hero images for Home, About Us, Artist, Career, Stories, Products, and Pitch Your Pal; left Contact Us color-only as requested
+- Verified mapped image URLs return HTTP 200, PHP syntax passes for changed theme files, and rendered page hero markup outputs the expected `--hopp-hero-image` URLs

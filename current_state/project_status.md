@@ -1,6 +1,6 @@
 # Project Status
 
-**Last Updated:** 2026-05-09 (UI tasks complete)
+**Last Updated:** 2026-05-11 (LAN access fix and hero background images applied)
 
 ---
 
@@ -39,9 +39,20 @@
 - All 11 V1 UI tasks completed on feat/v1-ui-tasks: Artist, Career, Contact Us, Pitch Your Pal pages built; AJAX add-to-cart + toast; WooCommerce button color fixes; coupon hidden; hover effects consistent; story card images fixed; Browse by Series on Stories page; X icon in footer; all forms migrated to Forminator
 - Cart icon with count badge added to the header (mobile: brand→cart→hamburger; desktop: brand→nav→cart); count increments live after AJAX add-to-cart
 - "Pitch Your Pal" menu rename filter fixed (was checking wrong property); item now displays in terracotta color to distinguish it from standard nav items
-- Forminator forms cannot be reliably styled — its ~500KB CSS (`forminator-ui.min.css`) uses `[data-design=default]` attribute selectors that beat any class-only override; dropdowns use Select2 (not native select), making them doubly hard to target
-- Decision: replace all four Forminator forms (617 Artist, 628 Contact Us, 1256 Career, 1259 Pitch Your Pal) with Contact Form 7 (CF7) — minimal CSS, no skin system, full HTML control
-- **Next:** Replace Forminator forms with CF7 on all four pages, then plan sponsored GCP deployment 🔲
+- Forminator forms could not be reliably styled — its ~500KB CSS (`forminator-ui.min.css`) uses `[data-design=default]` attribute selectors that beat any class-only override; dropdowns use Select2 (not native select), making them doubly hard to target
+- All four Forminator render points have been replaced with Contact Form 7 forms: Artist, Career, Contact Us, and Pitch Your Pal now resolve CF7 forms by title and use `.wpcf7` theme styling
+- Local Docker PHP upload limits are now set to `upload_max_filesize=10M` and `post_max_size=12M` so CF7 artwork/CV upload forms pass CF7 configuration validation
+- CF7 mail templates are configured and pass CF7 validation; actual email delivery still needs SMTP/live-host verification because the local Docker stack has no mail delivery service
+- Production deployment requires Contact Form 7 to be installed/activated on the new user-managed GCP WordPress host; the current third-party live server's plugin restrictions do not block the planned GCP deployment
+- Home Products and Artists teaser sections now render real imagery dynamically: Products uses the newest published WooCommerce product image with page-banner fallback; Artists uses artist-tagged/category post imagery with Artist page banner fallback
+- About Us was rebuilt from the live-site mission/vision/objectives content and then redesigned after screenshot review. The final version removes the disconnected word panel, boxed Mission/Vision cards, and broken 6-column objectives mosaic; it now uses a restrained editorial intro, Mission/Vision text columns, and stable numbered objective rows.
+- About redesign was checked with local Chrome screenshots saved in `archive/about_us_redesign_viewport_check.png` and `archive/about_us_redesign_final_check.png`. `claude -p` was used as an external design advisor; `gemini` failed due to unavailable configured model and broken local rule imports.
+- Products page cards, Registration Fee product detail, and Registration Fee cart item now use a theme-owned registration/access-pass SVG thumbnail for the non-physical product; product cards also use character-based summaries and a consistent three-line summary area so card footers align without inventing missing product copy.
+- Story/archive/search cards now use the same character-based summary helper as Products, replacing `wp_trim_words()` and raw `the_excerpt()` card rendering for consistent truncation.
+- Stories now surfaces Series before the story grid instead of burying it at the bottom; `/series/` is a dedicated YouTube playlist-card landing page with 5 external playlist links, and the primary nav exposes `Browse by Series` as a child under `Stories` without adding an 8th top-level nav item.
+- Local LAN access is restored at `http://192.168.11.155:8080`; after `WORDPRESS_LOCAL_URL` changes, use `make rebuild` so the WordPress container is recreated and `WP_HOME`/`WP_SITEURL` are reinjected.
+- Page hero background images are now mapped from the imported uploads for Home, About Us, Artist, Career, Stories, Products, and Pitch Your Pal; Contact Us intentionally remains color-only.
+- **Next:** Plan sponsored GCP deployment 🔲
 
 ---
 
@@ -57,6 +68,11 @@
 | GCP Infrastructure Setup                             | 2026-05-06 | SSH, Docker, IP ping                                     |
 | Live Export, Local Import, and ABA Checkout Recovery | 2026-05-08 | Manual admin inspection, XML import, checkout smoke test |
 | Frontend Standards — HIGH Priority Fixes             | 2026-05-08 | Manual visual review                                     |
+| Contact Form 7 Forms Migration                       | 2026-05-09 | PHP lint, Compose config, CF7 validator, route checks    |
+| Home/About UI Refinements                            | 2026-05-09 | PHP lint, Chrome screenshot review                       |
+| Products Page UI Refinement                          | 2026-05-09 | PHP lint, rendered HTML check, Chrome screenshot review  |
+| Stories/Series UI Refinement                         | 2026-05-09 | PHP lint, JS syntax check, rendered HTML, screenshots    |
+| Hero Background Image Mapping                        | 2026-05-11 | PHP lint, HTTP 200 image checks, rendered HTML checks    |
 
 → Full details: `current_state/milestone.md`
 
@@ -96,24 +112,18 @@
 - ✅ Fix blank image placeholders (investigate + re-link featured images)
 - ✅ Surface /series/ on Stories page
 - ✅ Audit and apply hover effects consistently across all pages
-- 🔲 Replace Forminator forms with Contact Form 7 (CF7) on Artist, Career, Contact Us, Pitch Your Pal pages
+- ✅ Replace Forminator forms with Contact Form 7 (CF7) on Artist, Career, Contact Us, Pitch Your Pal pages
+- ✅ Restore HOME teaser images dynamically for Products and Artists
+- ✅ Redesign About Us using live-site content and screenshot-driven QA
+- ✅ Refine Products page registration thumbnail and product-card summaries
+- ✅ Refine Stories/Series IA, playlist cards, and card summary consistency
+- ✅ Apply imported hero background images to key pages
 
 ---
 
 ## Active Task Details
 
 Completed V1 implementation details are archived in `current_state/milestone.md`. This file now keeps only active tasks, blockers, and next work.
-
-### 🔲 Replace Forminator forms with Contact Form 7 (CF7)
-
-Forminator's `[data-design=default]` CSS framework (~500KB, includes Select2) cannot be reliably overridden with class selectors. CF7 has minimal CSS, no skin system, and gives full HTML control via its tag-based template syntax.
-
-- 🔲 Verify CF7 plugin is active locally; install if missing
-- 🔲 Create four CF7 forms: Artist (file upload + checkbox), Career (file upload + selects + checkbox), Contact Us (textarea), Pitch Your Pal (textarea)
-- 🔲 Replace `do_shortcode('[forminator_form id="N"]')` calls in `page.php` with `do_shortcode('[contact-form-7 id="N"]')` for each slug
-- 🔲 Style CF7 fields in `style.css` using `.wpcf7` selectors — no `!important` battles needed
-- 🔲 Verify email notifications deliver (CF7 uses `wp_mail()` same as Forminator)
-- Note: Forminator submission entries in DB (2 test entries) are non-critical and can be left as-is
 
 ### 🔲 Plan sponsored GCP deployment for the live WordPress site
 
@@ -125,6 +135,8 @@ Use the live WordPress admin access plus exported content and plugin inventory t
 - 🔲 Measure the runtime footprint of the imported stack
 - 🔲 Decide whether the deployment should stay on one VM or split services
 - 🔲 Choose the smallest reliable GCP machine type, disk size, and backup shape
+- 🔲 Include Contact Form 7 installation/activation in the new GCP WordPress deployment steps
+- 🔲 Verify CF7 notification delivery through the final SMTP/live-host mail path
 - 🔲 Define the redeployment steps for the final server
 - 🔲 Only after the plan is clear, provision the new GCP server and migrate
 
@@ -179,5 +191,3 @@ No performance measurement has been done on the imported-content staging site. L
 
 - Run Lighthouse or PageSpeed Insights against the local staging site (or the GCP preview once deployed)
 - Address any LCP element not loading eagerly, CLS from layout shifts, or blocking scripts
-
-

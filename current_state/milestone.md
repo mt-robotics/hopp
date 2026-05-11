@@ -11,6 +11,7 @@
 | Milestone | Completed | Tests |
 |---|---|---|
 | V1 UI Tasks — All 11 Pages, WooCommerce, AJAX, Forms | 2026-05-09 | PHP lint, WP runtime bootstrap |
+| Home/About UI Refinements | 2026-05-09 | PHP lint, Chrome screenshot review |
 | Fix MEDIUM/LOW Frontend Standards Violations | 2026-05-09 | PHP lint, manual review |
 | Evaluate WooCommerce Styling | 2026-05-09 | Manual visual review |
 | Set up Git Versioning for Theme Directory | 2026-05-09 | `git ls-files` verification |
@@ -224,3 +225,146 @@ All 8 active violations fixed. One audit item (aria-expanded) verified as a non-
 - ✅ Forminator overrides: submit buttons styled to --hopp-beige/--hopp-rust, border-radius: 0 on inputs, Montserrat font enforced
 - Commit: `99671cc` on `feat/v1-ui-tasks`
 - Note: Career Forminator form requires creation in wp-admin; currently uses form 1256 as visual placeholder
+
+## ✅ Contact Form 7 Forms Migration (2026-05-09)
+
+Forminator was replaced on the four custom theme pages because its default skin and Select2 dropdown layer were not reliable to override cleanly.
+
+- ✅ Installed and activated Contact Form 7 locally
+- ✅ Created four local CF7 forms:
+  - HOPP Artist Submission: name, email, artwork title, story textarea, upload field, consent checkbox
+  - HOPP Career Application: name, email, application type select, preferred role select, motivation textarea, upload field, consent checkbox
+  - HOPP Contact Message: name, email, subject, message textarea
+  - HOPP Pitch Your Pal Nomination: name, email, nominee name, nomination story textarea
+- ✅ Added `hopp_render_contact_form()` helper in `functions.php` to resolve CF7 forms by title instead of hardcoding environment-specific shortcode IDs
+- ✅ Replaced all four Forminator template render points in `page.php` with title-based CF7 rendering
+- ✅ Replaced Forminator/Select2 CSS overrides with `.wpcf7` styles for labels, fields, selects, file inputs, checkboxes, submit buttons, focus states, inline errors, and response banners
+- ✅ Extended imported-content cleanup to strip legacy `[forminator_form ...]` shortcodes before they can render
+- ✅ Added `docker/php/uploads.ini` and mounted it into the WordPress container so PHP supports 10 MB artwork/CV uploads
+
+**Validation:**
+
+- ✅ `php -l wp-content/themes/hopp/functions.php`
+- ✅ `php -l wp-content/themes/hopp/page.php`
+- ✅ Docker Compose config validates
+- ✅ WordPress container reports `upload_max_filesize=10M` and `post_max_size=12M`
+- ✅ CF7 configuration validator reports all four HOPP forms as valid
+- ✅ Route checks for `/artist/`, `/career/`, `/contact-us/`, and `/pitch-your-pal-phnom-penh/` render CF7 markup with zero Forminator markup and no missing-form fallback
+
+**Remaining deployment checks:** Real email delivery was not verified locally because the Docker stack has no SMTP/mail delivery service. CF7 mail templates are configured and valid; final delivery must be verified through the production SMTP/live-host path. The new user-managed GCP WordPress host must install and activate Contact Form 7 as part of deployment; the current third-party live server's plugin restrictions do not block this migration path.
+
+## ✅ Home/About UI Refinements (2026-05-09)
+
+Completed page-level UI fixes after screenshot review.
+
+### HOME teaser images
+
+- ✅ Products teaser now uses the newest published WooCommerce product image, skipping products without images
+- ✅ Products teaser falls back to the Products page banner/imported image if no product image exists
+- ✅ Artists teaser now looks for artist-related category/tag posts first, then falls back to the Artist page banner/imported Divi background image
+- ✅ Imported `/wp-content/uploads/...` image URLs are normalized to the current WordPress site URL so old `localhost:8080` references do not leak across environments
+- ✅ `.editorial-image img` now fills the teaser card using the existing media-card object-fit pattern
+
+### About Us redesign
+
+- ✅ Replaced the thin placeholder About page with the richer live-site content: platform description, Mission, Vision, and five Objectives
+- ✅ Initial About redesign was rejected after screenshots showed weak layout: giant text island, disconnected 2x2 word panel, oversized boxed Mission/Vision cards, broken/overlapping Objectives grid, and excessive empty space
+- ✅ Asked `claude -p` for external senior editorial web-design guidance; followed its recommendation to remove decorative panels, remove boxed cards, and replace the fragile mosaic with numbered editorial rows
+- ⚠️ Tried `gemini`, but it failed due to unavailable configured model and broken local rule imports, so no Gemini design advice was used
+- ✅ Final About structure: existing page hero, calm single-column intro, Mission/Vision as restrained text columns with left accent rules, Objectives as stable numbered rows, CTA band
+- ✅ Normal page hero height was separated from the homepage hero so About and other standard pages no longer consume a full desktop viewport before content
+
+**Validation:**
+
+- ✅ `php -l wp-content/themes/hopp/functions.php`
+- ✅ `php -l wp-content/themes/hopp/front-page.php`
+- ✅ `php -l wp-content/themes/hopp/page.php`
+- ✅ Local `/` render check confirmed Products and Artists teaser images output real `<img>` tags
+- ✅ Local `/about-us/` render check confirmed the removed broken classes are absent
+- ✅ Chrome screenshots captured for visual review:
+  - `archive/about_us_redesign_viewport_check.png`
+  - `archive/about_us_redesign_final_check.png`
+
+## ✅ Products Page UI Refinement (2026-05-09)
+
+Completed targeted Products page fixes after user review.
+
+- ✅ Added a theme-owned SVG fallback thumbnail for the non-physical `Registration Fee` product: `wp-content/themes/hopp/assets/images/registration-fee-thumbnail.svg`
+- ✅ Added `hopp_get_product_card_thumbnail_url()` so product cards use featured images first, then the registration access-pass artwork only for the `registration-fee` product
+- ✅ Reused the same saved SVG on the `Registration Fee` product detail page instead of WooCommerce's default `placeholder.webp`; normal product pages still use the standard WooCommerce gallery when a real product image exists
+- ✅ Reused the same saved SVG on the Cart page through `woocommerce_cart_item_thumbnail`, so the `Registration Fee` cart row no longer shows WooCommerce's default placeholder
+- ✅ Replaced word-count product summary trimming with character-based trimming through `hopp_trim_text_by_chars()` and `hopp_get_product_summary()`
+- ✅ Applied the same thumbnail/summary behavior to `/products/`, the WooCommerce product archive template, and related-product cards on single-product pages
+- ✅ Added a reserved three-line product summary area, including an aria-hidden empty placeholder when imported product data has no recoverable description, so card footers align without inventing copy
+
+**Validation:**
+
+- ✅ `php -l wp-content/themes/hopp/functions.php`
+- ✅ `php -l wp-content/themes/hopp/page.php`
+- ✅ `php -l wp-content/themes/hopp/archive-product.php`
+- ✅ `php -l wp-content/themes/hopp/single-product.php`
+- ✅ Local `/products/` HTML confirms the registration card loads `registration-fee-thumbnail.svg`
+- ✅ Local `/product/registration-fee/` HTML confirms the detail page loads `registration-fee-thumbnail.svg` and no longer outputs WooCommerce `placeholder.webp`
+- ✅ Local `/cart/` HTML confirms the `Registration Fee` cart item loads `registration-fee-thumbnail.svg` and no longer outputs WooCommerce `placeholder.webp`
+- ✅ Chrome screenshot captured at `archive/products_page_check_final.png`
+- ✅ Chrome screenshot captured at `archive/registration_fee_product_detail_check.png`
+- ✅ Chrome screenshot captured at `archive/cart_registration_fee_thumbnail_check.png`
+
+## ✅ Stories/Series UI Refinement (2026-05-09)
+
+Completed Stories information architecture and card consistency fixes after user review.
+
+- ✅ Asked `claude -p` for IA/design advice; recommendation was to keep Series out of the top-level nav, expose it as a Stories child, and move the in-page CTA above the story grid
+- ✅ Moved the `Browse by Series` CTA on `/stories/` from the bottom of the page to above the story card grid
+- ✅ Built `/series/` as a dedicated YouTube playlist-card landing page
+- ✅ Added 5 YouTube playlist cards using resolved playlist titles and video counts:
+  - Dakshin Restaurant Stories — 4 videos
+  - Uy Ratha Stories — 5 videos
+  - Ley Oudom Stories — 5 videos
+  - E Chen Stories — 5 videos
+  - Duck Roasted House Stories — 5 videos
+- ✅ Playlist cards open the supplied YouTube playlist URLs in a new tab with `target="_blank"` and `rel="noopener noreferrer"`
+- ✅ Added a theme-injected `Browse by Series` submenu child under `Stories`, preserving the 7-item top-level navigation
+- ✅ Added mobile submenu behavior: tapping `Stories` opens the submenu first on mobile; desktop still allows direct `Stories` navigation with hover/focus submenu access
+- ✅ Added `hopp_get_post_card_summary()` and applied character-based summaries consistently to Stories, Home story cards, archive cards, and search result cards
+- ✅ Replaced remaining card-level `wp_trim_words()` / raw `the_excerpt()` paths with shared `card-summary` rendering
+
+**Validation:**
+
+- ✅ `php -l wp-content/themes/hopp/functions.php`
+- ✅ `php -l wp-content/themes/hopp/page.php`
+- ✅ `php -l wp-content/themes/hopp/header.php`
+- ✅ `node --check wp-content/themes/hopp/assets/js/navigation.js`
+- ✅ Local `/stories/` HTML confirms the Series CTA renders before the story grid
+- ✅ Local `/series/` HTML confirms all 5 playlist cards, real playlist titles, external URLs, and nav submenu output
+- ✅ Chrome screenshots captured:
+  - `archive/stories_card_summary_check.png`
+  - `archive/stories_series_cta_top_check.png`
+  - `archive/series_youtube_cards_check.png`
+
+## ✅ Hero Background Image Mapping (2026-05-11)
+
+Applied imported upload images to the custom HOPP hero system after confirming the issue was template behavior, not broken image files.
+
+- ✅ Diagnosed page heroes as color-only by code: `hopp_render_page_hero()` did not output an image or background-image value
+- ✅ Confirmed affected pages had no active featured image assignment in WordPress (`_thumbnail_id` empty or `0`)
+- ✅ Verified the requested imported image files exist inside the Docker WordPress upload volume and resolve over HTTP
+- ✅ Corrected the Pitch Your Pal image path to the actual local file: `happy-new-year-2025-fireworks-festive-fun-joyous-midnight-countdown-new-beginnings-scaled-1.jpg`
+- ✅ Added a theme-owned hero image mapping for:
+  - Home → `2023/09/combodians.jpg`
+  - About Us → `2023/10/phnom-penh-cover-image.jpg`
+  - Artist → `2025/03/Untitled-2-01.png`
+  - Career → `2023/10/Untitled-design-15.jpg`
+  - Stories → `2023/09/combodians.jpg`
+  - Products → `2023/10/Artist.jpg`
+  - Pitch Your Pal → `2026/01/happy-new-year-2025-fireworks-festive-fun-joyous-midnight-countdown-new-beginnings-scaled-1.jpg`
+- ✅ Left Contact Us as color-only by request
+- ✅ Added overlay styling for image-backed home/page heroes while preserving existing variant colors as fallbacks
+
+**Validation:**
+
+- ✅ `php -l /var/www/html/wp-content/themes/hopp/functions.php`
+- ✅ `php -l /var/www/html/wp-content/themes/hopp/front-page.php`
+- ✅ All mapped upload URLs returned HTTP 200
+- ✅ Rendered page HTML confirmed expected `--hopp-hero-image` URLs on Home, About Us, Artist, Career, Stories, Products, and Pitch Your Pal
+- ✅ Rendered Contact Us hero confirmed no image mapping and no `page-hero--has-image` class

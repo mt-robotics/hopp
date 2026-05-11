@@ -22,6 +22,7 @@ Full task spec: `current_state/project_status.md` -> sponsored GCP deployment pl
 | Design source | `DESIGN.md` using Google Stitch DESIGN.md format |
 | Database | MySQL via Docker Compose for local WordPress |
 | E-commerce | WooCommerce |
+| Forms | Contact Form 7 |
 | Local infra | Docker Compose, WordPress container, MySQL container, named volumes |
 | Cloud hosting | Google Cloud Platform (GCP) - sponsor-funded Compute Engine target, size to be determined from the cloned workload |
 | Production access | WP admin access available; live server access unavailable but not required for the import-first plan |
@@ -52,6 +53,7 @@ Full task spec: `current_state/project_status.md` -> sponsored GCP deployment pl
 │   ├── demo_design_plan.md    # V1 demo page/component design plan
 │   └── live_wordpress_deployment.md # Live WP admin deployment runbook
 ├── docker-compose.yml         # Shared WordPress + MySQL base
+├── docker/php/uploads.ini     # PHP upload limits for CF7 artwork/CV forms
 ├── index.html                 # Current static prototype/reference
 └── resources/
     └── context.md             # Legacy website and business context
@@ -89,7 +91,7 @@ wp-content/
 
 **Navigation preserved:** The original 7-item nav remains: Home, About Us, Products, Stories, Artist, Career, Contact Us, plus cart.
 
-**Plugin stack confirmed:** WooCommerce is active on the live site and is mirrored locally for the imported workload. Divi-only builder layouts were not imported because the live Divi stack is not present locally.
+**Plugin stack confirmed:** WooCommerce is active on the live site and is mirrored locally for the imported workload. Contact Form 7 now handles the four public form pages in local staging. Divi-only builder layouts were not imported because the live Divi stack is not present locally.
 
 ---
 
@@ -120,6 +122,7 @@ wp-content/
 |---|---|
 | Divi builder layouts not imported locally | The live stack uses Divi-specific post types that are not available in the current local theme stack |
 | Sponsor-funded GCP size not yet chosen | Final server layout cannot be locked until the clone is measured |
+| Contact Form 7 must be included in new GCP deployment | The local theme now depends on CF7 for four public forms, so the new user-managed WordPress host must install and activate it |
 
 ---
 
