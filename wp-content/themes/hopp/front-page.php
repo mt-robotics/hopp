@@ -4,10 +4,14 @@
  */
 
 get_header();
+
+$home_hero_image    = hopp_get_hero_image_url_for_slug( 'home' );
+$home_product_image = hopp_get_latest_product_image_url();
+$home_artist_image  = hopp_get_home_artist_image_url();
 ?>
 
 <main>
-	<section class="hero hero--home">
+	<section class="hero hero--home"<?php echo $home_hero_image ? ' style="--hopp-hero-image: url(' . esc_url( $home_hero_image ) . ');"' : ''; ?>>
 		<div class="hero__content">
 			<p class="hero__eyebrow"><?php esc_html_e( 'Humans of Phnom Penh', 'hopp' ); ?></p>
 			<h1><?php esc_html_e( 'Every person has a story worth sharing.', 'hopp' ); ?></h1>
@@ -44,6 +48,7 @@ get_header();
 				while ( $stories->have_posts() ) :
 					$stories->the_post();
 					$story_thumb = get_the_post_thumbnail_url( get_the_ID(), 'medium_large' );
+					$summary     = hopp_get_post_card_summary( get_the_ID() );
 					?>
 					<article class="story-card">
 						<a href="<?php the_permalink(); ?>">
@@ -55,7 +60,9 @@ get_header();
 							<div class="story-card__body">
 								<p class="card-kicker"><?php echo esc_html( get_the_date() ); ?></p>
 								<h3><?php the_title(); ?></h3>
-								<?php the_excerpt(); ?>
+								<?php if ( '' !== $summary ) : ?>
+									<p class="card-summary"><?php echo esc_html( $summary ); ?></p>
+								<?php endif; ?>
 							</div>
 						</a>
 					</article>
@@ -78,11 +85,19 @@ get_header();
 			<p><?php esc_html_e( 'The V1 demo frames products as editorial artifacts: books, prints, and artist-made objects connected to local narratives.', 'hopp' ); ?></p>
 			<a class="text-link" href="<?php echo esc_url( home_url( '/products/' ) ); ?>"><?php esc_html_e( 'Explore products', 'hopp' ); ?></a>
 		</div>
-		<div class="editorial-image" style="background: <?php echo esc_attr( hopp_demo_asset_gradient( 'sand' ) ); ?>"></div>
+		<div class="editorial-image" style="background: <?php echo esc_attr( hopp_demo_asset_gradient( 'sand' ) ); ?>">
+			<?php if ( $home_product_image ) : ?>
+				<img src="<?php echo esc_url( $home_product_image ); ?>" alt="<?php esc_attr_e( 'Latest product from Humans of Phnom Penh', 'hopp' ); ?>" loading="lazy">
+			<?php endif; ?>
+		</div>
 	</section>
 
 	<section class="section section--paper split-section split-section--reverse">
-		<div class="editorial-image" style="background: <?php echo esc_attr( hopp_demo_asset_gradient( 'terracotta' ) ); ?>"></div>
+		<div class="editorial-image" style="background: <?php echo esc_attr( hopp_demo_asset_gradient( 'terracotta' ) ); ?>">
+			<?php if ( $home_artist_image ) : ?>
+				<img src="<?php echo esc_url( $home_artist_image ); ?>" alt="<?php esc_attr_e( 'Artist and contributor story from Humans of Phnom Penh', 'hopp' ); ?>" loading="lazy">
+			<?php endif; ?>
+		</div>
 		<div>
 			<p class="section-label"><?php esc_html_e( 'Artists', 'hopp' ); ?></p>
 			<h2><?php esc_html_e( 'A place for contributors, portraits, and creative work.', 'hopp' ); ?></h2>

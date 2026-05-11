@@ -17,7 +17,7 @@ get_header();
 			<?php foreach ( $products as $product ) : ?>
 				<?php
 				$product_id = $product->get_id();
-				$thumbnail  = get_the_post_thumbnail_url( $product_id, 'medium_large' );
+				$thumbnail  = hopp_get_product_card_thumbnail_url( $product, 'medium_large' );
 				?>
 				<article class="product-card">
 					<a class="product-card__link" href="<?php echo esc_url( $product->get_permalink() ); ?>">
@@ -29,8 +29,10 @@ get_header();
 						<div class="product-card__body">
 							<p class="card-kicker"><?php echo esc_html( hopp_get_product_category_label( $product_id ) ); ?></p>
 							<h2><?php echo esc_html( $product->get_name() ); ?></h2>
-							<?php if ( $product_summary = hopp_get_product_summary( $product, 22 ) ) : ?>
-								<p><?php echo esc_html( $product_summary ); ?></p>
+							<?php if ( $product_summary = hopp_get_product_summary( $product ) ) : ?>
+								<p class="product-card__summary"><?php echo esc_html( $product_summary ); ?></p>
+							<?php else : ?>
+								<p class="product-card__summary product-card__summary--empty" aria-hidden="true">&nbsp;</p>
 							<?php endif; ?>
 							<div class="product-card__footer"><strong><?php echo wp_kses_post( $product->get_price_html() ); ?></strong><span><?php esc_html_e( 'View Product', 'hopp' ); ?></span></div>
 						</div>

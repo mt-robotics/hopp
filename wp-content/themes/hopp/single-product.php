@@ -15,6 +15,8 @@ get_header();
 		$product         = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
 		$category_label  = hopp_get_product_category_label( $product_id );
 		$detail_html     = $product ? hopp_get_product_detail_html( $product ) : '';
+		$detail_image    = $product ? hopp_get_product_card_thumbnail_url( $product, 'large' ) : '';
+		$has_image       = $product && method_exists( $product, 'get_image_id' ) && (int) $product->get_image_id();
 		$related_products = $product ? hopp_get_related_product_objects( $product_id, 3 ) : array();
 		?>
 
@@ -38,8 +40,14 @@ get_header();
 			<div class="product-detail__shell">
 				<div class="product-detail__media">
 					<?php
-					if ( function_exists( 'woocommerce_show_product_images' ) ) {
+					if ( $has_image && function_exists( 'woocommerce_show_product_images' ) ) {
 						woocommerce_show_product_images();
+					} elseif ( $detail_image ) {
+						?>
+						<figure class="product-detail__fallback-image">
+							<img src="<?php echo esc_url( $detail_image ); ?>" alt="<?php echo esc_attr( get_the_title() ); ?>">
+						</figure>
+						<?php
 					}
 					?>
 				</div>
@@ -91,8 +99,8 @@ get_header();
 						<?php foreach ( $related_products as $related_product ) : ?>
 							<?php
 							$related_id    = $related_product->get_id();
-							$thumbnail     = get_the_post_thumbnail_url( $related_id, 'medium_large' );
-							$summary       = hopp_get_product_summary( $related_product, 22 );
+							$thumbnail     = hopp_get_product_card_thumbnail_url( $related_product, 'medium_large' );
+							$summary       = hopp_get_product_summary( $related_product );
 							$related_link  = $related_product->get_permalink();
 							$related_label = hopp_get_product_category_label( $related_id );
 							?>
@@ -107,7 +115,9 @@ get_header();
 										<p class="card-kicker"><?php echo esc_html( $related_label ); ?></p>
 										<h2><?php echo esc_html( $related_product->get_name() ); ?></h2>
 										<?php if ( '' !== $summary ) : ?>
-											<p><?php echo esc_html( $summary ); ?></p>
+											<p class="product-card__summary"><?php echo esc_html( $summary ); ?></p>
+										<?php else : ?>
+											<p class="product-card__summary product-card__summary--empty" aria-hidden="true">&nbsp;</p>
 										<?php endif; ?>
 										<div class="product-card__footer">
 											<strong><?php echo wp_kses_post( $related_product->get_price_html() ); ?></strong>

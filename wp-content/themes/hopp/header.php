@@ -44,7 +44,7 @@
 					'container'      => false,
 					'fallback_cb'    => 'hopp_fallback_menu',
 					'menu_class'     => 'site-nav__list',
-					'depth'          => 1,
+					'depth'          => 2,
 				)
 			);
 			?>

@@ -15,17 +15,61 @@ get_header();
 		<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 			<?php
 			if ( 'about-us' === $slug ) :
-				hopp_render_page_hero( __( 'About Us', 'hopp' ), get_the_title(), __( 'A cultural storytelling platform documenting people, creative work, and community memory in Phnom Penh.', 'hopp' ), 'sand' );
+				hopp_render_page_hero( __( 'About Us', 'hopp' ), get_the_title(), __( 'A cultural storytelling platform showcasing the people, diversity, and heritage of Phnom Penh.', 'hopp' ), 'sand' );
 				?>
-				<section class="section section--paper prose-section">
-					<p class="section-label"><?php esc_html_e( 'Mission', 'hopp' ); ?></p>
-					<h2><?php esc_html_e( 'Make local stories visible, respectful, and memorable.', 'hopp' ); ?></h2>
-					<p><?php esc_html_e( 'Humans of Phnom Penh exists at the intersection of cultural publishing, portrait storytelling, creative services, and community participation.', 'hopp' ); ?></p>
+				<section class="section section--paper about-intro">
+					<div class="about-intro__copy">
+						<p class="section-label"><?php esc_html_e( 'About Us', 'hopp' ); ?></p>
+						<h2><?php esc_html_e( 'Stories that make the city easier to understand, remember, and care about.', 'hopp' ); ?></h2>
+						<p><?php esc_html_e( 'Humans of Phnom Penh is dedicated to showcasing the rich diversity and culture of Phnom Penh, Cambodia. Through interviews, photographs, and videos, the platform brings together the unique stories of the city’s people and creates a space for empathy, understanding, and dialogue.', 'hopp' ); ?></p>
+					</div>
 				</section>
-				<section class="section section--cream feature-grid">
-					<div><h3><?php esc_html_e( 'Vision', 'hopp' ); ?></h3><p><?php esc_html_e( 'A public archive where the city can recognize itself through people, places, craft, and memory.', 'hopp' ); ?></p></div>
-					<div><h3><?php esc_html_e( 'Objective 01', 'hopp' ); ?></h3><p><?php esc_html_e( 'Publish human-centered stories that feel intimate, accurate, and visually refined.', 'hopp' ); ?></p></div>
-					<div><h3><?php esc_html_e( 'Objective 02', 'hopp' ); ?></h3><p><?php esc_html_e( 'Connect artists, brands, volunteers, and readers through meaningful cultural work.', 'hopp' ); ?></p></div>
+				<section class="section section--cream about-principles">
+					<div class="about-principle about-principle--mission">
+						<p class="section-label"><?php esc_html_e( 'Mission', 'hopp' ); ?></p>
+						<h2><?php esc_html_e( 'Highlight the diverse and captivating stories of the people who call Phnom Penh home.', 'hopp' ); ?></h2>
+						<p><?php esc_html_e( 'Through the platform, Humans of Phnom Penh aims to foster greater empathy and understanding, promote dialogue, and celebrate the cultural richness of the city.', 'hopp' ); ?></p>
+					</div>
+					<div class="about-principle">
+						<p class="section-label"><?php esc_html_e( 'Vision', 'hopp' ); ?></p>
+						<h2><?php esc_html_e( 'Become a leading platform for Phnom Penh’s diversity and cultural heritage.', 'hopp' ); ?></h2>
+						<p><?php esc_html_e( 'The long-term vision is to promote social cohesion, inclusivity, and understanding among the people of Phnom Penh through human-centered cultural storytelling.', 'hopp' ); ?></p>
+					</div>
+				</section>
+				<section class="section section--paper about-objectives">
+					<div class="section__header">
+						<p class="section-label"><?php esc_html_e( 'Objectives', 'hopp' ); ?></p>
+						<h2><?php esc_html_e( 'What the platform is built to do.', 'hopp' ); ?></h2>
+					</div>
+					<div class="about-objectives__grid">
+						<div class="about-objective">
+							<span><?php esc_html_e( '01', 'hopp' ); ?></span>
+							<p><?php esc_html_e( 'Showcase the unique and captivating stories of the people of Phnom Penh through interviews, photographs, and videos.', 'hopp' ); ?></p>
+						</div>
+						<div class="about-objective">
+							<span><?php esc_html_e( '02', 'hopp' ); ?></span>
+							<p><?php esc_html_e( 'Foster empathy and understanding among the audience, promoting greater social cohesion and inclusivity within the city.', 'hopp' ); ?></p>
+						</div>
+						<div class="about-objective">
+							<span><?php esc_html_e( '03', 'hopp' ); ?></span>
+							<p><?php esc_html_e( 'Celebrate the cultural richness and diversity of Phnom Penh, highlighting the traditions, beliefs, and practices that make it special.', 'hopp' ); ?></p>
+						</div>
+						<div class="about-objective">
+							<span><?php esc_html_e( '04', 'hopp' ); ?></span>
+							<p><?php esc_html_e( 'Create a space for dialogue and exchange of ideas, encouraging audiences to engage with the stories and perspectives shared on the platform.', 'hopp' ); ?></p>
+						</div>
+						<div class="about-objective">
+							<span><?php esc_html_e( '05', 'hopp' ); ?></span>
+							<p><?php esc_html_e( 'Promote tourism and cultural exchange by showcasing the hidden gems and local experiences that Phnom Penh has to offer.', 'hopp' ); ?></p>
+						</div>
+					</div>
+				</section>
+				<section class="cta-band about-cta">
+					<div>
+						<p class="section-label"><?php esc_html_e( 'Join the Dialogue', 'hopp' ); ?></p>
+						<h2><?php esc_html_e( 'Read a story, contribute a perspective, or help document the city.', 'hopp' ); ?></h2>
+					</div>
+					<a class="button-primary button-primary--light" href="<?php echo esc_url( home_url( '/stories/' ) ); ?>"><?php esc_html_e( 'Explore Stories', 'hopp' ); ?></a>
 				</section>
 			<?php elseif ( 'products' === $slug ) : ?>
 				<?php hopp_render_page_hero( __( 'Products', 'hopp' ), get_the_title(), __( 'A visual store direction for cultural objects, books, prints, and artist collaborations.', 'hopp' ), 'terracotta' ); ?>
@@ -35,7 +79,7 @@ get_header();
 							<?php
 							$product_id = $product->get_id();
 							$permalink  = $product->get_permalink();
-							$thumbnail  = get_the_post_thumbnail_url( $product_id, 'medium_large' );
+							$thumbnail  = hopp_get_product_card_thumbnail_url( $product, 'medium_large' );
 							?>
 							<article class="product-card">
 								<a class="product-card__link" href="<?php echo esc_url( $permalink ); ?>">
@@ -47,8 +91,10 @@ get_header();
 									<div class="product-card__body">
 										<p class="card-kicker"><?php echo esc_html( hopp_get_product_category_label( $product_id ) ); ?></p>
 										<h2><?php echo esc_html( $product->get_name() ); ?></h2>
-										<?php if ( $product_summary = hopp_get_product_summary( $product, 22 ) ) : ?>
-											<p><?php echo esc_html( $product_summary ); ?></p>
+										<?php if ( $product_summary = hopp_get_product_summary( $product ) ) : ?>
+											<p class="product-card__summary"><?php echo esc_html( $product_summary ); ?></p>
+										<?php else : ?>
+											<p class="product-card__summary product-card__summary--empty" aria-hidden="true">&nbsp;</p>
 										<?php endif; ?>
 										<div class="product-card__footer"><strong><?php echo wp_kses_post( $product->get_price_html() ); ?></strong><span><?php esc_html_e( 'View Product', 'hopp' ); ?></span></div>
 									</div>
@@ -71,6 +117,16 @@ get_header();
 				</section>
 			<?php elseif ( 'stories' === $slug ) : ?>
 				<?php hopp_render_page_hero( __( 'Stories', 'hopp' ), get_the_title(), __( 'Portraits, interviews, and neighborhood dispatches from Phnom Penh.', 'hopp' ), 'brown' ); ?>
+				<section class="section section--cream series-teaser">
+					<div class="series-teaser__inner">
+						<div>
+							<p class="section-label"><?php esc_html_e( 'Browse by Series', 'hopp' ); ?></p>
+							<h2><?php esc_html_e( 'Explore curated story collections.', 'hopp' ); ?></h2>
+							<p><?php esc_html_e( 'Watch connected Humans of Phnom Penh video stories through curated YouTube playlists.', 'hopp' ); ?></p>
+						</div>
+						<a class="button-primary" href="<?php echo esc_url( home_url( '/series/' ) ); ?>"><?php esc_html_e( 'Browse All Series', 'hopp' ); ?></a>
+					</div>
+				</section>
 				<section class="section section--paper">
 					<?php
 					$story_posts = hopp_get_story_cards( 9 );
@@ -80,9 +136,8 @@ get_header();
 							<?php
 							foreach ( $story_posts as $story_post ) :
 								setup_postdata( $story_post );
-								$clean_story    = hopp_clean_imported_content( get_post_field( 'post_content', $story_post->ID ) );
-								$summary        = wp_trim_words( wp_strip_all_tags( $clean_story ), 26, '...' );
-								$story_thumb    = get_the_post_thumbnail_url( $story_post->ID, 'medium_large' );
+								$summary     = hopp_get_post_card_summary( $story_post->ID );
+								$story_thumb = get_the_post_thumbnail_url( $story_post->ID, 'medium_large' );
 								?>
 								<article class="story-card">
 									<a href="<?php echo esc_url( get_permalink( $story_post ) ); ?>">
@@ -94,7 +149,9 @@ get_header();
 										<div class="story-card__body">
 											<p class="card-kicker"><?php echo esc_html( get_the_date( '', $story_post ) ); ?></p>
 											<h2><?php echo esc_html( get_the_title( $story_post ) ); ?></h2>
-											<p><?php echo esc_html( $summary ); ?></p>
+											<?php if ( '' !== $summary ) : ?>
+												<p class="card-summary"><?php echo esc_html( $summary ); ?></p>
+											<?php endif; ?>
 										</div>
 									</a>
 								</article>
@@ -109,14 +166,27 @@ get_header();
 						</div>
 					<?php endif; ?>
 				</section>
-				<section class="section section--cream series-teaser">
-					<div class="series-teaser__inner">
-						<div>
-							<p class="section-label"><?php esc_html_e( 'Browse by Series', 'hopp' ); ?></p>
-							<h2><?php esc_html_e( 'Explore curated story collections.', 'hopp' ); ?></h2>
-							<p><?php esc_html_e( 'Some of our best storytelling runs across multiple entries. Browse series to follow a thread from start to finish.', 'hopp' ); ?></p>
-						</div>
-						<a class="button-primary" href="<?php echo esc_url( home_url( '/series/' ) ); ?>"><?php esc_html_e( 'Browse All Series', 'hopp' ); ?></a>
+			<?php elseif ( 'series' === $slug ) : ?>
+				<?php hopp_render_page_hero( __( 'Series', 'hopp' ), get_the_title(), __( 'Curated video story collections from Humans of Phnom Penh.', 'hopp' ), 'brown' ); ?>
+				<section class="section section--paper youtube-series">
+					<div class="section__header">
+						<p class="section-label"><?php esc_html_e( 'YouTube Playlists', 'hopp' ); ?></p>
+						<h2><?php esc_html_e( 'Follow each story collection on YouTube.', 'hopp' ); ?></h2>
+						<p><?php esc_html_e( 'Each card opens a curated Humans of Phnom Penh playlist in a new tab.', 'hopp' ); ?></p>
+					</div>
+					<div class="youtube-series__grid">
+						<?php foreach ( hopp_get_youtube_series_playlists() as $playlist ) : ?>
+							<a class="youtube-series-card" href="<?php echo esc_url( $playlist['url'] ); ?>" target="_blank" rel="noopener noreferrer">
+								<span class="youtube-series-card__label"><?php echo esc_html( $playlist['label'] ); ?></span>
+								<span class="youtube-series-card__icon" aria-hidden="true">
+									<svg viewBox="0 0 24 24" focusable="false">
+										<path d="M21.6 7.2s-.2-1.5-.8-2.1c-.8-.8-1.7-.8-2.1-.9C15.8 4 12 4 12 4s-3.8 0-6.7.2c-.4.1-1.3.1-2.1.9-.6.6-.8 2.1-.8 2.1S2.2 9 2.2 10.8v1.7c0 1.8.2 3.6.2 3.6s.2 1.5.8 2.1c.8.8 1.9.8 2.4.9 1.7.2 6.4.2 6.4.2s3.8 0 6.7-.2c.4-.1 1.3-.1 2.1-.9.6-.6.8-2.1.8-2.1s.2-1.8.2-3.6v-1.7c0-1.8-.2-3.6-.2-3.6zM10.1 14.8V8.6l5.8 3.1-5.8 3.1z"></path>
+									</svg>
+								</span>
+								<span class="youtube-series-card__title"><?php echo esc_html( $playlist['title'] ); ?></span>
+								<span class="youtube-series-card__meta"><?php echo esc_html( $playlist['count'] ); ?> <span aria-hidden="true">&middot;</span> <?php esc_html_e( 'Open playlist on YouTube', 'hopp' ); ?></span>
+							</a>
+						<?php endforeach; ?>
 					</div>
 				</section>
 			<?php elseif ( 'artist' === $slug ) : ?>
@@ -143,8 +213,8 @@ get_header();
 						<p class="section-label"><?php esc_html_e( 'Showcase Your Artwork', 'hopp' ); ?></p>
 						<h2><?php esc_html_e( 'Share your work with the platform.', 'hopp' ); ?></h2>
 					</div>
-					<div class="forminator-wrap">
-						<?php echo do_shortcode( '[forminator_form id="617"]' ); ?>
+					<div class="hopp-form-wrap">
+						<?php hopp_render_contact_form( 'HOPP Artist Submission' ); ?>
 					</div>
 				</section>
 				<section class="section section--paper feature-grid">
@@ -263,12 +333,8 @@ get_header();
 						<p class="section-label"><?php esc_html_e( 'Apply Now', 'hopp' ); ?></p>
 						<h2><?php esc_html_e( 'Be A Part Of Winning Team', 'hopp' ); ?></h2>
 					</div>
-					<div class="forminator-wrap">
-						<?php
-						/* Career application form. If the form ID below shows an empty form,
-						 * create the Career form in wp-admin → Forminator and update this ID. */
-						echo do_shortcode( '[forminator_form id="1256"]' );
-						?>
+					<div class="hopp-form-wrap">
+						<?php hopp_render_contact_form( 'HOPP Career Application' ); ?>
 					</div>
 				</section>
 			<?php elseif ( 'contact-us' === $slug ) : ?>
@@ -305,8 +371,8 @@ get_header();
 					</div>
 					<div class="contact-form">
 						<p class="section-label"><?php esc_html_e( 'Send a Message', 'hopp' ); ?></p>
-						<div class="forminator-wrap">
-							<?php echo do_shortcode( '[forminator_form id="628"]' ); ?>
+						<div class="hopp-form-wrap">
+							<?php hopp_render_contact_form( 'HOPP Contact Message' ); ?>
 						</div>
 					</div>
 				</section>
@@ -323,8 +389,8 @@ get_header();
 					<div class="section__header">
 						<p class="section-label"><?php esc_html_e( 'Submit a Nomination', 'hopp' ); ?></p>
 					</div>
-					<div class="forminator-wrap">
-						<?php echo do_shortcode( '[forminator_form id="1259"]' ); ?>
+					<div class="hopp-form-wrap">
+						<?php hopp_render_contact_form( 'HOPP Pitch Your Pal Nomination' ); ?>
 					</div>
 				</section>
 				<?php
