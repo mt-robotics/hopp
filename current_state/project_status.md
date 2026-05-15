@@ -1,6 +1,6 @@
 # Project Status
 
-**Last Updated:** 2026-05-11 (LAN access fix and hero background images applied)
+**Last Updated:** 2026-05-11 (clickable dropdown and token docs completed)
 
 ---
 
@@ -52,7 +52,15 @@
 - Stories now surfaces Series before the story grid instead of burying it at the bottom; `/series/` is a dedicated YouTube playlist-card landing page with 5 external playlist links, and the primary nav exposes `Browse by Series` as a child under `Stories` without adding an 8th top-level nav item.
 - Local LAN access is restored at `http://192.168.11.155:8080`; after `WORDPRESS_LOCAL_URL` changes, use `make rebuild` so the WordPress container is recreated and `WP_HOME`/`WP_SITEURL` are reinjected.
 - Page hero background images are now mapped from the imported uploads for Home, About Us, Artist, Career, Stories, Products, and Pitch Your Pal; Contact Us intentionally remains color-only.
-- **Next:** Plan sponsored GCP deployment 🔲
+- May 11 team feedback is now tracked as V1 work: nav placement, Series thumbnails, color direction, missing images, footer policy/social/layout issues, Home background replacement, and remaining content gaps
+- Non-blocked May 11 feedback is complete: Pitch Your Pal is removed from the primary menu and appears inside the Products page, Series cards show YouTube thumbnails, Career role cards use the requested imported images, rendered page image URLs pass HTTP checks, and the footer uses SVG social icons with a tighter responsive layout
+- The Stories navigation dropdown now renders above page heroes/banners and remains usable while moving the pointer from the parent link into the submenu; Playwright verified click-through to `/series/`
+- The Products-page Pitch Your Pal treatment is now a reusable `hopp_render_context_cta()` component applied across Home, About Us, Products, Stories, Artist, Career, and Contact Us
+- Contact Us and page CTAs no longer use the terracotta/orange banner treatment; theme color surfaces now use centralized CSS variables so normal color changes are token-level, not page-by-page, and the token workflow is documented in `README.md`
+- A floating Return to Top control is implemented and appears after scrolling
+- Quick asset scan found the Artist hero was loading an 11.5 MB original PNG; it now uses the generated 1536px version instead, while full media optimization remains tracked in the backlog
+- Blocked May 11 feedback remains dependent on external input: final brand color, Privacy/Terms page content, replacement Home hero asset, and additional approved content
+- **Next:** resolve blocked May 11 feedback when assets/content arrive, or plan sponsored GCP deployment 🔲
 
 ---
 
@@ -73,6 +81,8 @@
 | Products Page UI Refinement                          | 2026-05-09 | PHP lint, rendered HTML check, Chrome screenshot review  |
 | Stories/Series UI Refinement                         | 2026-05-09 | PHP lint, JS syntax check, rendered HTML, screenshots    |
 | Hero Background Image Mapping                        | 2026-05-11 | PHP lint, HTTP 200 image checks, rendered HTML checks    |
+| May 11 Team Feedback — Non-blocked UI Fixes          | 2026-05-11 | PHP lint, HTTP checks, Playwright screenshots            |
+| Navigation, Context CTA, and Return-to-Top Refinements | 2026-05-11 | PHP lint, JS syntax, HTTP checks, Playwright screenshots |
 
 → Full details: `current_state/milestone.md`
 
@@ -118,12 +128,58 @@
 - ✅ Refine Products page registration thumbnail and product-card summaries
 - ✅ Refine Stories/Series IA, playlist cards, and card summary consistency
 - ✅ Apply imported hero background images to key pages
+- ✅ Move Pitch Your Pal under Products
+- ✅ Add YouTube thumbnails to the Series page
+- 🔲 Reconcile theme color with final brand direction
+- ✅ Audit and fix missing images across pages
+- 🔲 Link footer Privacy Policy and Terms pages
+- ✅ Replace footer social icons with source-aligned icons
+- 🔲 Replace the Home hero background after designer update
+- 🔲 Gather and add remaining approved content
+- ✅ Redesign footer layout and spacing
+- ✅ Fix Stories dropdown layering above page banners
+- ✅ Apply reusable contextual CTA component across pages
+- ✅ Implement token-level theme color source of truth in code
+- ✅ Add floating Go to Top control
 
 ---
 
 ## Active Task Details
 
 Completed V1 implementation details are archived in `current_state/milestone.md`. This file now keeps only active tasks, blockers, and next work.
+
+### 🔲 Reconcile theme color with final brand direction
+
+The team flagged the current orange/terracotta direction as potentially inconsistent with the brand. This needs designer input before changing global tokens because the palette affects the whole theme.
+
+- Blocked until the designer provides the final theme color or a clear brand-color direction
+- Theme color now has a code-level single source of truth in `wp-content/themes/hopp/style.css` through `--hopp-brand-*` variables
+- Update `DESIGN.md` first if the color system changes, then update the matching `--hopp-brand-*` variables instead of editing every page template
+- Apply the approved color tokens consistently across any remaining one-off surfaces if the designer changes the brand direction
+
+### 🔲 Link footer Privacy Policy and Terms pages
+
+The footer currently needs Privacy Policy and Terms links, but the exact policy content/page ownership needs project manager confirmation before inventing legal text.
+
+- Blocked until the project manager confirms which policy pages should exist and what content source should be used
+- Create or link the approved WordPress pages
+- Verify footer links resolve correctly and do not point to placeholders
+
+### 🔲 Replace the Home hero background after designer update
+
+The current Home hero background is mapped from imported media, but the team expects a new design/background image. This task is blocked on receiving the final designer asset or direction.
+
+- Blocked until the approved Home background image or specific redesign instruction is available
+- Replace the mapped Home hero image without disturbing other page hero mappings
+- Verify desktop, tablet, mobile crop behavior after replacement
+
+### 🔲 Gather and add remaining approved content
+
+The team noted that more content may need to be added. This needs project manager confirmation so the theme does not invent copy or publish unapproved material.
+
+- Blocked until the project manager identifies which pages need more content and provides approved copy/media
+- Add only approved copy/media to the relevant WordPress content or theme-controlled sections
+- Re-run visual checks on any page whose content length changes materially
 
 ### 🔲 Plan sponsored GCP deployment for the live WordPress site
 
@@ -172,6 +228,9 @@ Transition note: this path proved the preview stack, but the sponsored project n
 - 🔲 Run browser visual QA with screenshots after Playwright or another browser test tool is installed
 - ✅ Evaluate WooCommerce styling (Products page may need additional theme work)
 - 🔲 Performance audit (Core Web Vitals — LCP, CLS, FID)
+- ✅ Add floating Go to Top control
+- 🔲 Add favicon / WordPress Site Icon
+- 🔲 Audit media asset weight and optimization
 - ✅ Contact form integration (elevated to V1 — Migrate all forms to Forminator)
 - ✅ Fix MEDIUM/LOW frontend standards violations (from 2026-05-08 audit)
 
@@ -191,3 +250,20 @@ No performance measurement has been done on the imported-content staging site. L
 
 - Run Lighthouse or PageSpeed Insights against the local staging site (or the GCP preview once deployed)
 - Address any LCP element not loading eagerly, CLS from layout shifts, or blocking scripts
+
+### 🔲 Add favicon / WordPress Site Icon
+
+The site currently has no confirmed favicon/site icon tracked in the project plan. This needs either a brand-approved icon asset or a clean fallback from the existing logo mark.
+
+- Add a favicon/site icon through the theme or WordPress Site Icon configuration
+- Include standard browser icon sizes and verify the tab icon renders locally
+- Document the chosen source asset so deployment can reproduce it
+
+### 🔲 Audit media asset weight and optimization
+
+The imported site now uses many images and external thumbnails. A performance pass must verify whether asset count, dimensions, and file sizes are slowing down the site.
+
+- Inventory large images used above the fold and in repeated cards
+- Check whether WordPress-generated sizes are used instead of full-size originals
+- Add lazy loading, explicit dimensions, compression, or WebP/AVIF conversion where appropriate
+- Re-run Lighthouse or equivalent after optimization

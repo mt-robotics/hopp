@@ -1,6 +1,6 @@
 # Completed Milestones
 
-**Last Updated:** 2026-05-09
+**Last Updated:** 2026-05-11
 
 > Full details of every completed task. For active tasks and roadmap, see `current_state/project_status.md`.
 
@@ -10,6 +10,8 @@
 
 | Milestone | Completed | Tests |
 |---|---|---|
+| Navigation, Context CTA, and Return-to-Top Refinements | 2026-05-11 | PHP lint, JS syntax, HTTP checks, Playwright screenshots |
+| May 11 Team Feedback — Non-blocked UI Fixes | 2026-05-11 | PHP lint, HTTP checks, Playwright screenshots |
 | V1 UI Tasks — All 11 Pages, WooCommerce, AJAX, Forms | 2026-05-09 | PHP lint, WP runtime bootstrap |
 | Home/About UI Refinements | 2026-05-09 | PHP lint, Chrome screenshot review |
 | Fix MEDIUM/LOW Frontend Standards Violations | 2026-05-09 | PHP lint, manual review |
@@ -368,3 +370,54 @@ Applied imported upload images to the custom HOPP hero system after confirming t
 - ✅ All mapped upload URLs returned HTTP 200
 - ✅ Rendered page HTML confirmed expected `--hopp-hero-image` URLs on Home, About Us, Artist, Career, Stories, Products, and Pitch Your Pal
 - ✅ Rendered Contact Us hero confirmed no image mapping and no `page-hero--has-image` class
+
+## ✅ May 11 Team Feedback — Non-blocked UI Fixes (2026-05-11)
+
+Completed the May 11 feedback items that did not require waiting for designer or project-manager input.
+
+- ✅ Move Pitch Your Pal under Products: the primary menu no longer shows `Pitch Your Pal`; the Products page now includes a visible Pitch Your Pal section while preserving the existing page URL and title.
+- ✅ Add YouTube thumbnails to the Series page: each playlist card now uses a first-video YouTube thumbnail with a play icon overlay.
+- ✅ Audit and fix missing images across pages: Career volunteer role cards now use the requested imported media (`2023/10/2.jpg`, `3.jpg`, `4.jpg`, `5.jpg`) instead of blank color blocks, and rendered image URLs across primary pages returned HTTP 200.
+- ✅ Replace footer social icons with source-aligned icons: footer social links now use inline SVG icons for Facebook, Instagram, LinkedIn, Telegram, and X while preserving existing destinations.
+- ✅ Redesign footer layout and spacing: footer was reorganized into intro, navigation, social, and legal areas with tighter desktop/mobile spacing.
+- ✅ Correct Contact/CTA banner color: Contact Us and the homepage bottom CTA no longer use the terracotta/orange banner treatment; theme surfaces now use centralized CSS variables.
+- ✅ Reduce oversized rendered asset: Artist hero mapping now uses the generated `Untitled-2-01-1536x1536.png` image instead of the 11.5 MB original.
+- ✅ Remaining blocked feedback stayed active in `project_status.md`: final brand color, Privacy/Terms page content, Home hero replacement asset, and additional approved content.
+
+**Validation:**
+
+- ✅ `php -l wp-content/themes/hopp/functions.php`
+- ✅ `php -l wp-content/themes/hopp/page.php`
+- ✅ `php -l wp-content/themes/hopp/footer.php`
+- ✅ HTTP 200 route checks for `/`, `/about-us/`, `/products/`, `/stories/`, `/series/`, `/artist/`, `/career/`, `/contact-us/`, `/pitch-your-pal-phnom-penh/`, and `/cart/`
+- ✅ Rendered nav HTML confirms `Pitch Your Pal` under `Products`
+- ✅ Rendered `/series/` HTML confirms all 5 YouTube thumbnail URLs
+- ✅ Rendered page image URL audit returned HTTP 200 for discovered upload/theme/YouTube image URLs
+- ✅ Playwright screenshots captured:
+  - `archive/series_thumbnails_check.png`
+  - `archive/career_images_check.png`
+  - `archive/footer_mobile_check.png`
+
+## ✅ Navigation, Context CTA, and Return-to-Top Refinements (2026-05-11)
+
+Completed the follow-up UI fixes after the user verified the first May 11 pass.
+
+- ✅ Fixed Stories dropdown layering and pointer usability: the desktop submenu now uses fixed positioning under the hovered nav link, sits above page heroes/banners, and remains open long enough for the pointer to move into the submenu.
+- ✅ Removed Pitch Your Pal from the primary menu entirely while keeping the Products-page Pitch Your Pal CTA.
+- ✅ Added reusable `hopp_render_context_cta()` output for the Products-style bottom CTA pattern.
+- ✅ Applied the contextual CTA component across Home, About Us, Products, Stories, Artist, Career, and Contact Us.
+- ✅ Added code-level theme source-of-truth variables (`--hopp-brand-*`) in `style.css`, so normal brand-surface/button/CTA color changes can be made through tokens instead of page-by-page template edits.
+- ✅ Documented the theme token workflow in `README.md` for future developers.
+- ✅ Added a floating Return to Top control with an accessible label, scroll-triggered visibility, and top anchor target.
+
+**Validation:**
+
+- ✅ PHP lint for `functions.php`, `front-page.php`, `page.php`, `header.php`, and `footer.php`
+- ✅ `node --check wp-content/themes/hopp/assets/js/navigation.js`
+- ✅ HTTP 200 route checks for `/`, `/about-us/`, `/products/`, `/stories/`, `/series/`, `/artist/`, `/career/`, and `/contact-us/`
+- ✅ Rendered nav HTML confirms Pitch Your Pal is absent from the primary menu and `Browse by Series` remains nested under Stories
+- ✅ Playwright hover/click check confirms the pointer can move from `Stories` into `Browse by Series` and click through to `/series/`
+- ✅ Playwright scroll check confirms the Return to Top control appears after scrolling
+- ✅ Screenshots captured:
+  - `archive/stories_dropdown_top_hover_check.png`
+  - `archive/return_to_top_visible_check.png`

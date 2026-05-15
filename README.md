@@ -44,6 +44,21 @@ The goal is to build a new WordPress theme from the `DESIGN.md` design system, v
 | Frontend | HTML, CSS, JavaScript |
 | Design source | `DESIGN.md` |
 
+## Theme Color Tokens
+
+`DESIGN.md` is the design reference, but the code-level source of truth for reusable theme colors is `wp-content/themes/hopp/style.css`.
+
+Use the semantic `--hopp-brand-*` variables for shared surfaces, CTAs, and button states instead of hardcoding page-specific colors. When the final brand direction changes, update the token values first, then check for any remaining one-off styles only if a page intentionally needs a special treatment.
+
+Current shared brand tokens:
+
+| Token | Intended use |
+|---|---|
+| `--hopp-brand-surface` | Primary dark brand surfaces, including shared CTA and utility controls |
+| `--hopp-brand-accent` | Primary button/accent fill |
+| `--hopp-brand-accent-hover` | Hover/focus fill for primary accents |
+| `--hopp-brand-band` | Broad branded bands when a section needs the global theme surface |
+
 ## Local Setup
 
 Start the local WordPress environment:
