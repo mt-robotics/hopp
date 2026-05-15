@@ -63,13 +63,13 @@ add_action( 'wp_enqueue_scripts', 'hopp_enqueue_cart_assets' );
 function hopp_filter_nav_menu_item_titles( array $items ): array {
 	$stories_item    = null;
 	$has_series_item = false;
+	$filtered_items  = array();
 
 	foreach ( $items as $item ) {
 		if ( 'post_type' === $item->type ) {
 			$linked = get_post( $item->object_id );
 			if ( $linked && 'pitch-your-pal-phnom-penh' === $linked->post_name ) {
-				$item->title = __( 'Pitch Your Pal', 'hopp' );
-				$item->classes[] = 'menu-item-pitch';
+				continue;
 			}
 			if ( $linked && 'stories' === $linked->post_name ) {
 				$stories_item = $item;
@@ -83,6 +83,8 @@ function hopp_filter_nav_menu_item_titles( array $items ): array {
 				$has_series_item = true;
 			}
 		}
+
+		$filtered_items[] = $item;
 	}
 
 	if ( $stories_item && ! $has_series_item ) {
@@ -104,10 +106,10 @@ function hopp_filter_nav_menu_item_titles( array $items ): array {
 		$series_item->target = '';
 		$series_item->attr_title = '';
 
-		$items[] = $series_item;
+		$filtered_items[] = $series_item;
 	}
 
-	return $items;
+	return $filtered_items;
 }
 add_filter( 'wp_nav_menu_objects', 'hopp_filter_nav_menu_item_titles' );
 
@@ -473,32 +475,83 @@ function hopp_get_youtube_series_playlists(): array {
 			'title' => __( 'Dakshin Restaurant Stories', 'hopp' ),
 			'count' => __( '4 videos', 'hopp' ),
 			'url'   => 'https://www.youtube.com/playlist?list=PLN-8MWE9jViIiIJDyfsEC5dAvjN756yUA',
+			'video' => '8lMh0XuFVcU',
 		),
 		array(
 			'label' => __( 'Series 02', 'hopp' ),
 			'title' => __( 'Uy Ratha Stories', 'hopp' ),
 			'count' => __( '5 videos', 'hopp' ),
 			'url'   => 'https://www.youtube.com/playlist?list=PLN-8MWE9jViKLYjkmY22MiExSZSsjCNdU',
+			'video' => '2l7wBAY8fLQ',
 		),
 		array(
 			'label' => __( 'Series 03', 'hopp' ),
 			'title' => __( 'Ley Oudom Stories', 'hopp' ),
 			'count' => __( '5 videos', 'hopp' ),
 			'url'   => 'https://www.youtube.com/playlist?list=PLN-8MWE9jViLdVqkjTOF2fPvaBJRksha0',
+			'video' => '8X3iHSOQl0I',
 		),
 		array(
 			'label' => __( 'Series 04', 'hopp' ),
 			'title' => __( 'E Chen Stories', 'hopp' ),
 			'count' => __( '5 videos', 'hopp' ),
 			'url'   => 'https://www.youtube.com/playlist?list=PLN-8MWE9jViK2M2YhP0vCEXcSHPiB6HB3',
+			'video' => '4gs8PwfVL2k',
 		),
 		array(
 			'label' => __( 'Series 05', 'hopp' ),
 			'title' => __( 'Duck Roasted House Stories', 'hopp' ),
 			'count' => __( '5 videos', 'hopp' ),
 			'url'   => 'https://www.youtube.com/playlist?list=PLN-8MWE9jViL4ZooFRbnVtEtO51DY9--P',
+			'video' => 'OLJEvYm4qtc',
 		),
 	);
+}
+
+function hopp_get_youtube_thumbnail_url( string $video_id ): string {
+	$video_id = preg_replace( '/[^A-Za-z0-9_-]/', '', $video_id );
+
+	if ( '' === $video_id ) {
+		return '';
+	}
+
+	return 'https://i.ytimg.com/vi/' . $video_id . '/hqdefault.jpg';
+}
+
+function hopp_get_career_role_image_url( string $role ): string {
+	$images = array(
+		'writers'       => '2023/10/2.jpg',
+		'photographers' => '2023/10/3.jpg',
+		'videographers' => '2023/10/4.jpg',
+		'social'        => '2023/10/5.jpg',
+	);
+
+	if ( empty( $images[ $role ] ) ) {
+		return '';
+	}
+
+	return hopp_get_upload_image_url( $images[ $role ] );
+}
+
+function hopp_render_context_cta( string $eyebrow, string $title, string $body, string $button_label, string $button_url, string $modifier = '' ): void {
+	$classes = array( 'section', 'context-cta' );
+	if ( '' !== $modifier ) {
+		$classes[] = 'context-cta--' . sanitize_html_class( $modifier );
+	}
+	?>
+	<section class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>">
+		<div class="context-cta__inner">
+			<div>
+				<p class="section-label"><?php echo esc_html( $eyebrow ); ?></p>
+				<h2><?php echo esc_html( $title ); ?></h2>
+				<?php if ( '' !== $body ) : ?>
+					<p><?php echo esc_html( $body ); ?></p>
+				<?php endif; ?>
+			</div>
+			<a class="button-primary" href="<?php echo esc_url( $button_url ); ?>"><?php echo esc_html( $button_label ); ?></a>
+		</div>
+	</section>
+	<?php
 }
 
 function hopp_fallback_menu(): void {
@@ -527,7 +580,7 @@ function hopp_get_upload_image_url( string $relative_path ): string {
 function hopp_get_hero_image_url_for_slug( string $slug ): string {
 	$hero_images = array(
 		'about-us'                  => '2023/10/phnom-penh-cover-image.jpg',
-		'artist'                    => '2025/03/Untitled-2-01.png',
+		'artist'                    => '2025/03/Untitled-2-01-1536x1536.png',
 		'career'                    => '2023/10/Untitled-design-15.jpg',
 		'home'                      => '2023/09/combodians.jpg',
 		'pitch-your-pal-phnom-penh' => '2026/01/happy-new-year-2025-fireworks-festive-fun-joyous-midnight-countdown-new-beginnings-scaled-1.jpg',

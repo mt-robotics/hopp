@@ -31,9 +31,38 @@ DB_SERVICE := db
 WORDPRESS_CONTAINER := hopp_wordpress
 DB_CONTAINER := hopp_mysql
 
+# Load .env.gcp as Make variables when the file exists.
+#
+# WHY include IS needed:
+#   gcp-cert uses $(DOMAIN_NAME) and $(LETSENCRYPT_EMAIL) as Make variables —
+#   Make expands them into the command string before bash ever runs. That
+#   expansion requires Make to know the values, which only happens via include.
+#   Passing --env-file to docker compose is NOT enough: --env-file feeds Docker
+#   Compose's own substitution engine, not Make's $(VAR) expander.
+#
+# WHY blanket `export` is NOT needed (and harmful):
+#   export pushes every Make variable into the shell environment. Child
+#   processes like Docker Compose inherit that environment and treat it with
+#   higher priority than --env-file. So exporting .env.gcp variables (e.g.
+#   WORDPRESS_LOCAL_URL=http://localhost:8080) silently overrides the value in
+#   --env-file .env.local (e.g. http://192.168.11.155:8080), causing WordPress
+#   to redirect LAN devices to localhost instead of the host machine's IP.
+#
+#   Nothing in this Makefile needs blanket export because:
+#     - docker compose commands all use --env-file to load their own variables
+#     - $(DOMAIN_NAME) and $(LETSENCRYPT_EMAIL) are expanded by Make (include
+#       is sufficient for that — export is not involved in Make expansion)
+#     - no external shell scripts are called that would need $VAR from the env
+#
+# SAFE ALTERNATIVE if export is ever needed in the future:
+#   Export only the specific variables that a shell script or child process
+#   genuinely needs, rather than everything from the file:
+#     export DOMAIN_NAME
+#     export LETSENCRYPT_EMAIL
 ifneq (,$(wildcard .env.gcp))
 include .env.gcp
-export
+# export  # removed: blanket export leaks .env.gcp vars into the shell,
+           # overriding --env-file .env.local values in docker compose commands
 endif
 
 .PHONY: init gcp-init up down restart rebuild ps gcp-up gcp-down gcp-rebuild gcp-ps gcp-cert logs logs-db shell-wordpress shell-db clean help

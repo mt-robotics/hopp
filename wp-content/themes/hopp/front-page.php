@@ -106,13 +106,15 @@ $home_artist_image  = hopp_get_home_artist_image_url();
 		</div>
 	</section>
 
-	<section class="cta-band">
-		<div>
-			<p class="section-label"><?php esc_html_e( 'Contact', 'hopp' ); ?></p>
-			<h2><?php esc_html_e( 'Pitch a story, collaborate, or ask about the project.', 'hopp' ); ?></h2>
-		</div>
-		<a class="button-primary button-primary--light" href="<?php echo esc_url( home_url( '/contact-us/' ) ); ?>"><?php esc_html_e( 'Get in Touch', 'hopp' ); ?></a>
-	</section>
+	<?php
+	hopp_render_context_cta(
+		__( 'Contact', 'hopp' ),
+		__( 'Pitch a story, collaborate, or ask about the project.', 'hopp' ),
+		__( 'Reach the team for story ideas, collaborations, products, and community partnerships.', 'hopp' ),
+		__( 'Get in Touch', 'hopp' ),
+		home_url( '/contact-us/' )
+	);
+	?>
 </main>
 
 <?php

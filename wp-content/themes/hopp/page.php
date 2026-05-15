@@ -64,13 +64,15 @@ get_header();
 						</div>
 					</div>
 				</section>
-				<section class="cta-band about-cta">
-					<div>
-						<p class="section-label"><?php esc_html_e( 'Join the Dialogue', 'hopp' ); ?></p>
-						<h2><?php esc_html_e( 'Read a story, contribute a perspective, or help document the city.', 'hopp' ); ?></h2>
-					</div>
-					<a class="button-primary button-primary--light" href="<?php echo esc_url( home_url( '/stories/' ) ); ?>"><?php esc_html_e( 'Explore Stories', 'hopp' ); ?></a>
-				</section>
+				<?php
+				hopp_render_context_cta(
+					__( 'Join the Dialogue', 'hopp' ),
+					__( 'Read a story, contribute a perspective, or help document the city.', 'hopp' ),
+					__( 'Explore the latest stories and see how the platform turns local memory into public storytelling.', 'hopp' ),
+					__( 'Explore Stories', 'hopp' ),
+					home_url( '/stories/' )
+				);
+				?>
 			<?php elseif ( 'products' === $slug ) : ?>
 				<?php hopp_render_page_hero( __( 'Products', 'hopp' ), get_the_title(), __( 'A visual store direction for cultural objects, books, prints, and artist collaborations.', 'hopp' ), 'terracotta' ); ?>
 				<section class="section section--paper product-grid">
@@ -115,6 +117,16 @@ get_header();
 						<?php endforeach; ?>
 					<?php endif; ?>
 				</section>
+				<?php
+				hopp_render_context_cta(
+					__( 'Pitch Your Pal', 'hopp' ),
+					__( 'Nominate someone whose story should become part of the project.', 'hopp' ),
+					__( 'Use the Pitch Your Pal form to recommend a person, place, or community story for Humans of Phnom Penh to consider.', 'hopp' ),
+					__( 'Open Pitch Your Pal', 'hopp' ),
+					home_url( '/pitch-your-pal-phnom-penh/' ),
+					'pitch'
+				);
+				?>
 			<?php elseif ( 'stories' === $slug ) : ?>
 				<?php hopp_render_page_hero( __( 'Stories', 'hopp' ), get_the_title(), __( 'Portraits, interviews, and neighborhood dispatches from Phnom Penh.', 'hopp' ), 'brown' ); ?>
 				<section class="section section--cream series-teaser">
@@ -166,6 +178,15 @@ get_header();
 						</div>
 					<?php endif; ?>
 				</section>
+				<?php
+				hopp_render_context_cta(
+					__( 'Browse by Series', 'hopp' ),
+					__( 'Follow connected story collections on YouTube.', 'hopp' ),
+					__( 'Move from single articles into curated playlists built around people, food, places, and neighborhood stories.', 'hopp' ),
+					__( 'Browse All Series', 'hopp' ),
+					home_url( '/series/' )
+				);
+				?>
 			<?php elseif ( 'series' === $slug ) : ?>
 				<?php hopp_render_page_hero( __( 'Series', 'hopp' ), get_the_title(), __( 'Curated video story collections from Humans of Phnom Penh.', 'hopp' ), 'brown' ); ?>
 				<section class="section section--paper youtube-series">
@@ -177,14 +198,19 @@ get_header();
 					<div class="youtube-series__grid">
 						<?php foreach ( hopp_get_youtube_series_playlists() as $playlist ) : ?>
 							<a class="youtube-series-card" href="<?php echo esc_url( $playlist['url'] ); ?>" target="_blank" rel="noopener noreferrer">
-								<span class="youtube-series-card__label"><?php echo esc_html( $playlist['label'] ); ?></span>
-								<span class="youtube-series-card__icon" aria-hidden="true">
-									<svg viewBox="0 0 24 24" focusable="false">
-										<path d="M21.6 7.2s-.2-1.5-.8-2.1c-.8-.8-1.7-.8-2.1-.9C15.8 4 12 4 12 4s-3.8 0-6.7.2c-.4.1-1.3.1-2.1.9-.6.6-.8 2.1-.8 2.1S2.2 9 2.2 10.8v1.7c0 1.8.2 3.6.2 3.6s.2 1.5.8 2.1c.8.8 1.9.8 2.4.9 1.7.2 6.4.2 6.4.2s3.8 0 6.7-.2c.4-.1 1.3-.1 2.1-.9.6-.6.8-2.1.8-2.1s.2-1.8.2-3.6v-1.7c0-1.8-.2-3.6-.2-3.6zM10.1 14.8V8.6l5.8 3.1-5.8 3.1z"></path>
-									</svg>
+								<span class="youtube-series-card__thumb">
+									<img src="<?php echo esc_url( hopp_get_youtube_thumbnail_url( $playlist['video'] ?? '' ) ); ?>" alt="<?php echo esc_attr( $playlist['title'] ); ?>" loading="lazy">
+									<span class="youtube-series-card__play" aria-hidden="true">
+										<svg viewBox="0 0 24 24" focusable="false">
+											<path d="M21.6 7.2s-.2-1.5-.8-2.1c-.8-.8-1.7-.8-2.1-.9C15.8 4 12 4 12 4s-3.8 0-6.7.2c-.4.1-1.3.1-2.1.9-.6.6-.8 2.1-.8 2.1S2.2 9 2.2 10.8v1.7c0 1.8.2 3.6.2 3.6s.2 1.5.8 2.1c.8.8 1.9.8 2.4.9 1.7.2 6.4.2 6.4.2s3.8 0 6.7-.2c.4-.1 1.3-.1 2.1-.9.6-.6.8-2.1.8-2.1s.2-1.8.2-3.6v-1.7c0-1.8-.2-3.6-.2-3.6zM10.1 14.8V8.6l5.8 3.1-5.8 3.1z"></path>
+										</svg>
+									</span>
 								</span>
-								<span class="youtube-series-card__title"><?php echo esc_html( $playlist['title'] ); ?></span>
-								<span class="youtube-series-card__meta"><?php echo esc_html( $playlist['count'] ); ?> <span aria-hidden="true">&middot;</span> <?php esc_html_e( 'Open playlist on YouTube', 'hopp' ); ?></span>
+								<span class="youtube-series-card__body">
+									<span class="youtube-series-card__label"><?php echo esc_html( $playlist['label'] ); ?></span>
+									<span class="youtube-series-card__title"><?php echo esc_html( $playlist['title'] ); ?></span>
+									<span class="youtube-series-card__meta"><?php echo esc_html( $playlist['count'] ); ?> <span aria-hidden="true">&middot;</span> <?php esc_html_e( 'Open playlist on YouTube', 'hopp' ); ?></span>
+								</span>
 							</a>
 						<?php endforeach; ?>
 					</div>
@@ -227,6 +253,15 @@ get_header();
 						<p><?php esc_html_e( 'Submit your work through the form above. Our editorial team reviews all submissions and reaches out within two weeks with feedback or a publication plan.', 'hopp' ); ?></p>
 					</div>
 				</section>
+				<?php
+				hopp_render_context_cta(
+					__( 'Pitch a Creative Voice', 'hopp' ),
+					__( 'Know an artist or contributor we should feature?', 'hopp' ),
+					__( 'Nominate a creative person whose work helps document Phnom Penh through art, portraits, or visual storytelling.', 'hopp' ),
+					__( 'Open Pitch Your Pal', 'hopp' ),
+					home_url( '/pitch-your-pal-phnom-penh/' )
+				);
+				?>
 			<?php elseif ( 'career' === $slug ) : ?>
 				<?php hopp_render_page_hero( __( 'Career', 'hopp' ), get_the_title(), __( 'We are a team of passionate individuals committed to using the power of storytelling to build a stronger community.', 'hopp' ), 'sand' ); ?>
 				<section class="section section--paper">
@@ -264,28 +299,36 @@ get_header();
 					</div>
 					<div class="volunteer-grid">
 						<article class="volunteer-card">
-							<div class="volunteer-card__media volunteer-card__media--writers"></div>
+							<div class="volunteer-card__media volunteer-card__media--writers">
+								<img src="<?php echo esc_url( hopp_get_career_role_image_url( 'writers' ) ); ?>" alt="<?php esc_attr_e( 'Humans of Phnom Penh writing and storytelling work', 'hopp' ); ?>" loading="lazy">
+							</div>
 							<div class="volunteer-card__body">
 								<h3><?php esc_html_e( 'Writers', 'hopp' ); ?></h3>
 								<p><?php esc_html_e( 'We are looking for writers to help us write inspiring and positive stories about the people of Phnom Penh.', 'hopp' ); ?></p>
 							</div>
 						</article>
 						<article class="volunteer-card">
-							<div class="volunteer-card__media volunteer-card__media--photographers"></div>
+							<div class="volunteer-card__media volunteer-card__media--photographers">
+								<img src="<?php echo esc_url( hopp_get_career_role_image_url( 'photographers' ) ); ?>" alt="<?php esc_attr_e( 'Humans of Phnom Penh photography work', 'hopp' ); ?>" loading="lazy">
+							</div>
 							<div class="volunteer-card__body">
 								<h3><?php esc_html_e( 'Photographers', 'hopp' ); ?></h3>
 								<p><?php esc_html_e( 'We are looking for photographers to help us capture the beauty and diversity of Phnom Penh.', 'hopp' ); ?></p>
 							</div>
 						</article>
 						<article class="volunteer-card">
-							<div class="volunteer-card__media volunteer-card__media--videographers"></div>
+							<div class="volunteer-card__media volunteer-card__media--videographers">
+								<img src="<?php echo esc_url( hopp_get_career_role_image_url( 'videographers' ) ); ?>" alt="<?php esc_attr_e( 'Humans of Phnom Penh video storytelling work', 'hopp' ); ?>" loading="lazy">
+							</div>
 							<div class="volunteer-card__body">
 								<h3><?php esc_html_e( 'Videographers', 'hopp' ); ?></h3>
 								<p><?php esc_html_e( 'We are looking for videographers to help us create short films and documentaries for our website and social media pages.', 'hopp' ); ?></p>
 							</div>
 						</article>
 						<article class="volunteer-card">
-							<div class="volunteer-card__media volunteer-card__media--social"></div>
+							<div class="volunteer-card__media volunteer-card__media--social">
+								<img src="<?php echo esc_url( hopp_get_career_role_image_url( 'social' ) ); ?>" alt="<?php esc_attr_e( 'Humans of Phnom Penh social media storytelling work', 'hopp' ); ?>" loading="lazy">
+							</div>
 							<div class="volunteer-card__body">
 								<h3><?php esc_html_e( 'SM Managers', 'hopp' ); ?></h3>
 								<p><?php esc_html_e( 'We are looking for social media managers to help us promote our content and engage with our audience on social media.', 'hopp' ); ?></p>
@@ -337,8 +380,17 @@ get_header();
 						<?php hopp_render_contact_form( 'HOPP Career Application' ); ?>
 					</div>
 				</section>
+				<?php
+				hopp_render_context_cta(
+					__( 'Questions Before Applying?', 'hopp' ),
+					__( 'Reach out before you submit your application.', 'hopp' ),
+					__( 'Ask about volunteer roles, internships, portfolio expectations, or how the team reviews applications.', 'hopp' ),
+					__( 'Contact Us', 'hopp' ),
+					home_url( '/contact-us/' )
+				);
+				?>
 			<?php elseif ( 'contact-us' === $slug ) : ?>
-				<?php hopp_render_page_hero( __( 'Contact Us', 'hopp' ), get_the_title(), __( 'Reach the Humans of Phnom Penh team directly.', 'hopp' ), 'terracotta' ); ?>
+				<?php hopp_render_page_hero( __( 'Contact Us', 'hopp' ), get_the_title(), __( 'Reach the Humans of Phnom Penh team directly.', 'hopp' ), 'brown' ); ?>
 				<section class="section section--paper contact-layout">
 					<div class="contact-details">
 						<p class="section-label"><?php esc_html_e( 'Get In Touch', 'hopp' ); ?></p>
@@ -376,6 +428,15 @@ get_header();
 						</div>
 					</div>
 				</section>
+				<?php
+				hopp_render_context_cta(
+					__( 'Stories Start With People', 'hopp' ),
+					__( 'Know someone whose story deserves to be told?', 'hopp' ),
+					__( 'Send a nomination through Pitch Your Pal so the editorial team can review it.', 'hopp' ),
+					__( 'Open Pitch Your Pal', 'hopp' ),
+					home_url( '/pitch-your-pal-phnom-penh/' )
+				);
+				?>
 			<?php elseif ( 'pitch-your-pal-phnom-penh' === $slug ) : ?>
 				<?php hopp_render_page_hero( __( 'Pitch Your Pal', 'hopp' ), __( 'Pitch Your Pal', 'hopp' ), __( 'Know someone whose story deserves to be told? Pitch them to us.', 'hopp' ), 'sand' ); ?>
 				<section class="section section--paper">
