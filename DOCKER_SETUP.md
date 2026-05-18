@@ -46,8 +46,11 @@ The WordPress container now also mounts a repo-owned ABA PayWay startup patch pa
 
 - `docker/wordpress/start-wordpress.sh`
 - `docker/wordpress/apply-aba-payway-patch.php`
+- `docker/wordpress/mu-plugins/hopp-production-mail.php`
 
 On every WordPress container boot, that startup path checks whether `wp-content/plugins/aba-payway-woocommerce-payment-gateway/PayWayApiCheckout.php` exists and still has the unpatched vendor code. If so, it rewrites the plugin file in place so the ABA gateway keeps the PHP 8.3-safe `payment_options` normalization behavior after rebuilds. If the plugin is missing, it skips cleanly. If the plugin file has drifted to an unexpected version, startup fails loudly instead of silently serving a broken checkout.
+
+The same startup path now also syncs repo-owned must-use plugins into `wp-content/mu-plugins/` on container boot. Production mail routing is handled there so SMTP and recipient policy live in Git plus host env vars instead of being hidden in ad hoc WP-admin plugin state.
 
 Constraints:
 
@@ -100,6 +103,21 @@ main commit -> ssh hopp-prod -> /opt/hopp -> ./scripts/deploy-production.sh
 
 Use `./scripts/rollback-production.sh <known-good-main-sha>` only for emergency rollback to an earlier `main` commit. The full operational runbook lives in `docs/production_vm_deploy.md`.
 
+Production mail is now also expected to come from host-managed `.env.gcp` values. The repo-owned mail bridge reads:
+
+- `HOPP_ADMIN_NOTIFICATION_EMAIL`
+- `HOPP_MAIL_FROM_ADDRESS`
+- `HOPP_MAIL_FROM_NAME`
+- `HOPP_MAIL_TRANSPORT`
+- `HOPP_SMTP_HOST`
+- `HOPP_SMTP_PORT`
+- `HOPP_SMTP_SECURE`
+- `HOPP_SMTP_USER`
+- `HOPP_SMTP_PASSWORD`
+- `HOPP_SMTP_AUTO_TLS`
+
+As of 2026-05-18, the public DNS for `humansofphnompenh.com` already points mail to Hostinger (`mx1.hostinger.com`, `mx2.hostinger.com`) and publishes SPF through `include:_spf.mail.hostinger.com`, so the canonical production plan is Hostinger SMTP from `.env.gcp`, not a WP-admin SMTP plugin.
+
 ---
 
 ## Prerequisites
@@ -130,9 +148,10 @@ Runtime patch mounts:
 ```text
 ./docker/wordpress/start-wordpress.sh:/usr/local/bin/hopp-wordpress-start.sh
 ./docker/wordpress/apply-aba-payway-patch.php:/usr/local/share/hopp/apply-aba-payway-patch.php
+./docker/wordpress/mu-plugins:/usr/local/share/hopp/mu-plugins
 ```
 
-These files are part of the deployment artifact. Recreating the WordPress container reruns the startup patch logic automatically.
+These files are part of the deployment artifact. Recreating the WordPress container reruns the startup patch logic automatically and resyncs repo-owned must-use plugins.
 
 ---
 
@@ -159,6 +178,21 @@ MYSQL_ROOT_PASSWORD=change_me_root
 WORDPRESS_TABLE_PREFIX=wp_
 WORDPRESS_DEBUG=1
 WORDPRESS_VIRTUAL_HOST=humansofphnompenh.local
+```
+
+Production mail variables are optional locally, but required on the live VM once mail delivery is finalized:
+
+```bash
+HOPP_ADMIN_NOTIFICATION_EMAIL=
+HOPP_MAIL_FROM_ADDRESS=
+HOPP_MAIL_FROM_NAME="Humans of Phnom Penh"
+HOPP_MAIL_TRANSPORT=smtp
+HOPP_SMTP_HOST=smtp.hostinger.com
+HOPP_SMTP_PORT=465
+HOPP_SMTP_SECURE=ssl
+HOPP_SMTP_USER=
+HOPP_SMTP_PASSWORD=
+HOPP_SMTP_AUTO_TLS=false
 ```
 
 Do not commit local runtime env files with real credentials.

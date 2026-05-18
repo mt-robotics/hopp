@@ -15,6 +15,7 @@ The goal is to build and verify the site locally first, then promote reviewed ch
 - Custom single-product template now renders recovered product copy from the XML export where available
 - Form pages migrated from Forminator to Contact Form 7 in local staging
 - ABA PayWay checkout patch is now preserved through a repo-owned WordPress startup hook so container rebuilds do not drop the working gateway fix
+- Production mail now has a repo-owned SMTP/recipient bridge, but live mailbox credentials and inbox verification are still required before forms/order mail are truly production-ready
 - Production site must not be changed until V2 validation against real content/plugins is complete
 
 ## Planned Features
@@ -78,6 +79,8 @@ The local Docker override defines `WP_HOME` and `WP_SITEURL` as `http://localhos
 
 The shared WordPress container startup path now also runs a repo-owned ABA PayWay patch step from `docker/wordpress/` so a recreated container can reapply the known gateway fix automatically when the plugin is present.
 
+Production mail is now also standardized around a repo-owned MU plugin plus host-managed `.env.gcp` values. For the current live domain, the intended provider path is Hostinger SMTP, and the detailed verification runbook lives in `docs/production_mail_and_form_verification.md`.
+
 Use `make help` to see the available shortcuts for starting, stopping, rebuilding, and opening shells in the containers.
 
 See `DOCKER_SETUP.md` for the setup plan and environment variable reference.
@@ -90,6 +93,7 @@ See `DOCKER_SETUP.md` for the setup plan and environment variable reference.
 | `docker-compose.local.yml` | Local WordPress override |
 | `docker-compose.gcp.yml` | GCP preview override |
 | `docker/wordpress/` | WordPress startup scripts, including the ABA PayWay runtime patch path |
+| `docker/wordpress/mu-plugins/` | Repo-owned production MU plugins, including SMTP/recipient routing |
 | `scripts/gcp-provision-vm.sh` | GCP VM provisioner for the sponsor-funded production host |
 | `scripts/gcp-startup.sh` | First-boot host bootstrap for Docker, Compose, Git, and `make` |
 | `DESIGN.md` | Design system and implementation source of truth |
