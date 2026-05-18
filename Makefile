@@ -14,6 +14,8 @@
 #   make gcp-down        - Stop the GCP preview stack
 #   make gcp-rebuild     - Recreate GCP preview containers
 #   make gcp-ps          - Show GCP preview status
+#   make gcp-backup      - Create a production backup bundle on the VM checkout
+#   make gcp-smoke       - Run the production GET smoke check against WORDPRESS_PUBLIC_URL
 #   make logs            - Follow WordPress logs
 #   make logs-db         - Show MySQL logs
 #   make shell-wordpress  - Open a shell in the WordPress container
@@ -66,7 +68,7 @@ include .env.gcp
            # overriding --env-file .env.local values in docker compose commands
 endif
 
-.PHONY: init gcp-init gcp-provision up down restart rebuild ps gcp-up gcp-down gcp-rebuild gcp-ps gcp-cert logs logs-db shell-wordpress shell-db clean help
+.PHONY: init gcp-init gcp-provision up down restart rebuild ps gcp-up gcp-down gcp-rebuild gcp-ps gcp-cert gcp-backup gcp-smoke logs logs-db shell-wordpress shell-db clean help
 
 init:
 	@if [ -f "$(ENV_FILE)" ]; then \
@@ -130,6 +132,12 @@ gcp-cert:
 	@echo "Recreating nginx so it switches from bootstrap HTTP to HTTPS..."
 	docker compose --env-file $(GCP_ENV_FILE) -f $(COMPOSE_FILE) -f $(GCP_OVERRIDE) up -d --force-recreate nginx
 
+gcp-backup:
+	./scripts/backup-production.sh
+
+gcp-smoke:
+	./scripts/smoke-test-production.sh
+
 logs:
 	@echo "Following WordPress logs (Ctrl+C to stop)..."
 	docker logs -f $(WORDPRESS_CONTAINER)
@@ -168,6 +176,8 @@ help:
 	@echo "  make gcp-down      - Stop the GCP preview stack"
 	@echo "  make gcp-rebuild   - Recreate GCP preview containers"
 	@echo "  make gcp-ps        - Show GCP preview status"
+	@echo "  make gcp-backup    - Create a production backup bundle"
+	@echo "  make gcp-smoke     - Run the production GET smoke check"
 	@echo ""
 	@echo "Logs:"
 	@echo "  make logs          - Follow WordPress logs"

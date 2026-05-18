@@ -13,6 +13,7 @@ This is the default production workflow for the current `https://hopp.delvedeepa
 3. [Canonical Deploy Sequence](#canonical-deploy-sequence)
 4. [Canonical Rollback Sequence](#canonical-rollback-sequence)
 5. [Operational Rules](#operational-rules)
+6. [Related Docs](#related-docs)
 
 ---
 
@@ -116,3 +117,8 @@ cd /opt/hopp
 - Never commit `.env.gcp` or other real production secrets
 - Use the same deploy path for normal releases and for post-fix redeploys so the runtime stays reproducible
 - Use `docs/live_wordpress_deployment.md` only for the rare case where a theme-only WP Admin upload is explicitly required
+
+## Related Docs
+
+- open `docs/production_operations_index.md` first if you just need the operator commands and boundaries
+- use `docs/production_mail_and_form_verification.md` for the remaining mail and WooCommerce verification gate

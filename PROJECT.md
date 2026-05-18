@@ -6,9 +6,9 @@
 
 ## Current Focus
 
-**Next:** Standardize the live sponsor-funded production stack so `https://hopp.delvedeepasia.org` is not just working, but operating through a clean long-term workflow: complete the remaining production operations rules around backups, smoke tests, access control, and final domain cutover.
+**Next:** Execute the final primary-domain cutover to `https://humansofphnompenh.com` and finish the first whitelisted-domain production verification round for mail and WooCommerce.
 
-Full task spec: `current_state/project_status.md` -> `Standardize Production WordPress Workflow`.
+Full task spec: `current_state/project_status.md` -> `Execute Primary-Domain Cutover And Final Live Verification`.
 
 ---
 
@@ -91,7 +91,7 @@ wp-content/
 
 **Import-first workflow:** The live site has already been exported and imported locally. Use the imported stack to inspect the real theme/plugins/media footprint and runtime needs before any final server is created.
 
-**Live-first standardization phase:** The sponsor-funded VM is now serving the imported site at `https://hopp.delvedeepasia.org`. The current phase is no longer initial bring-up; it is production standardization: deploy workflow, backups, mail delivery, smoke tests, and explicit ownership boundaries between Git-managed code and WP-admin-managed content/settings.
+**Repo-owned production workflow standardized:** The sponsor-funded VM is now serving the imported site at `https://hopp.delvedeepasia.org`, and the repo now contains the canonical deploy, rollback, smoke-test, backup/restore, access-control, and cutover runbooks/scripts needed to operate it consistently.
 
 **Design source of truth:** `DESIGN.md` defines the palette, typography, components, and navigation decision. The theme should implement these tokens directly instead of inventing a separate visual system.
 
@@ -105,13 +105,15 @@ wp-content/
 
 **Git-managed code vs WP-admin-managed operations:** The ownership boundary is now explicit in `docs/production_state_ownership.md`. Developers own theme/runtime/infrastructure code through Git; ops/content teams own normal content and business data in WP Admin; host secrets stay in `/opt/hopp/.env.gcp`; and a small set of sensitive admin-side settings must still be changed deliberately and logged.
 
-**Production mail path is now repo-owned:** The live VM no longer needs a WP-admin SMTP plugin as the source of truth. SMTP transport, sender identity, and admin-recipient overrides are now defined through `docker/wordpress/mu-plugins/hopp-production-mail.php` plus host-managed `.env.gcp` values. The remaining live step is filling the real mailbox credentials and verifying inbox delivery on production.
+**Production mail path is now repo-owned:** The live VM no longer needs a WP-admin SMTP plugin as the source of truth. SMTP transport, sender identity, and admin-recipient overrides are now defined through `docker/wordpress/mu-plugins/hopp-production-mail.php` plus host-managed `.env.gcp` values. The remaining live execution step is the final whitelisted-domain verification during primary-domain cutover.
 
 **Manual VM path adopted:** The sponsor-funded VM was created manually in GCP Console for maximum safety. Repo-owned bootstrap and deployment files still apply after VM creation; only the VM creation step itself was done outside the repo automation.
 
 **Canonical branch strategy:** Production is anchored to `main`. Feature work happens on `feature/*`, reviewed integration happens on `development`, and only committed revisions on `main` are eligible for production deployment or rollback references.
 
 **Canonical VM deploy path:** Production deploys now happen by SSHing to the VM, using the `/opt/hopp` checkout, fast-forwarding that checkout to `origin/main`, and recreating the stack from the repo-owned GCP Compose path. The standard entrypoint is `./scripts/deploy-production.sh`; emergency rollback uses `./scripts/rollback-production.sh <known-good-main-sha>`. `.env.gcp` remains host-managed on the VM and is not Git-managed.
+
+**Final primary-domain decision:** `https://humansofphnompenh.com` is the intended long-term public production host. `https://hopp.delvedeepasia.org` is now the transition host until the final cutover and verification task is executed.
 
 ---
 
@@ -124,12 +126,16 @@ wp-content/
 | `docs/live_site_settings.md` | Live admin snapshot: theme, plugins, WooCommerce, menus, reading settings |
 | `docs/local_import_checklist.md` | Step-by-step local import checklist for the live XML export |
 | `docs/sponsored_gcp_deployment_plan.md` | Current recommendation for the sponsor-funded production GCP host |
+| `docs/production_operations_index.md` | First-stop operator guide for production commands and custom-vs-normal WP boundaries |
 | `docs/production_vm_deploy.md` | Canonical Git-to-VM deploy and rollback runbook for the live host |
 | `docs/production_state_ownership.md` | Canonical boundary for Git-managed code, WP-admin-managed state, and host-managed secrets |
 | `scripts/gcp-provision-vm.sh` | Creates the recommended Compute Engine VM and networking primitives |
 | `scripts/gcp-startup.sh` | First-boot package install script for the GCP host, including `make` for deploy helpers |
 | `scripts/deploy-production.sh` | Production deploy helper: update `/opt/hopp` to `origin/main` and recreate the stack |
 | `scripts/rollback-production.sh` | Emergency rollback helper for a known-good `main` commit |
+| `scripts/backup-production.sh` | Creates a production backup bundle with DB dump, uploads archive, and manifest |
+| `scripts/restore-production.sh` | Restores production DB and uploads from a backup bundle |
+| `scripts/smoke-test-production.sh` | Runs the automated production GET smoke suite |
 | `docs/production_mail_and_form_verification.md` | Canonical production SMTP path and live verification checklist |
 | `docker/nginx/select-template.sh` | Chooses HTTP bootstrap or HTTPS nginx config based on cert presence |
 | `DESIGN.md` | Visual tokens, layout rules, component inventory |
@@ -151,8 +157,8 @@ wp-content/
 | Blocker | Impact |
 |---|---|
 | Live mailbox credentials and inbox verification are still pending | The SMTP bridge is in repo code now, but public forms and order mail are not production-complete until Hostinger mailbox delivery is proven |
-| Backup and restore path is not yet automated | A production incident would still rely too much on manual recovery unless DB/uploads backup and restore are documented and tested |
-| Final primary domain strategy is not yet settled | `hopp.delvedeepasia.org` works now, but any eventual move back to `humansofphnompenh.com` needs an explicit cutover plan |
+| Final primary-domain cutover is not yet executed | The workflow is now defined, but the live move back to `humansofphnompenh.com` and final ABA/WooCommerce verification still need a controlled production window |
+| First live backup/restore drill has not been run yet | Backup automation now exists, but one controlled rehearsal is still needed before treating recovery timing as proven |
 
 ---
 
@@ -164,8 +170,9 @@ wp-content/
 | Active task list and next step | `current_state/project_status.md` |
 | Completed work detail | `current_state/milestone.md` |
 | Current GCP sizing/deployment recommendation | `docs/sponsored_gcp_deployment_plan.md` |
+| First production operations doc to read | `docs/production_operations_index.md` |
 | Canonical production VM deploy path | `docs/production_vm_deploy.md` |
-| Production-standardization task list | `current_state/project_status.md` |
+| Active production execution tasks | `current_state/project_status.md` |
 | Visual implementation rules | `DESIGN.md` |
 | Current public site structure | `docs/current_site_audit.md` |
 | V1 demo design plan | `docs/demo_design_plan.md` |
