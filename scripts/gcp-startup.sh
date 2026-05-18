@@ -4,7 +4,7 @@ set -eu
 export DEBIAN_FRONTEND=noninteractive
 
 apt-get update
-apt-get install -y ca-certificates curl git gnupg
+apt-get install -y ca-certificates curl git gnupg make
 
 install -m 0755 -d /etc/apt/keyrings
 if [ ! -f /etc/apt/keyrings/docker.asc ]; then
@@ -32,6 +32,7 @@ Bootstrap completed:
 - Docker Engine installed
 - Docker Compose plugin installed
 - Git installed
+- Make installed
 
 Next:
 1. Copy or clone the repo into /opt/hopp

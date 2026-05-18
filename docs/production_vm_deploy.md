@@ -38,6 +38,12 @@ Before using the deploy workflow, the host should already meet these conditions:
 
 The bootstrap script `scripts/gcp-startup.sh` prepares the VM for this model. It does not populate secrets or perform the first deploy by itself.
 
+Host toolchain expectation:
+
+- `git` must be installed
+- Docker Engine and the Docker Compose plugin must be installed
+- `make` must be installed because the deploy and rollback helpers call `make gcp-rebuild` and `make gcp-ps`
+
 ---
 
 ## Canonical Deploy Sequence
