@@ -123,6 +123,16 @@ Rules:
 - If the server needs a hotfix, write it back into Git immediately and merge it to `main`
 - Production verification and rollback should always reference a `main` commit, not an untracked server edit
 
+## Production Ownership Boundary
+
+Production now follows an explicit three-layer ownership model:
+
+- Git-managed code and infrastructure
+- host-managed secrets in `/opt/hopp/.env.gcp`
+- WP-admin-managed content and business settings
+
+The detailed rule set lives in `docs/production_state_ownership.md`. This boundary is what future backup, rollback, access-control, and cutover work should assume.
+
 ## Canonical VM Deploy Path
 
 The production VM deploy path is now:
