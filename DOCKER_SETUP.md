@@ -80,7 +80,7 @@ The Makefile includes `make gcp-cert` for that certificate request step.
 The VM provisioner is repo-owned:
 
 - `scripts/gcp-provision-vm.sh` reserves or reuses a static IP, ensures HTTP/HTTPS firewall rules exist, and creates the recommended `e2-medium` / `50 GB pd-balanced` Compute Engine VM
-- `scripts/gcp-startup.sh` runs as the instance startup script and installs Docker Engine, Docker Compose plugin, and Git on first boot
+- `scripts/gcp-startup.sh` runs as the instance startup script and installs Docker Engine, Docker Compose plugin, Git, and `make` on first boot
 
 Production host ownership model:
 

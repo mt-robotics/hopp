@@ -124,7 +124,7 @@ wp-content/
 | `docs/sponsored_gcp_deployment_plan.md` | Current recommendation for the sponsor-funded production GCP host |
 | `docs/production_vm_deploy.md` | Canonical Git-to-VM deploy and rollback runbook for the live host |
 | `scripts/gcp-provision-vm.sh` | Creates the recommended Compute Engine VM and networking primitives |
-| `scripts/gcp-startup.sh` | First-boot package install script for the GCP host |
+| `scripts/gcp-startup.sh` | First-boot package install script for the GCP host, including `make` for deploy helpers |
 | `scripts/deploy-production.sh` | Production deploy helper: update `/opt/hopp` to `origin/main` and recreate the stack |
 | `scripts/rollback-production.sh` | Emergency rollback helper for a known-good `main` commit |
 | `docker/nginx/select-template.sh` | Chooses HTTP bootstrap or HTTPS nginx config based on cert presence |
