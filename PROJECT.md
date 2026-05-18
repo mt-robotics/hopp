@@ -6,7 +6,7 @@
 
 ## Current Focus
 
-**Next:** Standardize the live sponsor-funded production stack so `https://hopp.delvedeepasia.org` is not just working, but operating through a clean long-term workflow: define the canonical Git-to-production deploy path from `main`, verify mail/smoke tests, and document the split between code-managed state and WP-admin-managed state.
+**Next:** Standardize the live sponsor-funded production stack so `https://hopp.delvedeepasia.org` is not just working, but operating through a clean long-term workflow: verify mail/smoke tests, document the split between code-managed state and WP-admin-managed state, and finish the remaining production operations rules.
 
 Full task spec: `current_state/project_status.md` -> `Standardize Production WordPress Workflow`.
 
@@ -105,9 +105,11 @@ wp-content/
 
 **Git-managed code vs WP-admin-managed operations:** Developers should own theme code, Docker/nginx/bootstrap logic, deployment scripts, and infrastructure documentation through Git. Ops/content teams should own posts, pages, products, menus, media, routine editorial settings, and approved business settings through WP Admin. Sensitive operational settings such as payment callbacks, SMTP, reading settings, and WooCommerce page assignments must still be documented and changed carefully.
 
-**Manual VM path adopted:** The sponsor-funded VM was created manually in GCP Console for maximum safety. Repo-owned bootstrap and deployment files still apply after VM creation; only the VM creation step itself was done outside the repo automation. The next standardization step is to decide the canonical long-term deploy path from Git to that VM.
+**Manual VM path adopted:** The sponsor-funded VM was created manually in GCP Console for maximum safety. Repo-owned bootstrap and deployment files still apply after VM creation; only the VM creation step itself was done outside the repo automation.
 
 **Canonical branch strategy:** Production is anchored to `main`. Feature work happens on `feature/*`, reviewed integration happens on `development`, and only committed revisions on `main` are eligible for production deployment or rollback references.
+
+**Canonical VM deploy path:** Production deploys now happen by SSHing to the VM, using the `/opt/hopp` checkout, fast-forwarding that checkout to `origin/main`, and recreating the stack from the repo-owned GCP Compose path. The standard entrypoint is `./scripts/deploy-production.sh`; emergency rollback uses `./scripts/rollback-production.sh <known-good-main-sha>`. `.env.gcp` remains host-managed on the VM and is not Git-managed.
 
 ---
 
@@ -120,8 +122,11 @@ wp-content/
 | `docs/live_site_settings.md` | Live admin snapshot: theme, plugins, WooCommerce, menus, reading settings |
 | `docs/local_import_checklist.md` | Step-by-step local import checklist for the live XML export |
 | `docs/sponsored_gcp_deployment_plan.md` | Current recommendation for the sponsor-funded production GCP host |
+| `docs/production_vm_deploy.md` | Canonical Git-to-VM deploy and rollback runbook for the live host |
 | `scripts/gcp-provision-vm.sh` | Creates the recommended Compute Engine VM and networking primitives |
 | `scripts/gcp-startup.sh` | First-boot package install script for the GCP host |
+| `scripts/deploy-production.sh` | Production deploy helper: update `/opt/hopp` to `origin/main` and recreate the stack |
+| `scripts/rollback-production.sh` | Emergency rollback helper for a known-good `main` commit |
 | `docker/nginx/select-template.sh` | Chooses HTTP bootstrap or HTTPS nginx config based on cert presence |
 | `DESIGN.md` | Visual tokens, layout rules, component inventory |
 | `resources/context.md` | Legacy site description and constraints |
@@ -142,7 +147,6 @@ wp-content/
 | Blocker | Impact |
 |---|---|
 | CF7 delivery is not yet verified on a real mail path | Public forms are not production-complete until SMTP or the final mail relay is proven |
-| Canonical Git-to-production workflow is not finalized | Future deploys can drift between repo state and server state until the standard branch/deploy model is documented |
 | Backup and restore path is not yet automated | A production incident would still rely too much on manual recovery unless DB/uploads backup and restore are documented and tested |
 | Final primary domain strategy is not yet settled | `hopp.delvedeepasia.org` works now, but any eventual move back to `humansofphnompenh.com` needs an explicit cutover plan |
 
@@ -156,6 +160,7 @@ wp-content/
 | Active task list and next step | `current_state/project_status.md` |
 | Completed work detail | `current_state/milestone.md` |
 | Current GCP sizing/deployment recommendation | `docs/sponsored_gcp_deployment_plan.md` |
+| Canonical production VM deploy path | `docs/production_vm_deploy.md` |
 | Production-standardization task list | `current_state/project_status.md` |
 | Visual implementation rules | `DESIGN.md` |
 | Current public site structure | `docs/current_site_audit.md` |

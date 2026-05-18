@@ -1,6 +1,6 @@
 # Project Status
 
-**Last Updated:** 2026-05-18 (canonical production branch strategy defined: `feature/* -> development -> main`; email alert notes absorbed into production workflow; Telegram alert moved to backlog)
+**Last Updated:** 2026-05-18 (canonical production branch strategy and Git-to-VM deploy path defined; email alert notes absorbed into production workflow; Telegram alert moved to backlog)
 
 ---
 
@@ -10,7 +10,8 @@
 - The deployment artifact is reproducible enough to boot the site safely: nginx handles HTTP-first certificate bootstrap, WordPress startup seeds core files correctly, and the ABA PayWay runtime patch is encoded in repo-mounted startup files instead of manual container edits.
 - The sponsor-funded production VM setup is complete: the server is provisioned, serving the imported site, and normalized under the `/opt/hopp` group-owned operating model.
 - The canonical production branch strategy is now defined: `feature/*` for task work, `development` for integration, and `main` as the only production branch and rollback reference.
-- The main unresolved project area is production workflow standardization: define the canonical Git-to-production deploy path, document what is Git-managed vs WP-admin-managed, verify production mail delivery, add backup/restore and rollback procedures, and finalize production access rules.
+- The canonical server deploy path is now defined: production runs from the `/opt/hopp` checkout on the VM, deploys from `origin/main` through `./scripts/deploy-production.sh`, and uses `./scripts/rollback-production.sh <sha>` for emergency rollback to a known-good `main` commit.
+- The main unresolved project area is production workflow standardization: document what is Git-managed vs WP-admin-managed, verify production mail delivery, add backup/restore and rollback procedures, and finalize production access rules.
 - Several UI/content items remain blocked on external input: final brand color direction, Privacy Policy/Terms ownership and content, a replacement Home hero asset, and any additional approved copy/media.
 - Historical implementation details remain archived in `current_state/milestone.md`; this file should now stay focused on active tasks, blockers, and next operational work.
 
@@ -18,27 +19,27 @@
 
 ## ✅ Completed Milestones
 
-| Milestone                                            | Completed  | Tests                                                    |
-| ---------------------------------------------------- | ---------- | -------------------------------------------------------- |
-| Standard Project Documentation Scaffold              | 2026-04-30 | Manual file verification                                 |
-| Design System (DESIGN.md)                            | 2026-04-30 | —                                                        |
-| Local WordPress Docker Environment                   | 2026-04-30 | Docker Compose config, manual WP/theme render            |
-| Current Site Audit + Demo Design Plan                | 2026-04-30 | Manual document review                                   |
-| V1 Local WordPress UI/UX Demo Theme                  | 2026-04-30 | PHP lint, Docker Compose config, local route checks      |
-| GCP Infrastructure Setup                             | 2026-05-06 | SSH, Docker, IP ping                                     |
-| Live Export, Local Import, and ABA Checkout Recovery | 2026-05-08 | Manual admin inspection, XML import, checkout smoke test |
-| Frontend Standards — HIGH Priority Fixes             | 2026-05-08 | Manual visual review                                     |
-| Contact Form 7 Forms Migration                       | 2026-05-09 | PHP lint, Compose config, CF7 validator, route checks    |
-| Home/About UI Refinements                            | 2026-05-09 | PHP lint, Chrome screenshot review                       |
-| Products Page UI Refinement                          | 2026-05-09 | PHP lint, rendered HTML check, Chrome screenshot review  |
-| Stories/Series UI Refinement                         | 2026-05-09 | PHP lint, JS syntax check, rendered HTML, screenshots    |
-| Hero Background Image Mapping                        | 2026-05-11 | PHP lint, HTTP 200 image checks, rendered HTML checks    |
-| May 11 Team Feedback — Non-blocked UI Fixes          | 2026-05-11 | PHP lint, HTTP checks, Playwright screenshots            |
+| Milestone                                              | Completed  | Tests                                                    |
+| ------------------------------------------------------ | ---------- | -------------------------------------------------------- |
+| Standard Project Documentation Scaffold                | 2026-04-30 | Manual file verification                                 |
+| Design System (DESIGN.md)                              | 2026-04-30 | —                                                        |
+| Local WordPress Docker Environment                     | 2026-04-30 | Docker Compose config, manual WP/theme render            |
+| Current Site Audit + Demo Design Plan                  | 2026-04-30 | Manual document review                                   |
+| V1 Local WordPress UI/UX Demo Theme                    | 2026-04-30 | PHP lint, Docker Compose config, local route checks      |
+| GCP Infrastructure Setup                               | 2026-05-06 | SSH, Docker, IP ping                                     |
+| Live Export, Local Import, and ABA Checkout Recovery   | 2026-05-08 | Manual admin inspection, XML import, checkout smoke test |
+| Frontend Standards — HIGH Priority Fixes               | 2026-05-08 | Manual visual review                                     |
+| Contact Form 7 Forms Migration                         | 2026-05-09 | PHP lint, Compose config, CF7 validator, route checks    |
+| Home/About UI Refinements                              | 2026-05-09 | PHP lint, Chrome screenshot review                       |
+| Products Page UI Refinement                            | 2026-05-09 | PHP lint, rendered HTML check, Chrome screenshot review  |
+| Stories/Series UI Refinement                           | 2026-05-09 | PHP lint, JS syntax check, rendered HTML, screenshots    |
+| Hero Background Image Mapping                          | 2026-05-11 | PHP lint, HTTP 200 image checks, rendered HTML checks    |
+| May 11 Team Feedback — Non-blocked UI Fixes            | 2026-05-11 | PHP lint, HTTP checks, Playwright screenshots            |
 | Navigation, Context CTA, and Return-to-Top Refinements | 2026-05-11 | PHP lint, JS syntax, HTTP checks, Playwright screenshots |
-| Sponsor-Funded GCP Deployment Plan                  | 2026-05-15 | Shell syntax checks, manual doc review                   |
-| Set up GCP-hosted public preview                   | 2026-05-18 | Manual public-preview verification                       |
-| Set up sponsor-funded GCP production server         | 2026-05-18 | Manual production verification                           |
-| Stabilize ABA PayWay gateway for deployment         | 2026-05-18 | Local checkout verification, runtime patch verification  |
+| Sponsor-Funded GCP Deployment Plan                     | 2026-05-15 | Shell syntax checks, manual doc review                   |
+| Set up GCP-hosted public preview                       | 2026-05-18 | Manual public-preview verification                       |
+| Set up sponsor-funded GCP production server            | 2026-05-18 | Manual production verification                           |
+| Stabilize ABA PayWay gateway for deployment            | 2026-05-18 | Local checkout verification, runtime patch verification  |
 
 → Full details: `current_state/milestone.md`
 
@@ -144,7 +145,7 @@ The team noted that more content may need to be added. This needs project manage
 The site is reachable and serving real content, but the production operating model is not standard enough yet. The repo, server, and WP Admin workflow need to be tightened so developers own code through Git and deployment automation, while ops/content teams manage content and approved settings directly in WordPress admin.
 
 - ✅ Define the canonical branch strategy for production
-- 🔲 Define the canonical server deploy path from Git to VM
+- ✅ Define the canonical server deploy path from Git to VM
 - 🔲 Separate code-managed state from WP-admin-managed state
 - 🔲 Add backup and restore automation
 - 🔲 Add production mail delivery and form verification
@@ -152,17 +153,25 @@ The site is reachable and serving real content, but the production operating mod
 - 🔲 Add production access, update, and change-management rules
 - 🔲 Decide the final primary domain cutover path (`hopp.delvedeepasia.org` vs `humansofphnompenh.com`)
 
-#### 🔲 Define the canonical server deploy path from Git to VM
+#### ✅ Define the canonical branch strategy for production
 
-The current VM works, but the long-term production path should not rely on ad hoc server edits. The server should pull or receive a known revision in a repeatable way.
+This sub-task is complete, but its parent production-workflow task is still in progress. The project now has a defined release branch model so future deploy and rollback procedures can reference a stable Git source of truth.
 
-- Decide whether production deploys will use:
-  1. GitHub Actions SSH deploy to `/opt/hopp`
-  2. Manual `git pull` on the server from a protected `main`
-  3. Another explicit, documented deploy mechanism
-- Ensure the chosen path recreates containers and applies the same repo-owned bootstrap logic every time
-- Ensure `.env.gcp` and other host-only secrets remain server-managed and are never overwritten by Git
-- Document the exact deploy command sequence and rollback command sequence
+- Canonical branch policy is now `feature/* -> development -> main`
+- `main` is the only production branch and the only valid rollback reference for production code
+- Branch policy is documented in `README.md`, `PROJECT.md`, and `docs/live_wordpress_deployment.md`
+- `project_status.md` current-state notes also reflect that the branch strategy is defined, while the remaining deploy-path and operations sub-tasks stay active
+
+#### ✅ Define the canonical server deploy path from Git to VM
+
+This sub-task is complete. The production VM now has an explicit repo-owned deploy and rollback path instead of relying on memory or ad hoc shell commands.
+
+- Canonical deploy source is `main`, deployed onto the `/opt/hopp` checkout on the VM
+- Normal production deploy command is `./scripts/deploy-production.sh` after SSHing to `hopp-prod`
+- The deploy helper fetches `origin`, checks out `main`, fast-forwards to `origin/main`, then runs `make gcp-rebuild` and `make gcp-ps`
+- `.env.gcp` remains host-managed on the VM and is never overwritten by Git
+- Emergency rollback command is `./scripts/rollback-production.sh <known-good-main-sha>`
+- The full operational runbook is documented in `docs/production_vm_deploy.md`
 
 #### 🔲 Separate code-managed state from WP-admin-managed state
 
