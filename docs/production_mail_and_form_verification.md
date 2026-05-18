@@ -33,11 +33,14 @@ Verified on `hopp-prod` on 2026-05-18:
   - `admin_email=admin@example.com`
   - `woocommerce_email_from_address=admin@example.com`
   - each CF7 `_mail` record points its recipient to `admin@example.com`
+- the Artist CF7 form was later retested live after SMTP wiring and upload-path fixes; submission succeeded and mail was received through the temporary Zoho SMTP mailbox
+- live ABA checkout later proved the merchant-side boundary: the checkout modal returned `Requested Domain is not in whitelist`, which blocks WooCommerce order-email verification on `hopp.delvedeepasia.org`
 
 Conclusion:
 
 - production mail was not actually configured on the VM before this task
-- public form and order-notification mail cannot be treated as production-ready until a real SMTP mailbox is configured and verified end to end
+- CF7 production mail is now verified on the live VM
+- WooCommerce order-notification verification remains blocked by the ABA domain whitelist until `humansofphnompenh.com` points at this server or the merchant whitelist is updated
 
 ---
 
@@ -133,6 +136,11 @@ Important operational implication:
 - because ABA marks successful payment directly as `completed`, the default customer "completed order" email may read like a shipment/fulfillment message rather than a pure payment confirmation
 - this behavior must be reviewed with the business after the first verified test order
 
+Current blocker:
+
+- attempted live checkout on `hopp.delvedeepasia.org` returned `Requested Domain is not in whitelist`
+- this confirms the remaining WooCommerce mail test is blocked outside WordPress, at the ABA merchant-domain policy layer
+
 Failure-path mail to keep in mind:
 
 - WooCommerce admin `Failed order` only triggers on `pending -> failed` or `on-hold -> failed`
@@ -154,12 +162,16 @@ cd /opt/hopp
 ```
 
 4. Submit each public form once with a unique subject/body marker and verify the message arrives in `HOPP_ADMIN_NOTIFICATION_EMAIL`.
+Current state:
+the Artist upload form already passed this check live, so the remaining CF7 pages are confirmation checks rather than unknown architecture.
 5. Confirm the message headers show the expected sender identity and do not fail SPF.
 6. Place one real or tightly controlled test order through ABA PayWay and verify:
    - the order reaches `completed`
    - admin receives the WooCommerce `New order` email
    - the customer billing email receives the WooCommerce `Completed order` email
+Current blocker:
+this step cannot complete on `hopp.delvedeepasia.org` because ABA currently rejects the domain as not whitelisted.
 7. Decide whether the default `completed` customer email copy is acceptable for this business flow.
 8. Record the final operational inboxes and alert owners in `current_state/project_status.md` once verified.
 
-Do not mark the production-mail subtask complete until steps 4 through 7 are finished on the live VM.
+Do not mark the production-mail subtask complete until the remaining CF7 confirmation checks are done and step 6 is completed on the final whitelisted domain.
