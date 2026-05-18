@@ -17,6 +17,9 @@ if [ -d /usr/local/share/hopp/mu-plugins ]; then
   done
 fi
 
+mkdir -p /var/www/html/wp-content/uploads
+chown -R www-data:www-data /var/www/html/wp-content/uploads
+
 php /usr/local/share/hopp/apply-aba-payway-patch.php
 
 exec docker-entrypoint.sh apache2-foreground
