@@ -24,29 +24,81 @@ The Docker environment is scaffolded with a shared `docker-compose.yml`, plus en
 - `docker-compose.local.yml`
 - `docker-compose.gcp.yml`
 
-WordPress, MySQL, persistent named volumes, and a bind-mounted local theme directory are part of the shared stack. The local runtime values live in `docker-compose.local.yml`.
+WordPress, MySQL, persistent named volumes, a bind-mounted local theme directory, and a PHP upload-limit override are part of the shared stack. The local runtime values live in `docker-compose.local.yml`.
 
 The local environment also injects WordPress config for:
 
 - `WP_HOME=http://localhost:8080`
 - `WP_SITEURL=http://localhost:8080`
 - `WP_ENVIRONMENT_TYPE=local`
-- `HOPP_ENABLE_DEMO_SEED=true`
+- `HOPP_ENABLE_DEMO_SEED=false`
 
-The HOPP theme uses those values to seed local demo pages/navigation only in Docker.
+The HOPP theme no longer seeds demo pages/navigation in the clean-import workflow.
+
+PHP upload limits are configured in `docker/php/uploads.ini` and mounted into the WordPress container:
+
+- `upload_max_filesize=10M`
+- `post_max_size=12M`
+
+These limits support the Contact Form 7 artwork/CV upload forms and must be preserved in preview or production containers.
+
+The WordPress container now also mounts a repo-owned ABA PayWay startup patch path:
+
+- `docker/wordpress/start-wordpress.sh`
+- `docker/wordpress/apply-aba-payway-patch.php`
+
+On every WordPress container boot, that startup path checks whether `wp-content/plugins/aba-payway-woocommerce-payment-gateway/PayWayApiCheckout.php` exists and still has the unpatched vendor code. If so, it rewrites the plugin file in place so the ABA gateway keeps the PHP 8.3-safe `payment_options` normalization behavior after rebuilds. If the plugin is missing, it skips cleanly. If the plugin file has drifted to an unexpected version, startup fails loudly instead of silently serving a broken checkout.
 
 Constraints:
 
 - No server access
-- No WP admin credentials yet
-- Live active theme name unknown
-- Installed e-commerce plugin unknown
+- WP admin access is available for live inspection
+- Live active theme is confirmed as Divi
+- Installed e-commerce plugin is confirmed as WooCommerce
 
-If you are preparing the GCP-hosted public preview, use `docker-compose.gcp.yml` together with `make gcp-up`. This file stays focused on local Docker workflow.
+If you are preparing the sponsor-funded GCP host, first provision the VM with `make gcp-provision`, then use `docker-compose.gcp.yml` together with `make gcp-up`. This file stays focused on local Docker workflow.
 
-For HTTPS on the GCP preview, the nginx template exposes `/.well-known/acme-challenge/` and the GCP compose file includes a `certbot` service. Populate `DOMAIN_NAME` and `LETSENCRYPT_EMAIL` in `.env.gcp`, then use the `certbot/certbot` container with the shared webroot volume to request the certificate before switching `WORDPRESS_PUBLIC_URL` to `https://...`.
+For HTTPS on the GCP host, the nginx template exposes `/.well-known/acme-challenge/` and the GCP compose file includes a `certbot` service. Populate `DOMAIN_NAME`, `LETSENCRYPT_EMAIL`, and `WORDPRESS_PUBLIC_URL` in `.env.gcp`, then use the `certbot/certbot` container with the shared webroot volume to request the certificate before switching traffic to `https://...`.
+
+The deployment domain is intentionally centralized in `.env.gcp`. If you temporarily deploy to `hopp.delvedeepasia.org` and later switch back to `humansofphnompenh.com`, update these values in `.env.gcp` on the host copy:
+
+- `WORDPRESS_VIRTUAL_HOST`
+- `WORDPRESS_LOCAL_URL`
+- `DOMAIN_NAME`
+- `WORDPRESS_PUBLIC_URL`
+
+The GCP override is now production-safe by default:
+
+- `WORDPRESS_ENVIRONMENT_TYPE=production`
+- `HOPP_ENABLE_DEMO_SEED=false`
+- nginx `client_max_body_size 12m`
+
+Keep those values in `.env.gcp` unless you are intentionally creating a temporary non-production environment.
 
 The Makefile includes `make gcp-cert` for that certificate request step.
+
+The VM provisioner is repo-owned:
+
+- `scripts/gcp-provision-vm.sh` reserves or reuses a static IP, ensures HTTP/HTTPS firewall rules exist, and creates the recommended `e2-medium` / `50 GB pd-balanced` Compute Engine VM
+- `scripts/gcp-startup.sh` runs as the instance startup script and installs Docker Engine, Docker Compose plugin, and Git on first boot
+
+Production host ownership model:
+
+- Keep application files under `/opt/hopp`
+- Own the app directory as `root:hopp`, not as a personal user
+- Add each real operator as an individual Linux user and add that user to group `hopp`
+- Use group write permissions for deploy work; do not depend on a single personal account such as `monireach`
+- Keep system-managed paths such as `/etc`, Docker service config, and `/etc/letsencrypt` root-managed
+
+This is the handoff-safe standard for this project. Temporary helper users are acceptable during setup, but long-term access should be through real named operator accounts in group `hopp`.
+
+The canonical production deploy path on that host is now:
+
+```text
+main commit -> ssh hopp-prod -> /opt/hopp -> ./scripts/deploy-production.sh
+```
+
+Use `./scripts/rollback-production.sh <known-good-main-sha>` only for emergency rollback to an earlier `main` commit. The full operational runbook lives in `docs/production_vm_deploy.md`.
 
 ---
 
@@ -54,7 +106,7 @@ The Makefile includes `make gcp-cert` for that certificate request step.
 
 - Docker Desktop
 - Docker Compose V2
-- WP admin credentials, later, for content export/import and final theme upload
+- WP admin credentials for live inspection and final theme upload
 
 ---
 
@@ -72,6 +124,15 @@ Theme mount:
 ```
 
 This mount allows theme file edits to appear in WordPress without rebuilding the container.
+
+Runtime patch mounts:
+
+```text
+./docker/wordpress/start-wordpress.sh:/usr/local/bin/hopp-wordpress-start.sh
+./docker/wordpress/apply-aba-payway-patch.php:/usr/local/share/hopp/apply-aba-payway-patch.php
+```
+
+These files are part of the deployment artifact. Recreating the WordPress container reruns the startup patch logic automatically.
 
 ---
 
@@ -137,9 +198,10 @@ Expected first-run flow:
 2. Log in to local WP admin.
 3. Confirm the mounted `hopp` theme appears under Appearance -> Themes.
 4. Activate the `HOPP` theme.
-5. Open `http://localhost:8080` and confirm the local demo pages/navigation render.
+5. Import the live XML export.
+6. Open `http://localhost:8080` and confirm the imported pages/navigation render.
 
-The HOPP theme seeds V1 demo pages, story posts, and primary navigation after activation when `HOPP_ENABLE_DEMO_SEED` is enabled in the local Docker config.
+The HOPP theme no longer seeds V1 demo pages, story posts, or primary navigation in the clean-import path.
 
 ---
 

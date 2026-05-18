@@ -27,6 +27,7 @@ services:
     image: wordpress:6.8-php8.3-apache
     container_name: hopp_wordpress
     restart: unless-stopped
+    command: ["sh", "/usr/local/bin/hopp-wordpress-start.sh"]
     depends_on:
       db:
         condition: service_healthy
@@ -40,6 +41,9 @@ services:
     volumes:
       - hopp_wordpress_data:/var/www/html
       - ./wp-content/themes/hopp:/var/www/html/wp-content/themes/hopp
+      - ./docker/php/uploads.ini:/usr/local/etc/php/conf.d/hopp-uploads.ini:ro
+      - ./docker/wordpress/start-wordpress.sh:/usr/local/bin/hopp-wordpress-start.sh:ro
+      - ./docker/wordpress/apply-aba-payway-patch.php:/usr/local/share/hopp/apply-aba-payway-patch.php:ro
     networks:
       - hopp-network
 

@@ -4,10 +4,14 @@
  */
 
 get_header();
+
+$home_hero_image    = hopp_get_hero_image_url_for_slug( 'home' );
+$home_product_image = hopp_get_latest_product_image_url();
+$home_artist_image  = hopp_get_home_artist_image_url();
 ?>
 
 <main>
-	<section class="hero hero--home">
+	<section class="hero hero--home"<?php echo $home_hero_image ? ' style="--hopp-hero-image: url(' . esc_url( $home_hero_image ) . ');"' : ''; ?>>
 		<div class="hero__content">
 			<p class="hero__eyebrow"><?php esc_html_e( 'Humans of Phnom Penh', 'hopp' ); ?></p>
 			<h1><?php esc_html_e( 'Every person has a story worth sharing.', 'hopp' ); ?></h1>
@@ -30,34 +34,48 @@ get_header();
 			<p class="section-label"><?php esc_html_e( 'Latest Stories', 'hopp' ); ?></p>
 			<h2><?php esc_html_e( 'People, craft, neighborhoods, and quiet city details.', 'hopp' ); ?></h2>
 		</div>
-		<div class="card-grid">
-			<?php
-			$stories = new WP_Query(
-				array(
-					'posts_per_page' => 3,
-					'post_status'    => 'publish',
-				)
-			);
-			if ( $stories->have_posts() ) :
+		<?php
+		$stories = new WP_Query(
+			array(
+				'posts_per_page' => 3,
+				'post_status'    => 'publish',
+			)
+		);
+		if ( $stories->have_posts() ) :
+			?>
+			<div class="card-grid">
+				<?php
 				while ( $stories->have_posts() ) :
 					$stories->the_post();
+					$story_thumb = get_the_post_thumbnail_url( get_the_ID(), 'medium_large' );
+					$summary     = hopp_get_post_card_summary( get_the_ID() );
 					?>
 					<article class="story-card">
 						<a href="<?php the_permalink(); ?>">
-							<div class="story-card__media" style="background: <?php echo esc_attr( hopp_demo_asset_gradient( 'teal' ) ); ?>"></div>
+							<div class="story-card__media"<?php echo $story_thumb ? '' : ' style="background: ' . esc_attr( hopp_demo_asset_gradient( 'teal' ) ) . '"'; ?>>
+								<?php if ( $story_thumb ) : ?>
+									<img src="<?php echo esc_url( $story_thumb ); ?>" alt="<?php the_title_attribute(); ?>" loading="lazy">
+								<?php endif; ?>
+							</div>
 							<div class="story-card__body">
 								<p class="card-kicker"><?php echo esc_html( get_the_date() ); ?></p>
 								<h3><?php the_title(); ?></h3>
-								<?php the_excerpt(); ?>
+								<?php if ( '' !== $summary ) : ?>
+									<p class="card-summary"><?php echo esc_html( $summary ); ?></p>
+								<?php endif; ?>
 							</div>
 						</a>
 					</article>
 					<?php
 				endwhile;
 				wp_reset_postdata();
-			endif;
-			?>
-		</div>
+				?>
+			</div>
+		<?php else : ?>
+			<div class="empty-state">
+				<p><?php esc_html_e( 'No stories published yet.', 'hopp' ); ?></p>
+			</div>
+		<?php endif; ?>
 	</section>
 
 	<section class="section section--cream split-section">
@@ -67,11 +85,19 @@ get_header();
 			<p><?php esc_html_e( 'The V1 demo frames products as editorial artifacts: books, prints, and artist-made objects connected to local narratives.', 'hopp' ); ?></p>
 			<a class="text-link" href="<?php echo esc_url( home_url( '/products/' ) ); ?>"><?php esc_html_e( 'Explore products', 'hopp' ); ?></a>
 		</div>
-		<div class="editorial-image" style="background: <?php echo esc_attr( hopp_demo_asset_gradient( 'sand' ) ); ?>"></div>
+		<div class="editorial-image" style="background: <?php echo esc_attr( hopp_demo_asset_gradient( 'sand' ) ); ?>">
+			<?php if ( $home_product_image ) : ?>
+				<img src="<?php echo esc_url( $home_product_image ); ?>" alt="<?php esc_attr_e( 'Latest product from Humans of Phnom Penh', 'hopp' ); ?>" loading="lazy">
+			<?php endif; ?>
+		</div>
 	</section>
 
 	<section class="section section--paper split-section split-section--reverse">
-		<div class="editorial-image" style="background: <?php echo esc_attr( hopp_demo_asset_gradient( 'terracotta' ) ); ?>"></div>
+		<div class="editorial-image" style="background: <?php echo esc_attr( hopp_demo_asset_gradient( 'terracotta' ) ); ?>">
+			<?php if ( $home_artist_image ) : ?>
+				<img src="<?php echo esc_url( $home_artist_image ); ?>" alt="<?php esc_attr_e( 'Artist and contributor story from Humans of Phnom Penh', 'hopp' ); ?>" loading="lazy">
+			<?php endif; ?>
+		</div>
 		<div>
 			<p class="section-label"><?php esc_html_e( 'Artists', 'hopp' ); ?></p>
 			<h2><?php esc_html_e( 'A place for contributors, portraits, and creative work.', 'hopp' ); ?></h2>
@@ -80,13 +106,15 @@ get_header();
 		</div>
 	</section>
 
-	<section class="cta-band">
-		<div>
-			<p class="section-label"><?php esc_html_e( 'Contact', 'hopp' ); ?></p>
-			<h2><?php esc_html_e( 'Pitch a story, collaborate, or ask about the project.', 'hopp' ); ?></h2>
-		</div>
-		<a class="button-primary button-primary--light" href="<?php echo esc_url( home_url( '/contact-us/' ) ); ?>"><?php esc_html_e( 'Get in Touch', 'hopp' ); ?></a>
-	</section>
+	<?php
+	hopp_render_context_cta(
+		__( 'Contact', 'hopp' ),
+		__( 'Pitch a story, collaborate, or ask about the project.', 'hopp' ),
+		__( 'Reach the team for story ideas, collaborations, products, and community partnerships.', 'hopp' ),
+		__( 'Get in Touch', 'hopp' ),
+		home_url( '/contact-us/' )
+	);
+	?>
 </main>
 
 <?php

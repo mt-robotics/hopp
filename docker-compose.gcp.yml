@@ -9,7 +9,8 @@ services:
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
     volumes:
-      - ./nginx/templates:/etc/nginx/templates:ro
+      - ./nginx/templates:/etc/nginx/hopp-templates:ro
+      - ./docker/nginx/select-template.sh:/docker-entrypoint.d/10-hopp-select-template.sh:ro
       - hopp_letsencrypt:/etc/letsencrypt:ro
       - hopp_acme_webroot:/var/www/certbot
     networks:
@@ -30,8 +31,8 @@ services:
       WORDPRESS_CONFIG_EXTRA: |
         define( 'WP_HOME', '${WORDPRESS_PUBLIC_URL}' );
         define( 'WP_SITEURL', '${WORDPRESS_PUBLIC_URL}' );
-        define( 'WP_ENVIRONMENT_TYPE', 'staging' );
-        define( 'HOPP_ENABLE_DEMO_SEED', true );
+        define( 'WP_ENVIRONMENT_TYPE', '${WORDPRESS_ENVIRONMENT_TYPE:-production}' );
+        define( 'HOPP_ENABLE_DEMO_SEED', ${HOPP_ENABLE_DEMO_SEED:-false} );
 
 volumes:
   hopp_letsencrypt:

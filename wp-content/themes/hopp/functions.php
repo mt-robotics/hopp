@@ -4,6 +4,8 @@
  */
 
 define( 'HOPP_DEMO_SEED_VERSION', '20260430.3' );
+define( 'HOPP_LOCAL_PERMALINK_VERSION', '20260508.1' );
+define( 'HOPP_LOCAL_WOOCOMMERCE_VISIBILITY_VERSION', '20260508.1' );
 
 function hopp_setup(): void {
 	add_theme_support( 'title-tag' );
@@ -44,6 +46,73 @@ function hopp_enqueue_assets(): void {
 }
 add_action( 'wp_enqueue_scripts', 'hopp_enqueue_assets' );
 
+function hopp_enqueue_cart_assets(): void {
+	if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+		return;
+	}
+	wp_enqueue_script(
+		'hopp-cart',
+		get_template_directory_uri() . '/assets/js/hopp-cart.js',
+		array(),
+		wp_get_theme()->get( 'Version' ),
+		true
+	);
+}
+add_action( 'wp_enqueue_scripts', 'hopp_enqueue_cart_assets' );
+
+function hopp_filter_nav_menu_item_titles( array $items ): array {
+	$stories_item    = null;
+	$has_series_item = false;
+	$filtered_items  = array();
+
+	foreach ( $items as $item ) {
+		if ( 'post_type' === $item->type ) {
+			$linked = get_post( $item->object_id );
+			if ( $linked && 'pitch-your-pal-phnom-penh' === $linked->post_name ) {
+				continue;
+			}
+			if ( $linked && 'stories' === $linked->post_name ) {
+				$stories_item = $item;
+				$item->classes[] = 'menu-item-has-children';
+				if ( is_page( 'series' ) ) {
+					$item->classes[] = 'current-menu-ancestor';
+					$item->classes[] = 'current-menu-parent';
+				}
+			}
+			if ( $linked && 'series' === $linked->post_name ) {
+				$has_series_item = true;
+			}
+		}
+
+		$filtered_items[] = $item;
+	}
+
+	if ( $stories_item && ! $has_series_item ) {
+		$series_item = clone $stories_item;
+		$series_item->ID = -9001;
+		$series_item->db_id = -9001;
+		$series_item->menu_item_parent = (string) $stories_item->ID;
+		$series_item->object_id = 0;
+		$series_item->object = 'custom';
+		$series_item->type = 'custom';
+		$series_item->type_label = __( 'Custom Link', 'hopp' );
+		$series_item->title = __( 'Browse by Series', 'hopp' );
+		$series_item->url = home_url( '/series/' );
+		$series_item->classes = array( 'menu-item', 'menu-item-series-child' );
+		$series_item->current = is_page( 'series' );
+		$series_item->current_item_ancestor = false;
+		$series_item->current_item_parent = false;
+		$series_item->xfn = '';
+		$series_item->target = '';
+		$series_item->attr_title = '';
+
+		$filtered_items[] = $series_item;
+	}
+
+	return $filtered_items;
+}
+add_filter( 'wp_nav_menu_objects', 'hopp_filter_nav_menu_item_titles' );
+
 function hopp_is_local_demo_environment(): bool {
 	return defined( 'HOPP_ENABLE_DEMO_SEED' )
 		&& true === HOPP_ENABLE_DEMO_SEED
@@ -63,6 +132,10 @@ function hopp_get_demo_pages(): array {
 		'stories'    => array(
 			'title'   => __( 'Stories', 'hopp' ),
 			'excerpt' => __( 'Portraits, interviews, and neighborhood dispatches.', 'hopp' ),
+		),
+		'series'     => array(
+			'title'   => __( 'Series', 'hopp' ),
+			'excerpt' => __( 'Curated YouTube story collections from Humans of Phnom Penh.', 'hopp' ),
 		),
 		'artist'     => array(
 			'title'   => __( 'Artist', 'hopp' ),
@@ -225,6 +298,139 @@ add_action( 'after_switch_theme', 'hopp_seed_local_demo_content' );
 add_action( 'admin_init', 'hopp_seed_local_demo_content' );
 add_action( 'init', 'hopp_seed_local_demo_content' );
 
+function hopp_sync_local_permalink_structure(): void {
+	if ( 'local' !== wp_get_environment_type() ) {
+		return;
+	}
+
+	$target_structure = '/%postname%/';
+	$current_structure = (string) get_option( 'permalink_structure' );
+
+	if ( $current_structure !== $target_structure ) {
+		update_option( 'permalink_structure', $target_structure, false );
+		flush_rewrite_rules( false );
+		update_option( 'hopp_permalink_structure_version', HOPP_LOCAL_PERMALINK_VERSION, false );
+
+		return;
+	}
+
+	if ( HOPP_LOCAL_PERMALINK_VERSION !== get_option( 'hopp_permalink_structure_version' ) ) {
+		flush_rewrite_rules( false );
+		update_option( 'hopp_permalink_structure_version', HOPP_LOCAL_PERMALINK_VERSION, false );
+	}
+}
+add_action( 'init', 'hopp_sync_local_permalink_structure', 1 );
+
+function hopp_sync_local_woocommerce_visibility(): void {
+	if ( 'local' !== wp_get_environment_type() ) {
+		return;
+	}
+
+	if ( 'no' !== (string) get_option( 'woocommerce_coming_soon' ) ) {
+		update_option( 'woocommerce_coming_soon', 'no', false );
+	}
+
+	if ( 'no' !== (string) get_option( 'woocommerce_feature_site_visibility_badge_enabled' ) ) {
+		update_option( 'woocommerce_feature_site_visibility_badge_enabled', 'no', false );
+	}
+
+	if ( HOPP_LOCAL_WOOCOMMERCE_VISIBILITY_VERSION !== get_option( 'hopp_local_woocommerce_visibility_version' ) ) {
+		update_option( 'hopp_local_woocommerce_visibility_version', HOPP_LOCAL_WOOCOMMERCE_VISIBILITY_VERSION, false );
+	}
+}
+add_action( 'init', 'hopp_sync_local_woocommerce_visibility', 2 );
+
+function hopp_default_checkout_country(): string {
+	return 'KH';
+}
+add_filter( 'default_checkout_billing_country', 'hopp_default_checkout_country' );
+add_filter( 'default_checkout_shipping_country', 'hopp_default_checkout_country' );
+
+function hopp_default_checkout_state(): string {
+	return '';
+}
+add_filter( 'default_checkout_billing_state', 'hopp_default_checkout_state' );
+add_filter( 'default_checkout_shipping_state', 'hopp_default_checkout_state' );
+
+function hopp_customize_checkout_fields( array $fields ): array {
+	if ( isset( $fields['billing']['billing_first_name'] ) ) {
+		$fields['billing']['billing_first_name']['label'] = __( 'First name', 'hopp' );
+		$fields['billing']['billing_first_name']['priority'] = 10;
+	}
+
+	if ( isset( $fields['billing']['billing_last_name'] ) ) {
+		$fields['billing']['billing_last_name']['label'] = __( 'Last name', 'hopp' );
+		$fields['billing']['billing_last_name']['priority'] = 20;
+	}
+
+	if ( isset( $fields['billing']['billing_phone'] ) ) {
+		$fields['billing']['billing_phone']['label'] = __( 'Phone', 'hopp' );
+		$fields['billing']['billing_phone']['required'] = true;
+		$fields['billing']['billing_phone']['priority'] = 30;
+	}
+
+	$fields['billing']['billing_alt_phone'] = array(
+		'type'        => 'tel',
+		'label'       => __( 'Alternate Number', 'hopp' ),
+		'placeholder' => __( 'Alternate Phone Number', 'hopp' ),
+		'required'    => false,
+		'class'       => array( 'form-row-wide' ),
+		'priority'    => 40,
+		'autocomplete' => 'tel',
+	);
+
+	if ( isset( $fields['billing']['billing_email'] ) ) {
+		$fields['billing']['billing_email']['label'] = __( 'Email address', 'hopp' );
+		$fields['billing']['billing_email']['required'] = true;
+		$fields['billing']['billing_email']['priority'] = 50;
+	}
+
+	if ( isset( $fields['billing']['billing_country'] ) ) {
+		$fields['billing']['billing_country']['label'] = __( 'Country / Region', 'hopp' );
+		$fields['billing']['billing_country']['default'] = 'KH';
+		$fields['billing']['billing_country']['priority'] = 60;
+	}
+
+	if ( isset( $fields['billing']['billing_address_1'] ) ) {
+		$fields['billing']['billing_address_1']['label'] = __( 'Address', 'hopp' );
+		$fields['billing']['billing_address_1']['placeholder'] = __( 'House number, street name, apartment, suite, unit, etc.', 'hopp' );
+		$fields['billing']['billing_address_1']['priority'] = 70;
+	}
+
+	$fields['billing']['billing_landmark'] = array(
+		'type'        => 'text',
+		'label'       => __( 'Landmark', 'hopp' ),
+		'placeholder' => __( 'Landmark', 'hopp' ),
+		'required'    => true,
+		'class'       => array( 'form-row-wide' ),
+		'priority'    => 80,
+	);
+
+	if ( isset( $fields['billing']['billing_city'] ) ) {
+		$fields['billing']['billing_city']['label'] = __( 'Town / City', 'hopp' );
+		$fields['billing']['billing_city']['required'] = true;
+		$fields['billing']['billing_city']['priority'] = 90;
+	}
+
+	$fields['billing']['billing_state'] = array(
+		'type'        => 'text',
+		'label'       => __( 'State / County', 'hopp' ),
+		'placeholder' => __( 'State / County', 'hopp' ),
+		'required'    => true,
+		'class'       => array( 'form-row-wide' ),
+		'priority'    => 100,
+	);
+
+	if ( isset( $fields['billing']['billing_postcode'] ) ) {
+		$fields['billing']['billing_postcode']['label'] = __( 'Postcode / ZIP', 'hopp' );
+		$fields['billing']['billing_postcode']['required'] = true;
+		$fields['billing']['billing_postcode']['priority'] = 110;
+	}
+
+	return $fields;
+}
+add_filter( 'woocommerce_checkout_fields', 'hopp_customize_checkout_fields', 20 );
+
 function hopp_demo_asset_gradient( string $variant = 'brown' ): string {
 	$gradients = array(
 		'brown'      => 'linear-gradient(135deg, #33231a 0%, #7b4b34 52%, #c47254 100%)',
@@ -262,6 +468,92 @@ function hopp_get_demo_products(): array {
 	);
 }
 
+function hopp_get_youtube_series_playlists(): array {
+	return array(
+		array(
+			'label' => __( 'Series 01', 'hopp' ),
+			'title' => __( 'Dakshin Restaurant Stories', 'hopp' ),
+			'count' => __( '4 videos', 'hopp' ),
+			'url'   => 'https://www.youtube.com/playlist?list=PLN-8MWE9jViIiIJDyfsEC5dAvjN756yUA',
+			'video' => '8lMh0XuFVcU',
+		),
+		array(
+			'label' => __( 'Series 02', 'hopp' ),
+			'title' => __( 'Uy Ratha Stories', 'hopp' ),
+			'count' => __( '5 videos', 'hopp' ),
+			'url'   => 'https://www.youtube.com/playlist?list=PLN-8MWE9jViKLYjkmY22MiExSZSsjCNdU',
+			'video' => '2l7wBAY8fLQ',
+		),
+		array(
+			'label' => __( 'Series 03', 'hopp' ),
+			'title' => __( 'Ley Oudom Stories', 'hopp' ),
+			'count' => __( '5 videos', 'hopp' ),
+			'url'   => 'https://www.youtube.com/playlist?list=PLN-8MWE9jViLdVqkjTOF2fPvaBJRksha0',
+			'video' => '8X3iHSOQl0I',
+		),
+		array(
+			'label' => __( 'Series 04', 'hopp' ),
+			'title' => __( 'E Chen Stories', 'hopp' ),
+			'count' => __( '5 videos', 'hopp' ),
+			'url'   => 'https://www.youtube.com/playlist?list=PLN-8MWE9jViK2M2YhP0vCEXcSHPiB6HB3',
+			'video' => '4gs8PwfVL2k',
+		),
+		array(
+			'label' => __( 'Series 05', 'hopp' ),
+			'title' => __( 'Duck Roasted House Stories', 'hopp' ),
+			'count' => __( '5 videos', 'hopp' ),
+			'url'   => 'https://www.youtube.com/playlist?list=PLN-8MWE9jViL4ZooFRbnVtEtO51DY9--P',
+			'video' => 'OLJEvYm4qtc',
+		),
+	);
+}
+
+function hopp_get_youtube_thumbnail_url( string $video_id ): string {
+	$video_id = preg_replace( '/[^A-Za-z0-9_-]/', '', $video_id );
+
+	if ( '' === $video_id ) {
+		return '';
+	}
+
+	return 'https://i.ytimg.com/vi/' . $video_id . '/hqdefault.jpg';
+}
+
+function hopp_get_career_role_image_url( string $role ): string {
+	$images = array(
+		'writers'       => '2023/10/2.jpg',
+		'photographers' => '2023/10/3.jpg',
+		'videographers' => '2023/10/4.jpg',
+		'social'        => '2023/10/5.jpg',
+	);
+
+	if ( empty( $images[ $role ] ) ) {
+		return '';
+	}
+
+	return hopp_get_upload_image_url( $images[ $role ] );
+}
+
+function hopp_render_context_cta( string $eyebrow, string $title, string $body, string $button_label, string $button_url, string $modifier = '' ): void {
+	$classes = array( 'section', 'context-cta' );
+	if ( '' !== $modifier ) {
+		$classes[] = 'context-cta--' . sanitize_html_class( $modifier );
+	}
+	?>
+	<section class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>">
+		<div class="context-cta__inner">
+			<div>
+				<p class="section-label"><?php echo esc_html( $eyebrow ); ?></p>
+				<h2><?php echo esc_html( $title ); ?></h2>
+				<?php if ( '' !== $body ) : ?>
+					<p><?php echo esc_html( $body ); ?></p>
+				<?php endif; ?>
+			</div>
+			<a class="button-primary" href="<?php echo esc_url( $button_url ); ?>"><?php echo esc_html( $button_label ); ?></a>
+		</div>
+	</section>
+	<?php
+}
+
 function hopp_fallback_menu(): void {
 	$items = array(
 		__( 'Home', 'hopp' )       => home_url( '/' ),
@@ -281,9 +573,40 @@ function hopp_fallback_menu(): void {
 	echo '</ul>';
 }
 
+function hopp_get_upload_image_url( string $relative_path ): string {
+	return content_url( 'uploads/' . ltrim( $relative_path, '/' ) );
+}
+
+function hopp_get_hero_image_url_for_slug( string $slug ): string {
+	$hero_images = array(
+		'about-us'                  => '2023/10/phnom-penh-cover-image.jpg',
+		'artist'                    => '2025/03/Untitled-2-01-1536x1536.png',
+		'career'                    => '2023/10/Untitled-design-15.jpg',
+		'home'                      => '2023/09/combodians.jpg',
+		'pitch-your-pal-phnom-penh' => '2026/01/happy-new-year-2025-fireworks-festive-fun-joyous-midnight-countdown-new-beginnings-scaled-1.jpg',
+		'products'                  => '2023/10/Artist.jpg',
+		'stories'                   => '2023/09/combodians.jpg',
+	);
+
+	if ( empty( $hero_images[ $slug ] ) ) {
+		return '';
+	}
+
+	return hopp_get_upload_image_url( $hero_images[ $slug ] );
+}
+
 function hopp_render_page_hero( string $eyebrow, string $title, string $intro, string $variant = 'brown' ): void {
+	$slug      = get_post_field( 'post_name', get_the_ID() );
+	$image_url = hopp_get_hero_image_url_for_slug( (string) $slug );
+	$classes   = array( 'page-hero', 'page-hero--' . $variant );
+	$style     = '';
+
+	if ( '' !== $image_url ) {
+		$classes[] = 'page-hero--has-image';
+		$style     = ' style="--hopp-hero-image: url(' . esc_url( $image_url ) . ');"';
+	}
 	?>
-	<section class="page-hero page-hero--<?php echo esc_attr( $variant ); ?>">
+	<section class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"<?php echo $style; ?>>
 		<div class="page-hero__inner">
 			<p class="section-label"><?php echo esc_html( $eyebrow ); ?></p>
 			<h1><?php echo esc_html( $title ); ?></h1>
@@ -292,3 +615,550 @@ function hopp_render_page_hero( string $eyebrow, string $title, string $intro, s
 	</section>
 	<?php
 }
+
+function hopp_get_contact_form_id_by_title( string $title ): int {
+	if ( ! post_type_exists( 'wpcf7_contact_form' ) ) {
+		return 0;
+	}
+
+	$forms = get_posts(
+		array(
+			'post_type'              => 'wpcf7_contact_form',
+			'post_status'            => 'publish',
+			'title'                  => $title,
+			'posts_per_page'         => 1,
+			'fields'                 => 'ids',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+		)
+	);
+
+	return empty( $forms ) ? 0 : (int) $forms[0];
+}
+
+function hopp_render_contact_form( string $title ): void {
+	if ( ! shortcode_exists( 'contact-form-7' ) ) {
+		echo '<p class="hopp-form-message">' . esc_html__( 'This form is temporarily unavailable.', 'hopp' ) . '</p>';
+		return;
+	}
+
+	$form_id = hopp_get_contact_form_id_by_title( $title );
+	if ( ! $form_id ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			printf(
+				'<p class="hopp-form-message hopp-form-message--admin">%s</p>',
+				esc_html( sprintf( __( 'Missing Contact Form 7 form: %s', 'hopp' ), $title ) )
+			);
+			return;
+		}
+
+		echo '<p class="hopp-form-message">' . esc_html__( 'This form is temporarily unavailable.', 'hopp' ) . '</p>';
+		return;
+	}
+
+	echo do_shortcode(
+		sprintf(
+			'[contact-form-7 id="%d" title="%s"]',
+			$form_id,
+			esc_attr( $title )
+		)
+	);
+}
+
+function hopp_clean_imported_content( string $content ): string {
+	$patterns = array(
+		'/<!--\s*wp:divi\/placeholder\s*-->/i',
+		'/<!--\s*\/wp:divi\/placeholder\s*-->/i',
+		'/\[(?:\/)?et_pb_[^\]]*\]/i',
+		'/\[forminator_form[^\]]*\]/i',
+	);
+
+	return trim( preg_replace( $patterns, '', $content ) );
+}
+
+function hopp_render_imported_content( string $content ): void {
+	echo apply_filters( 'the_content', hopp_clean_imported_content( $content ) );
+}
+
+function hopp_clean_product_content_for_display( string $content ): string {
+	if ( is_admin() || ! function_exists( 'get_post_type' ) || 'product' !== get_post_type() ) {
+		return $content;
+	}
+
+	return hopp_clean_imported_content( $content );
+}
+add_filter( 'the_content', 'hopp_clean_product_content_for_display', 9 );
+
+function hopp_clean_product_structured_data( array $markup, $product ): array {
+	if ( 'local' !== wp_get_environment_type() || empty( $markup['description'] ) ) {
+		return $markup;
+	}
+
+	$clean_description = trim( wp_strip_all_tags( hopp_clean_imported_content( (string) $markup['description'] ) ) );
+	$markup['description'] = $clean_description;
+
+	return $markup;
+}
+add_filter( 'woocommerce_structured_data_product', 'hopp_clean_product_structured_data', 50, 2 );
+
+function hopp_get_story_cards( int $limit = 9 ): array {
+	if ( ! function_exists( 'get_posts' ) ) {
+		return array();
+	}
+
+	return get_posts(
+		array(
+			'post_type'      => 'post',
+			'post_status'    => 'publish',
+			'numberposts'    => $limit,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'suppress_filters' => false,
+		)
+	);
+}
+
+function hopp_get_product_cards( int $limit = 9 ): array {
+	if ( ! function_exists( 'wc_get_products' ) ) {
+		return array();
+	}
+
+	return wc_get_products(
+		array(
+			'limit'   => $limit,
+			'status'  => 'publish',
+			'orderby' => 'date',
+			'order'   => 'DESC',
+			'return'  => 'objects',
+		)
+	);
+}
+
+function hopp_normalize_content_image_url( string $url ): string {
+	$url = trim( html_entity_decode( $url ) );
+
+	if ( '' === $url ) {
+		return '';
+	}
+
+	$uploads_path = '/wp-content/uploads/';
+	$uploads_pos  = strpos( $url, $uploads_path );
+
+	if ( false !== $uploads_pos ) {
+		return content_url( 'uploads/' . ltrim( substr( $url, $uploads_pos + strlen( $uploads_path ) ), '/' ) );
+	}
+
+	return esc_url_raw( $url );
+}
+
+function hopp_extract_first_image_url_from_content( string $content ): string {
+	$matches = array();
+
+	if ( preg_match( '/\bbackground_image="([^"]+)"/i', $content, $matches ) ) {
+		return hopp_normalize_content_image_url( $matches[1] );
+	}
+
+	if ( preg_match( '/\bbackground_image_phone="([^"]+)"/i', $content, $matches ) ) {
+		return hopp_normalize_content_image_url( $matches[1] );
+	}
+
+	if ( preg_match( '/<img[^>]+src=["\']([^"\']+)["\']/i', $content, $matches ) ) {
+		return hopp_normalize_content_image_url( $matches[1] );
+	}
+
+	return '';
+}
+
+function hopp_get_page_banner_image_url( string $slug, string $size = 'large' ): string {
+	$page = get_page_by_path( $slug );
+
+	if ( ! $page instanceof WP_Post ) {
+		return '';
+	}
+
+	$thumbnail = get_the_post_thumbnail_url( $page->ID, $size );
+	if ( $thumbnail ) {
+		return $thumbnail;
+	}
+
+	return hopp_extract_first_image_url_from_content( (string) $page->post_content );
+}
+
+function hopp_get_latest_product_image_url( string $size = 'large' ): string {
+	if ( ! function_exists( 'wc_get_products' ) ) {
+		return hopp_get_page_banner_image_url( 'products', $size );
+	}
+
+	$products = wc_get_products(
+		array(
+			'limit'   => 12,
+			'status'  => 'publish',
+			'orderby' => 'date',
+			'order'   => 'DESC',
+			'return'  => 'objects',
+		)
+	);
+
+	foreach ( $products as $product ) {
+		if ( ! $product || ! method_exists( $product, 'get_image_id' ) ) {
+			continue;
+		}
+
+		$image_id = (int) $product->get_image_id();
+		if ( ! $image_id && method_exists( $product, 'get_gallery_image_ids' ) ) {
+			$gallery_ids = $product->get_gallery_image_ids();
+			$image_id    = ! empty( $gallery_ids[0] ) ? (int) $gallery_ids[0] : 0;
+		}
+
+		if ( $image_id ) {
+			$image_url = wp_get_attachment_image_url( $image_id, $size );
+			if ( $image_url ) {
+				return $image_url;
+			}
+		}
+	}
+
+	return hopp_get_page_banner_image_url( 'products', $size );
+}
+
+function hopp_get_image_url_from_post( WP_Post $post, string $size = 'large' ): string {
+	$thumbnail = get_the_post_thumbnail_url( $post->ID, $size );
+	if ( $thumbnail ) {
+		return $thumbnail;
+	}
+
+	return hopp_extract_first_image_url_from_content( (string) $post->post_content );
+}
+
+function hopp_get_latest_post_image_url( string $size = 'large', array $term_slugs = array() ): string {
+	$query_args = array(
+		'post_type'        => 'post',
+		'post_status'      => 'publish',
+		'numberposts'      => 12,
+		'orderby'          => 'date',
+		'order'            => 'DESC',
+		'suppress_filters' => false,
+	);
+
+	if ( ! empty( $term_slugs ) ) {
+		$tax_query = array( 'relation' => 'OR' );
+
+		foreach ( array( 'category', 'post_tag' ) as $taxonomy ) {
+			$matched_terms = array();
+			foreach ( $term_slugs as $slug ) {
+				$term = get_term_by( 'slug', $slug, $taxonomy );
+				if ( $term && ! is_wp_error( $term ) ) {
+					$matched_terms[] = $slug;
+				}
+			}
+
+			if ( ! empty( $matched_terms ) ) {
+				$tax_query[] = array(
+					'taxonomy' => $taxonomy,
+					'field'    => 'slug',
+					'terms'    => $matched_terms,
+				);
+			}
+		}
+
+		if ( count( $tax_query ) > 1 ) {
+			$query_args['tax_query'] = $tax_query;
+		} else {
+			return '';
+		}
+	}
+
+	$posts = get_posts( $query_args );
+
+	foreach ( $posts as $post ) {
+		if ( ! $post instanceof WP_Post ) {
+			continue;
+		}
+
+		$image_url = hopp_get_image_url_from_post( $post, $size );
+		if ( $image_url ) {
+			return $image_url;
+		}
+	}
+
+	return '';
+}
+
+function hopp_get_home_artist_image_url( string $size = 'large' ): string {
+	$artist_image = hopp_get_latest_post_image_url( $size, array( 'artist', 'artists', 'artwork', 'contributor', 'contributors' ) );
+
+	if ( $artist_image ) {
+		return $artist_image;
+	}
+
+	return hopp_get_page_banner_image_url( 'artist', $size );
+}
+
+function hopp_get_imported_product_profiles(): array {
+	static $profiles = null;
+
+	if ( null !== $profiles ) {
+		return $profiles;
+	}
+
+	$profiles = array();
+	$file     = get_stylesheet_directory() . '/data/imported-product-profiles.php';
+
+	if ( is_readable( $file ) ) {
+		$loaded = require $file;
+		if ( is_array( $loaded ) ) {
+			$profiles = $loaded;
+		}
+	}
+
+	return $profiles;
+}
+
+function hopp_get_imported_product_profile( $product ): array {
+	$product_id = 0;
+
+	if ( is_numeric( $product ) ) {
+		$product_id = (int) $product;
+	} elseif ( is_object( $product ) && method_exists( $product, 'get_id' ) ) {
+		$product_id = (int) $product->get_id();
+	} elseif ( is_object( $product ) && isset( $product->ID ) ) {
+		$product_id = (int) $product->ID;
+	}
+
+	if ( ! $product_id ) {
+		return array();
+	}
+
+	$slug     = (string) get_post_field( 'post_name', $product_id );
+	$profiles = hopp_get_imported_product_profiles();
+
+	return $profiles[ $slug ] ?? array();
+}
+
+function hopp_format_imported_product_excerpt( string $excerpt ): string {
+	$excerpt = trim( preg_replace( '/\s+/u', ' ', $excerpt ) );
+
+	if ( '' === $excerpt ) {
+		return '';
+	}
+
+	$matches = array();
+	if ( preg_match( '/^(.*?)(?:\s+Artist:\s*(.*?)\s+Medium:\s*(.*?)\s+Dimensions:\s*(.*))$/su', $excerpt, $matches ) ) {
+		$intro     = trim( $matches[1] );
+		$artist    = trim( $matches[2] );
+		$medium    = trim( $matches[3] );
+		$dimension = trim( $matches[4] );
+
+		$html = '';
+		if ( '' !== $intro ) {
+			$html .= '<p>' . esc_html( $intro ) . '</p>';
+		}
+
+		foreach (
+			array(
+				'Artist'     => $artist,
+				'Medium'     => $medium,
+				'Dimensions' => $dimension,
+			) as $label => $value
+		) {
+			if ( '' === $value ) {
+				continue;
+			}
+
+			$html .= '<p><strong>' . esc_html( $label ) . ':</strong> ' . esc_html( $value ) . '</p>';
+		}
+
+		return $html;
+	}
+
+	return '<p>' . esc_html( $excerpt ) . '</p>';
+}
+
+function hopp_get_product_detail_html( $product ): string {
+	$profile = hopp_get_imported_product_profile( $product );
+	$excerpt  = isset( $profile['excerpt'] ) ? trim( (string) $profile['excerpt'] ) : '';
+
+	if ( '' !== $excerpt ) {
+		return hopp_format_imported_product_excerpt( $excerpt );
+	}
+
+	if ( ! is_object( $product ) ) {
+		return '';
+	}
+
+	$content = '';
+	if ( method_exists( $product, 'get_short_description' ) ) {
+		$content = $product->get_short_description();
+	}
+
+	if ( '' === trim( (string) $content ) && method_exists( $product, 'get_description' ) ) {
+		$content = $product->get_description();
+	}
+
+	$clean = trim( wp_strip_all_tags( hopp_clean_imported_content( (string) $content ) ) );
+
+	if ( '' === $clean ) {
+		return '';
+	}
+
+	return '<p>' . esc_html( $clean ) . '</p>';
+}
+
+function hopp_get_product_category_label( int $product_id ): string {
+	if ( ! function_exists( 'wc_get_product_category_list' ) ) {
+		return __( 'Product', 'hopp' );
+	}
+
+	$label = trim( wp_strip_all_tags( wc_get_product_category_list( $product_id, ', ' ) ) );
+
+	return '' !== $label ? $label : __( 'Product', 'hopp' );
+}
+
+function hopp_trim_text_by_chars( string $text, int $max_chars = 140 ): string {
+	$clean = trim( preg_replace( '/\s+/', ' ', $text ) );
+
+	if ( '' === $clean ) {
+		return '';
+	}
+
+	$length = function_exists( 'mb_strlen' ) ? mb_strlen( $clean ) : strlen( $clean );
+	if ( $length <= $max_chars ) {
+		return $clean;
+	}
+
+	$slice = function_exists( 'mb_substr' ) ? mb_substr( $clean, 0, $max_chars ) : substr( $clean, 0, $max_chars );
+	$slice = preg_replace( '/\s+\S*$/', '', trim( $slice ) );
+
+	return rtrim( $slice, " \t\n\r\0\x0B.,;:!?" ) . '...';
+}
+
+function hopp_get_post_card_summary( int $post_id, int $max_chars = 140 ): string {
+	$excerpt = get_post_field( 'post_excerpt', $post_id );
+	$raw     = '' !== trim( (string) $excerpt ) ? $excerpt : get_post_field( 'post_content', $post_id );
+	$clean   = trim( wp_strip_all_tags( hopp_clean_imported_content( (string) $raw ) ) );
+
+	return hopp_trim_text_by_chars( $clean, $max_chars );
+}
+
+function hopp_get_product_card_thumbnail_url( $product, string $size = 'medium_large' ): string {
+	if ( ! is_object( $product ) || ! method_exists( $product, 'get_id' ) ) {
+		return '';
+	}
+
+	$image_url = get_the_post_thumbnail_url( $product->get_id(), $size );
+	if ( $image_url ) {
+		return $image_url;
+	}
+
+	if ( method_exists( $product, 'get_slug' ) && 'registration-fee' === $product->get_slug() ) {
+		return get_stylesheet_directory_uri() . '/assets/images/registration-fee-thumbnail.svg';
+	}
+
+	return '';
+}
+
+function hopp_cart_item_thumbnail( string $thumbnail, array $cart_item ): string {
+	if ( empty( $cart_item['data'] ) || ! is_object( $cart_item['data'] ) ) {
+		return $thumbnail;
+	}
+
+	$product = $cart_item['data'];
+	if ( method_exists( $product, 'get_image_id' ) && (int) $product->get_image_id() ) {
+		return $thumbnail;
+	}
+
+	$image_url = hopp_get_product_card_thumbnail_url( $product, 'woocommerce_thumbnail' );
+	if ( '' === $image_url ) {
+		return $thumbnail;
+	}
+
+	return sprintf(
+		'<img src="%1$s" alt="%2$s" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail hopp-cart-item-thumbnail">',
+		esc_url( $image_url ),
+		esc_attr( method_exists( $product, 'get_name' ) ? $product->get_name() : __( 'Product image', 'hopp' ) )
+	);
+}
+add_filter( 'woocommerce_cart_item_thumbnail', 'hopp_cart_item_thumbnail', 20, 2 );
+
+function hopp_get_product_summary( $product, int $max_chars = 140 ): string {
+	if ( ! is_object( $product ) || ! method_exists( $product, 'get_short_description' ) || ! method_exists( $product, 'get_description' ) ) {
+		return '';
+	}
+
+	$profile = hopp_get_imported_product_profile( $product );
+	if ( ! empty( $profile['excerpt'] ) ) {
+		$raw = $profile['excerpt'];
+	} else {
+		$raw = $product->get_short_description() ?: $product->get_description();
+	}
+	$clean = trim( wp_strip_all_tags( hopp_clean_imported_content( (string) $raw ) ) );
+
+	if ( '' === $clean ) {
+		return '';
+	}
+
+	return hopp_trim_text_by_chars( $clean, $max_chars );
+}
+
+function hopp_get_related_product_objects( int $product_id, int $limit = 3 ): array {
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return array();
+	}
+
+	$related_products = array();
+
+	if ( function_exists( 'wc_get_related_products' ) ) {
+		$related_ids = wc_get_related_products( $product_id, $limit, array( $product_id ) );
+		foreach ( $related_ids as $related_id ) {
+			$product = wc_get_product( $related_id );
+			if ( $product ) {
+				$related_products[] = $product;
+			}
+		}
+	}
+
+	if ( count( $related_products ) >= $limit || ! function_exists( 'wc_get_products' ) ) {
+		return array_slice( $related_products, 0, $limit );
+	}
+
+	$latest_products = wc_get_products(
+		array(
+			'limit'   => $limit + 6,
+			'status'  => 'publish',
+			'orderby' => 'date',
+			'order'   => 'DESC',
+			'return'  => 'objects',
+		)
+	);
+
+	foreach ( $latest_products as $candidate ) {
+		if ( ! $candidate || $candidate->get_id() === $product_id ) {
+			continue;
+		}
+
+		$already_added = false;
+		foreach ( $related_products as $existing ) {
+			if ( $existing->get_id() === $candidate->get_id() ) {
+				$already_added = true;
+				break;
+			}
+		}
+
+		if ( $already_added ) {
+			continue;
+		}
+
+		$related_products[] = $candidate;
+
+		if ( count( $related_products ) >= $limit ) {
+			break;
+		}
+	}
+
+	return array_slice( $related_products, 0, $limit );
+}
+
+add_filter( 'woocommerce_currency', fn() => 'USD' );
+add_filter( 'woocommerce_price_thousand_sep', fn() => ',' );
+add_filter( 'woocommerce_price_decimal_sep', fn() => '.' );

@@ -18,7 +18,7 @@ wp-content/cache/
 *.swo
 
 # Other
-archive/
+archive/*
 !archive/daily_log.md
 CLAUDE.md
 .claude/

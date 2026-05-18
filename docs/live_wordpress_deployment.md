@@ -2,7 +2,7 @@
 
 Operational guide for updating the live Humans of Phnom Penh WordPress site through WP Admin only.
 
-This project assumes no server or file-system access to the live site. The live update must therefore happen through WordPress admin, and rollback is limited to what admin access allows.
+This document reflects the earlier admin-only deployment path from before the sponsor-funded GCP VM became the primary production host. The canonical production branch strategy is now `feature/* -> development -> main`, with `main` as the only production branch. The canonical VM deploy workflow now lives in `docs/production_vm_deploy.md`. Use this runbook only when a theme-only admin upload is explicitly required; do not treat it as the default production deploy workflow for the current VM-backed stack.
 
 ---
 
