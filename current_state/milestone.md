@@ -14,6 +14,7 @@
 | Set up GCP-hosted public preview | 2026-05-18 | Manual public-preview verification |
 | Set up sponsor-funded GCP production server | 2026-05-18 | Manual production verification |
 | Stabilize ABA PayWay gateway for deployment | 2026-05-18 | Local checkout verification, runtime patch verification |
+| Standardize Production WordPress Workflow | 2026-05-18 | Shell syntax checks, manual doc review |
 | Sponsor-Funded GCP Deployment Plan | 2026-05-15 | Shell syntax checks, manual doc review |
 | May 11 Team Feedback — Non-blocked UI Fixes | 2026-05-11 | PHP lint, HTTP checks, Playwright screenshots |
 | V1 UI Tasks — All 11 Pages, WooCommerce, AJAX, Forms | 2026-05-09 | PHP lint, WP runtime bootstrap |
@@ -480,3 +481,19 @@ Closed the ABA PayWay deployment-stability work once the checkout fix stopped be
 - [Operational note]: future ABA plugin vendor updates may require revisiting the runtime patch if the upstream file structure drifts; that is now an operations/upgrade concern, not an active implementation task
 
 **Final state:** Local checkout verification and runtime patch verification completed; the ABA fix now survives rebuilds and redeploys (2026-05-18)
+
+## ✅ Standardize Production WordPress Workflow (2026-05-18)
+
+**Design:** Converted the sponsor-funded VM from a "working but partly tribal" production stack into a repo-owned operations model. The standard now separates code-managed deploy/runtime behavior from WP-admin-managed business state, adds explicit helpers for backups and smoke checks, and moves the remaining live cutover work into clear execution tasks instead of leaving it hidden inside one umbrella item.
+
+- ✅ Canonical production operations are now compressed behind tracked entrypoint docs:
+  `docs/production_operations_index.md`, `docs/production_vm_deploy.md`, and `docs/production_mail_and_form_verification.md`
+- ✅ Added repo-owned production helper scripts:
+  `scripts/backup-production.sh`, `scripts/restore-production.sh`, and `scripts/smoke-test-production.sh`
+- ✅ Standardized backup scope to DB plus `wp-content/uploads`, while keeping repo-managed code in Git and secrets in `/opt/hopp/.env.gcp`
+- ✅ Made the final primary-domain decision explicit:
+  `https://humansofphnompenh.com` is the intended public host; `https://hopp.delvedeepasia.org` is now the transition host
+- ✅ Reframed the remaining live work honestly as new execution tasks:
+  primary-domain cutover plus first live backup/restore drill
+
+**Final state:** Shell syntax checks and manual doc review completed (2026-05-18)

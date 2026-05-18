@@ -12,6 +12,7 @@ Canonical production mail path and verification checklist for the live sponsor-f
 4. [Verified Public Forms](#verified-public-forms)
 5. [WooCommerce Email Behavior To Verify](#woocommerce-email-behavior-to-verify)
 6. [Verification Checklist](#verification-checklist)
+7. [Workflow Status](#workflow-status)
 
 ---
 
@@ -174,4 +175,16 @@ this step cannot complete on `hopp.delvedeepasia.org` because ABA currently reje
 7. Decide whether the default `completed` customer email copy is acceptable for this business flow.
 8. Record the final operational inboxes and alert owners in `current_state/project_status.md` once verified.
 
-Do not mark the production-mail subtask complete until the remaining CF7 confirmation checks are done and step 6 is completed on the final whitelisted domain.
+## Workflow Status
+
+The repo-owned production mail workflow is now standardized:
+
+- mail transport and recipient routing are defined in code
+- required host env vars are defined
+- the public-form verification path is documented
+- the remaining WooCommerce verification gate is explicitly tied to the final primary-domain cutover
+
+The remaining live execution task is no longer "figure out production mail." It is:
+
+- execute the final domain cutover through the operator flow summarized in `docs/production_operations_index.md`
+- run the final whitelisted-domain order and mail verification there
