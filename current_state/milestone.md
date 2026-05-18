@@ -1,6 +1,6 @@
 # Completed Milestones
 
-**Last Updated:** 2026-05-11
+**Last Updated:** 2026-05-18
 
 > Full details of every completed task. For active tasks and roadmap, see `current_state/project_status.md`.
 
@@ -11,6 +11,10 @@
 | Milestone | Completed | Tests |
 |---|---|---|
 | Navigation, Context CTA, and Return-to-Top Refinements | 2026-05-11 | PHP lint, JS syntax, HTTP checks, Playwright screenshots |
+| Set up GCP-hosted public preview | 2026-05-18 | Manual public-preview verification |
+| Set up sponsor-funded GCP production server | 2026-05-18 | Manual production verification |
+| Stabilize ABA PayWay gateway for deployment | 2026-05-18 | Local checkout verification, runtime patch verification |
+| Sponsor-Funded GCP Deployment Plan | 2026-05-15 | Shell syntax checks, manual doc review |
 | May 11 Team Feedback — Non-blocked UI Fixes | 2026-05-11 | PHP lint, HTTP checks, Playwright screenshots |
 | V1 UI Tasks — All 11 Pages, WooCommerce, AJAX, Forms | 2026-05-09 | PHP lint, WP runtime bootstrap |
 | Home/About UI Refinements | 2026-05-09 | PHP lint, Chrome screenshot review |
@@ -421,3 +425,58 @@ Completed the follow-up UI fixes after the user verified the first May 11 pass.
 - ✅ Screenshots captured:
   - `archive/stories_dropdown_top_hover_check.png`
   - `archive/return_to_top_visible_check.png`
+
+## ✅ Sponsor-Funded GCP Deployment Plan (2026-05-15)
+
+**Design:** Sized the imported WordPress workload before provisioning so the production recommendation is based on measured memory, disk, uploads, checkout constraints, and plugin reality rather than free-tier assumptions. The result is a single-VM `e2-medium` / `50 GB pd-balanced` baseline, with the ABA PayWay patch and CF7 upload requirements encoded into the deployment artifact instead of left as manual server knowledge.
+
+- ✅ Measured imported workload and documented the recommended production shape in `docs/sponsored_gcp_deployment_plan.md`
+- ✅ Hardened the deployment artifact for production by setting `WORDPRESS_ENVIRONMENT_TYPE=production`, `HOPP_ENABLE_DEMO_SEED=false`, and nginx `client_max_body_size 12m`
+- ✅ Persisted the ABA PayWay runtime fix in repo-owned WordPress startup files so container rebuilds reapply the known-safe plugin patch automatically
+- ✅ Added repo-owned GCP provisioning assets: `scripts/gcp-provision-vm.sh`, `scripts/gcp-startup.sh`, and `make gcp-provision`
+- ✅ Updated `.env.gcp`, `DOCKER_SETUP.md`, `PROJECT.md`, and `README.md` so the production host path is executable instead of only described
+- [Deferred operational work]: actual sponsor-project `gcloud` authentication, VM creation, DNS cutover, SMTP verification, and final production smoke test now live under the active setup task in `current_state/project_status.md`
+
+**Final state:** `sh -n scripts/gcp-provision-vm.sh`, `sh -n scripts/gcp-startup.sh`, and manual documentation review passed (2026-05-15)
+
+## ✅ Set up sponsor-funded GCP production server (2026-05-18)
+
+**Design:** Closed the infrastructure bring-up phase once the sponsor-funded VM was no longer a planned host but the actual production runtime. The key boundary is that server creation and initial cutover are complete; all remaining work now belongs to production workflow standardization rather than infrastructure setup.
+
+- ✅ Provisioned the sponsor-funded `e2-medium` / `50 GB pd-balanced` VM and static IP in the sponsor-managed GCP project
+- ✅ Pointed the active deployment domain to the new VM and brought the imported WordPress stack online at `https://hopp.delvedeepasia.org`
+- ✅ Copied the repo to `/opt/hopp`, applied production `.env.gcp` secrets on-host, and started the Docker Compose stack with working TLS bootstrap
+- ✅ Normalized server ownership to `root:hopp` with setgid directories so operations do not depend on a single personal Linux account
+- ✅ Imported the database, uploads, and required production plugins/settings into the running server
+- ✅ Verified the live runtime behavior needed for bring-up: HTTPS works, WordPress is serving the imported site, and ABA success/pushback URLs match the active deployment domain
+- [Remaining operational hardening]: CF7 delivery verification, production smoke tests, backup/restore, rollback rules, and deploy-path standardization remain active under `Standardize Production WordPress Workflow` in `current_state/project_status.md`
+
+**Final state:** Manual production verification completed on the live sponsor-funded host (2026-05-18)
+
+## ✅ Set up GCP-hosted public preview (2026-05-18)
+
+Built the first public GCP preview path before the sponsor-funded production VM existed. This milestone is retained only as historical infrastructure context because the preview stack validated the repo, domain, and Docker wiring that were later reused for the sponsor-funded server.
+
+- ✅ Provisioned the original GCP Always Free Tier preview VM (`e2-micro`, `us-west1`)
+- ✅ Reserved the static IP, pointed the preview domain, and configured SSH access
+- ✅ Installed Docker and Docker Compose on the VM and cloned the repo using a deploy key
+- ✅ Configured production `.env.gcp` values and brought the stack up with `docker-compose.yml` plus `docker-compose.gcp.yml`
+- ✅ Verified public access at `http://hopp.delvedeepasia.org`
+- ✅ Closed the task without keeping `Share URL with the team` as a project-status work item because that is coordination, not repo work
+- [Superseded path]: the sponsor-funded production VM replaced this preview environment as the real long-term host
+
+**Final state:** Manual public-preview verification completed before sponsor-funded production cutover (record archived on 2026-05-18)
+
+## ✅ Stabilize ABA PayWay gateway for deployment (2026-05-18)
+
+Closed the ABA PayWay deployment-stability work once the checkout fix stopped being a one-off local patch and became part of the repo-owned runtime path used on container boot.
+
+- ✅ Captured the live ABA PayWay settings and selected payment methods from the live admin state
+- ✅ Patched the gateway so `payment_options` is normalized safely before checkout rendering on PHP 8.3
+- ✅ Verified the four ABA payment rows render on the checkout page in local staging
+- ✅ Identified and preserved the exact patched plugin target and local backup reference: `wp-content/plugins/aba-payway-woocommerce-payment-gateway/PayWayApiCheckout.php` and `PayWayApiCheckout.php.bak.1778238414`
+- ✅ Persisted the fix in repo-owned startup files: `docker/wordpress/start-wordpress.sh` and `docker/wordpress/apply-aba-payway-patch.php`
+- ✅ Kept the production ABA success/pushback URLs aligned with the active deployment domain
+- [Operational note]: future ABA plugin vendor updates may require revisiting the runtime patch if the upstream file structure drifts; that is now an operations/upgrade concern, not an active implementation task
+
+**Final state:** Local checkout verification and runtime patch verification completed; the ABA fix now survives rebuilds and redeploys (2026-05-18)

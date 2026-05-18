@@ -2,7 +2,7 @@
 
 A WordPress redesign and custom theme project for Humans of Phnom Penh, a cultural storytelling and content production platform rooted in Phnom Penh, Cambodia.
 
-The goal is to build a new WordPress theme from the `DESIGN.md` design system, verify it locally, then deploy it through WordPress admin only after the theme is production-ready.
+The goal is to build and verify the site locally first, then promote reviewed changes through Git and the sponsor-funded GCP production stack once they are production-ready.
 
 ## Current Status
 
@@ -14,6 +14,7 @@ The goal is to build a new WordPress theme from the `DESIGN.md` design system, v
 - Live theme and plugin stack confirmed through WP admin
 - Custom single-product template now renders recovered product copy from the XML export where available
 - Form pages migrated from Forminator to Contact Form 7 in local staging
+- ABA PayWay checkout patch is now preserved through a repo-owned WordPress startup hook so container rebuilds do not drop the working gateway fix
 - Production site must not be changed until V2 validation against real content/plugins is complete
 
 ## Planned Features
@@ -75,6 +76,8 @@ Expected local services:
 
 The local Docker override defines `WP_HOME` and `WP_SITEURL` as `http://localhost:8080` and keeps demo seeding disabled so the clean-import workflow starts from the imported live content instead of placeholder data.
 
+The shared WordPress container startup path now also runs a repo-owned ABA PayWay patch step from `docker/wordpress/` so a recreated container can reapply the known gateway fix automatically when the plugin is present.
+
 Use `make help` to see the available shortcuts for starting, stopping, rebuilding, and opening shells in the containers.
 
 See `DOCKER_SETUP.md` for the setup plan and environment variable reference.
@@ -86,6 +89,9 @@ See `DOCKER_SETUP.md` for the setup plan and environment variable reference.
 | `Makefile` | Local setup and Docker shortcuts |
 | `docker-compose.local.yml` | Local WordPress override |
 | `docker-compose.gcp.yml` | GCP preview override |
+| `docker/wordpress/` | WordPress startup scripts, including the ABA PayWay runtime patch path |
+| `scripts/gcp-provision-vm.sh` | GCP VM provisioner for the sponsor-funded production host |
+| `scripts/gcp-startup.sh` | First-boot host bootstrap for Docker, Compose, and Git |
 | `DESIGN.md` | Design system and implementation source of truth |
 | `PROJECT.md` | Internal navigation, architecture, and current focus |
 | `current_state/project_status.md` | Active roadmap and blockers |
@@ -93,12 +99,32 @@ See `DOCKER_SETUP.md` for the setup plan and environment variable reference.
 | `DOCKER_SETUP.md` | Local Docker setup guide |
 | `.env.example` | Safe environment variable template |
 
+## Branch And Release Flow
+
+Production is anchored to `main`.
+
+- `feature/*`: one focused task per branch
+- `development`: integration branch for reviewed work before release
+- `main`: production branch; every live deploy must map to a committed revision here
+
+Expected release path:
+
+```text
+feature/* -> development -> main -> production deploy
+```
+
+Rules:
+
+- Never treat a personal or ad hoc branch as deployable production state
+- If the server needs a hotfix, write it back into Git immediately and merge it to `main`
+- Production verification and rollback should always reference a `main` commit, not an untracked server edit
+
 ## Deployment Safety
 
-This project must be developed and tested locally first because there is currently no server access. A broken theme upload could make rollback difficult. Production deployment is blocked until:
+This project must be developed and tested locally first. Production deployment should happen only from reviewed `main` commits after the production workflow tasks are complete. Production deployment remains blocked until:
 
-- WP admin credentials are available
 - Live content is exported and imported locally
-- Current live theme name is documented
 - Local theme passes full page, mobile, product/cart, form, and console-error checks
-- Rollback procedure is documented
+- Canonical deploy and rollback procedures are documented
+- Production mail delivery is verified
+- Backup and restore procedures are documented

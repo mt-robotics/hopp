@@ -1,66 +1,18 @@
 # Project Status
 
-**Last Updated:** 2026-05-11 (clickable dropdown and token docs completed)
+**Last Updated:** 2026-05-18 (canonical production branch strategy defined: `feature/* -> development -> main`; email alert notes absorbed into production workflow; Telegram alert moved to backlog)
 
 ---
 
 ## Current State
 
-- Google Cloud sponsor access is now available, so infrastructure sizing must be done conservatively and with the full workload in view before spending credits
-- WordPress admin access for `humansofphnompenh.com` is available, so the live site has now been exported and imported locally
-- Live admin theme, plugin, WooCommerce, menu, and Reading settings are captured in `docs/live_site_settings.md`
-- The local import checklist is now documented in `docs/local_import_checklist.md`
-- The live XML import into local WordPress is complete: pages, posts, products, attachments, menu items, and forms match the live snapshot; HOPP is active locally with live menu, Reading, and WooCommerce assignments mirrored
-- Divi-only `et_*` layout post types were skipped during import; the custom HOPP theme does not depend on them for the new UI
-- Local staging runtime now auto-enforces pretty permalinks and disables WooCommerce "coming soon" mode so `/products/`, `/stories/`, and product/story permalinks resolve correctly
-- Story pages now render without raw Divi shortcode junk, and product cards are clickable and point to real product URLs
-- WooCommerce single-product pages now use a custom theme template plus an XML-derived product profile map so recovered descriptions render in a clean code-driven layout
-- Two imported products still have no recoverable body copy in the export data, so those pages intentionally show image/title/price/add-to-cart/category without invented placeholder text
-- ABA PayWay checkout is restored in local staging: the gateway settings mirror the live payment-method selection, the gateway plugin was patched to normalize `payment_options`, and checkout now renders the four live payment rows; local order submission still hits PayWay's domain whitelist on `localhost`, so the production host must remain the whitelisted `humansofphnompenh.com`
-- The ABA PayWay runtime fix is active in local staging, but the deployment artifact still needs to carry that patch forward before any rebuild or cutover
-- The sponsor-funded GCP path is now the only active deployment route; the next step is to inspect the imported stack, preserve the ABA PayWay fix, estimate resource needs, and design the smallest reliable GCP deployment
-- The live admin account can inspect plugins and WooCommerce settings, but it cannot install new plugins, so All-in-One WP Migration is not available from this account
-- GCP server access established — VM (e2-micro) running in us-west1 (personal-account legacy preview VM; no longer used for the sponsor-funded deployment)
-- Static External IP (35.252.238.69) reserved and mapped to `hopp.delvedeepasia.org`
-- SSH access configured from local laptop via SSH keys
-- Docker and Docker Compose installed and verified on GCP server
-- Nginx templates prepared for automatic variable substitution
-- Current live theme confirmed: `Divi`
-- `DESIGN.md` written — all color tokens reconciled, nav Option B (original 7-item nav preserved)
-- Standard project documentation scaffold created (`CLAUDE.md`, `PROJECT.md`, `README.md`, `DOCKER_SETUP.md`, `.env.example`, `docs/error_log.md`)
-- Local WordPress Docker scaffold created (`docker-compose.yml`, `docker-compose.local.yml`, `.env.local`, theme bind-mount directory); Compose config validates
-- Local WordPress is running and the HOPP theme pipeline is verified
-- Live admin-only deployment runbook documented in `docs/live_wordpress_deployment.md`
-- Public site crawl distilled into `docs/current_site_audit.md`
-- V1 demo design plan documented in `docs/demo_design_plan.md`
-- Current strategy: inspect the imported live stack, inventory any remaining runtime gaps, then size the smallest reliable sponsor-funded GCP deployment before redeploying anything
-- V1 local WordPress UI/UX demo theme implemented and verified locally and over LAN
-- Team review note prepared at `archive/20260504_team_confirmation.md`
-- All 11 V1 UI tasks completed on feat/v1-ui-tasks: Artist, Career, Contact Us, Pitch Your Pal pages built; AJAX add-to-cart + toast; WooCommerce button color fixes; coupon hidden; hover effects consistent; story card images fixed; Browse by Series on Stories page; X icon in footer; all forms migrated to Forminator
-- Cart icon with count badge added to the header (mobile: brand→cart→hamburger; desktop: brand→nav→cart); count increments live after AJAX add-to-cart
-- "Pitch Your Pal" menu rename filter fixed (was checking wrong property); item now displays in terracotta color to distinguish it from standard nav items
-- Forminator forms could not be reliably styled — its ~500KB CSS (`forminator-ui.min.css`) uses `[data-design=default]` attribute selectors that beat any class-only override; dropdowns use Select2 (not native select), making them doubly hard to target
-- All four Forminator render points have been replaced with Contact Form 7 forms: Artist, Career, Contact Us, and Pitch Your Pal now resolve CF7 forms by title and use `.wpcf7` theme styling
-- Local Docker PHP upload limits are now set to `upload_max_filesize=10M` and `post_max_size=12M` so CF7 artwork/CV upload forms pass CF7 configuration validation
-- CF7 mail templates are configured and pass CF7 validation; actual email delivery still needs SMTP/live-host verification because the local Docker stack has no mail delivery service
-- Production deployment requires Contact Form 7 to be installed/activated on the new user-managed GCP WordPress host; the current third-party live server's plugin restrictions do not block the planned GCP deployment
-- Home Products and Artists teaser sections now render real imagery dynamically: Products uses the newest published WooCommerce product image with page-banner fallback; Artists uses artist-tagged/category post imagery with Artist page banner fallback
-- About Us was rebuilt from the live-site mission/vision/objectives content and then redesigned after screenshot review. The final version removes the disconnected word panel, boxed Mission/Vision cards, and broken 6-column objectives mosaic; it now uses a restrained editorial intro, Mission/Vision text columns, and stable numbered objective rows.
-- About redesign was checked with local Chrome screenshots saved in `archive/about_us_redesign_viewport_check.png` and `archive/about_us_redesign_final_check.png`. `claude -p` was used as an external design advisor; `gemini` failed due to unavailable configured model and broken local rule imports.
-- Products page cards, Registration Fee product detail, and Registration Fee cart item now use a theme-owned registration/access-pass SVG thumbnail for the non-physical product; product cards also use character-based summaries and a consistent three-line summary area so card footers align without inventing missing product copy.
-- Story/archive/search cards now use the same character-based summary helper as Products, replacing `wp_trim_words()` and raw `the_excerpt()` card rendering for consistent truncation.
-- Stories now surfaces Series before the story grid instead of burying it at the bottom; `/series/` is a dedicated YouTube playlist-card landing page with 5 external playlist links, and the primary nav exposes `Browse by Series` as a child under `Stories` without adding an 8th top-level nav item.
-- Local LAN access is restored at `http://192.168.11.155:8080`; after `WORDPRESS_LOCAL_URL` changes, use `make rebuild` so the WordPress container is recreated and `WP_HOME`/`WP_SITEURL` are reinjected.
-- Page hero background images are now mapped from the imported uploads for Home, About Us, Artist, Career, Stories, Products, and Pitch Your Pal; Contact Us intentionally remains color-only.
-- May 11 team feedback is now tracked as V1 work: nav placement, Series thumbnails, color direction, missing images, footer policy/social/layout issues, Home background replacement, and remaining content gaps
-- Non-blocked May 11 feedback is complete: Pitch Your Pal is removed from the primary menu and appears inside the Products page, Series cards show YouTube thumbnails, Career role cards use the requested imported images, rendered page image URLs pass HTTP checks, and the footer uses SVG social icons with a tighter responsive layout
-- The Stories navigation dropdown now renders above page heroes/banners and remains usable while moving the pointer from the parent link into the submenu; Playwright verified click-through to `/series/`
-- The Products-page Pitch Your Pal treatment is now a reusable `hopp_render_context_cta()` component applied across Home, About Us, Products, Stories, Artist, Career, and Contact Us
-- Contact Us and page CTAs no longer use the terracotta/orange banner treatment; theme color surfaces now use centralized CSS variables so normal color changes are token-level, not page-by-page, and the token workflow is documented in `README.md`
-- A floating Return to Top control is implemented and appears after scrolling
-- Quick asset scan found the Artist hero was loading an 11.5 MB original PNG; it now uses the generated 1536px version instead, while full media optimization remains tracked in the backlog
-- Blocked May 11 feedback remains dependent on external input: final brand color, Privacy/Terms page content, replacement Home hero asset, and additional approved content
-- **Next:** resolve blocked May 11 feedback when assets/content arrive, or plan sponsored GCP deployment 🔲
+- The imported live site is stable locally and in production: local WordPress mirrors the live content/settings snapshot, and the sponsor-funded VM now serves the imported stack at `https://hopp.delvedeepasia.org`.
+- The deployment artifact is reproducible enough to boot the site safely: nginx handles HTTP-first certificate bootstrap, WordPress startup seeds core files correctly, and the ABA PayWay runtime patch is encoded in repo-mounted startup files instead of manual container edits.
+- The sponsor-funded production VM setup is complete: the server is provisioned, serving the imported site, and normalized under the `/opt/hopp` group-owned operating model.
+- The canonical production branch strategy is now defined: `feature/*` for task work, `development` for integration, and `main` as the only production branch and rollback reference.
+- The main unresolved project area is production workflow standardization: define the canonical Git-to-production deploy path, document what is Git-managed vs WP-admin-managed, verify production mail delivery, add backup/restore and rollback procedures, and finalize production access rules.
+- Several UI/content items remain blocked on external input: final brand color direction, Privacy Policy/Terms ownership and content, a replacement Home hero asset, and any additional approved copy/media.
+- Historical implementation details remain archived in `current_state/milestone.md`; this file should now stay focused on active tasks, blockers, and next operational work.
 
 ---
 
@@ -83,6 +35,10 @@
 | Hero Background Image Mapping                        | 2026-05-11 | PHP lint, HTTP 200 image checks, rendered HTML checks    |
 | May 11 Team Feedback — Non-blocked UI Fixes          | 2026-05-11 | PHP lint, HTTP checks, Playwright screenshots            |
 | Navigation, Context CTA, and Return-to-Top Refinements | 2026-05-11 | PHP lint, JS syntax, HTTP checks, Playwright screenshots |
+| Sponsor-Funded GCP Deployment Plan                  | 2026-05-15 | Shell syntax checks, manual doc review                   |
+| Set up GCP-hosted public preview                   | 2026-05-18 | Manual public-preview verification                       |
+| Set up sponsor-funded GCP production server         | 2026-05-18 | Manual production verification                           |
+| Stabilize ABA PayWay gateway for deployment         | 2026-05-18 | Local checkout verification, runtime patch verification  |
 
 → Full details: `current_state/milestone.md`
 
@@ -103,13 +59,15 @@
 - ✅ Set up local primary navigation
 - ✅ Test demo locally (desktop/mobile/basic routes)
 - ✅ Fix HIGH-priority frontend standards violations
-- 🔲 Plan sponsored GCP deployment for the live WordPress site
-- 🔄 Set up GCP-hosted public preview
+- ✅ Plan sponsored GCP deployment for the live WordPress site
+- ✅ Set up sponsor-funded GCP production server
+- ✅ Set up GCP-hosted public preview
+- 🔄 Standardize Production WordPress Workflow
 - ✅ Inspect live admin settings, active theme, menus, plugins, and e-commerce setup
 - ✅ Export live site content
 - ✅ Import live content into local WordPress
 - ✅ Install/mirror required plugins locally, especially e-commerce/contact form plugins
-- 🔄 Stabilize ABA PayWay gateway for deployment
+- ✅ Stabilize ABA PayWay gateway for deployment
 - ✅ Adapt HOPP theme to real content and plugin behavior
 - ✅ Test production-critical flows locally
 - ✅ Build Artist page UI
@@ -181,58 +139,107 @@ The team noted that more content may need to be added. This needs project manage
 - Add only approved copy/media to the relevant WordPress content or theme-controlled sections
 - Re-run visual checks on any page whose content length changes materially
 
-### 🔲 Plan sponsored GCP deployment for the live WordPress site
+### 🔄 Standardize Production WordPress Workflow
 
-Use the live WordPress admin access plus exported content and plugin inventory to size the smallest reliable GCP deployment before creating a new production server.
+The site is reachable and serving real content, but the production operating model is not standard enough yet. The repo, server, and WP Admin workflow need to be tightened so developers own code through Git and deployment automation, while ops/content teams manage content and approved settings directly in WordPress admin.
 
-- ✅ Export the live WordPress project content locally
-- ✅ Identify the actual theme, plugins, media volume, and database shape
-- ✅ Reconcile the skipped Divi-only layout post types or document them as intentionally unsupported locally
-- 🔲 Measure the runtime footprint of the imported stack
-- 🔲 Decide whether the deployment should stay on one VM or split services
-- 🔲 Choose the smallest reliable GCP machine type, disk size, and backup shape
-- 🔲 Include Contact Form 7 installation/activation in the new GCP WordPress deployment steps
-- 🔲 Verify CF7 notification delivery through the final SMTP/live-host mail path
-- 🔲 Define the redeployment steps for the final server
-- 🔲 Only after the plan is clear, provision the new GCP server and migrate
+- ✅ Define the canonical branch strategy for production
+- 🔲 Define the canonical server deploy path from Git to VM
+- 🔲 Separate code-managed state from WP-admin-managed state
+- 🔲 Add backup and restore automation
+- 🔲 Add production mail delivery and form verification
+- 🔲 Add production smoke-test checklist and rollback procedure
+- 🔲 Add production access, update, and change-management rules
+- 🔲 Decide the final primary domain cutover path (`hopp.delvedeepasia.org` vs `humansofphnompenh.com`)
 
-### 🔄 Stabilize ABA PayWay gateway for deployment
+#### 🔲 Define the canonical server deploy path from Git to VM
 
-Keep the payment gateway behavior from drifting when the server is rebuilt or redeployed.
+The current VM works, but the long-term production path should not rely on ad hoc server edits. The server should pull or receive a known revision in a repeatable way.
 
-- ✅ Capture the live ABA PayWay settings and selected payment methods
-- ✅ Patch the gateway plugin locally so `payment_options` is normalized before checkout rendering
-- ✅ Verify the four ABA payment rows render on the checkout page
-- 🔲 Persist the plugin fix in the deployment artifact or runtime layer before any rebuild
-- 🔲 Keep the production success/pushback URLs on `humansofphnompenh.com`
+- Decide whether production deploys will use:
+  1. GitHub Actions SSH deploy to `/opt/hopp`
+  2. Manual `git pull` on the server from a protected `main`
+  3. Another explicit, documented deploy mechanism
+- Ensure the chosen path recreates containers and applies the same repo-owned bootstrap logic every time
+- Ensure `.env.gcp` and other host-only secrets remain server-managed and are never overwritten by Git
+- Document the exact deploy command sequence and rollback command sequence
 
-### 🔄 Set up GCP-hosted public preview
+#### 🔲 Separate code-managed state from WP-admin-managed state
 
-The free-tier preview path was completed first and then superseded by the sponsor-funded deployment plan. Kept as historical record because the same repo, domain, and Docker wiring were reused as part of the transition.
+To keep the project maintainable, developers should own theme code, deploy scripts, and infrastructure code, while ops teams should own posts, pages, products, menus, media, form submissions, and routine site settings in WP Admin.
 
-- ✅ Provision VM on GCP Always Free Tier (e2-micro, us-west1)
-- ✅ Reserve Static IP and point domain
-- ✅ Configure SSH access with keys
-- ✅ Install Docker and Docker Compose on VM
-- ✅ Clone repo on VM using Deploy Key
-- ✅ Configure production `.env.gcp`
-- ✅ Run `docker-compose -f docker-compose.yml -f docker-compose.gcp.yml --env-file .env.gcp up -d`
-- ✅ Verify public access at `http://hopp.delvedeepasia.org`
-- 🔄 Share URL with the team
+- Document which settings are code-owned:
+  theme PHP/CSS/JS, Docker Compose, nginx templates, upload limits, runtime patch hooks
+- Document which settings are WP-admin-owned:
+  posts, pages, products, menus, widgets if any, media, WooCommerce catalog content, CF7 form entries/notifications, general editorial settings
+- Identify the small set of sensitive WP settings that must be controlled carefully even in admin:
+  permalinks, WooCommerce page assignments, payment gateway settings, SMTP plugin settings, reading settings
+- Add a change rule so repo code does not silently overwrite ops-managed admin content
 
-Transition note: this path proved the preview stack, but the sponsored project now needs a server plan sized from the real WordPress workload, not the free-tier demo constraints.
+#### 🔲 Add backup and restore automation
+
+The live site is now important enough that a working restore path matters more than a one-time snapshot. Production should have repeatable backups for database and uploads, plus a tested restore drill.
+
+- Add automated MySQL dump backups on the VM or to cloud storage
+- Add automated `wp-content/uploads` backups
+- Decide whether plugin and theme files are backed up separately or reconstructed from Git + plugin source
+- Add a documented restore procedure:
+  DB restore, uploads restore, container recreate, smoke check
+- Take and document a manual pre-change snapshot before future risky changes
+
+#### 🔲 Add production mail delivery and form verification
+
+Production mail behavior is still not verified end to end. Until this is done, public forms and WooCommerce order notifications cannot be treated as production-ready.
+
+- Choose the real mail path:
+  SMTP plugin, transactional email provider, or host relay
+- Configure sender identity, SPF/DKIM/DMARC if needed for the chosen provider
+- Verify all public CF7 forms end to end:
+  Artist, Career, Contact Us, Pitch Your Pal
+- Verify WooCommerce order email behavior end to end:
+  confirm whether a customer/admin email is sent immediately after order placement and which order-status transitions also trigger email notifications
+- Decide whether the default WooCommerce status-email behavior is acceptable or needs business-specific changes
+- Record the expected inboxes and alert contacts for failed delivery
+
+#### 🔲 Add production smoke-test checklist and rollback procedure
+
+The site needs a stable post-deploy verification routine so future deploys do not rely on memory.
+
+- Define the minimum smoke suite after every production deploy:
+  homepage, key pages, single story, products, cart, checkout payment rows, CF7 forms, admin login, media rendering
+- Record browser/device coverage expectations for those checks
+- Define the rollback trigger:
+  what failures justify immediate rollback
+- Define the rollback method:
+  previous Git revision, prior DB backup if needed, container recreate, smoke recheck
+
+#### 🔲 Add production access, update, and change-management rules
+
+A standard production project needs clear operational boundaries. Without that, future changes will become ambiguous between dev work, ops work, and emergency server edits.
+
+- Define who can SSH to the VM and under what Linux users/groups
+- Define who can change DNS, TLS email, SMTP credentials, and payment settings
+- Define plugin/theme update policy:
+  direct WP-admin updates vs repo-reviewed updates vs emergency-only updates
+- Define when server-side hotfixes are allowed and how they must be written back into Git immediately
+
+#### 🔲 Decide the final primary domain cutover path
+
+`hopp.delvedeepasia.org` works, but the final public production hostname may still need to move back to `humansofphnompenh.com`. That cutover should be treated as an explicit production task, not an implied future step.
+
+- Decide whether `hopp.delvedeepasia.org` remains the long-term production host or only a staging/transition host
+- If moving back to `humansofphnompenh.com`, define the exact cutover sequence:
+  DNS, `.env.gcp`, WordPress URLs, certificate issuance, ABA callbacks, smoke test
+- Verify all hardcoded references, redirects, and payment callbacks before that cutover
+- Keep the current working domain stable until the final cutover plan is approved
 
 ## Post-V1 Backlog
 
-- ✅ Set up Git versioning for the theme directory
 - 🔲 Run browser visual QA with screenshots after Playwright or another browser test tool is installed
-- ✅ Evaluate WooCommerce styling (Products page may need additional theme work)
 - 🔲 Performance audit (Core Web Vitals — LCP, CLS, FID)
-- ✅ Add floating Go to Top control
 - 🔲 Add favicon / WordPress Site Icon
 - 🔲 Audit media asset weight and optimization
-- ✅ Contact form integration (elevated to V1 — Migrate all forms to Forminator)
-- ✅ Fix MEDIUM/LOW frontend standards violations (from 2026-05-08 audit)
+- 🔲 Evaluate Telegram order-status alert integration
 
 ## Post-V1 Task Details
 
@@ -267,3 +274,14 @@ The imported site now uses many images and external thumbnails. A performance pa
 - Check whether WordPress-generated sizes are used instead of full-size originals
 - Add lazy loading, explicit dimensions, compression, or WebP/AVIF conversion where appropriate
 - Re-run Lighthouse or equivalent after optimization
+
+### 🔲 Evaluate Telegram order-status alert integration
+
+Telegram order alerts are a potential operations enhancement, not a current production blocker. Treat this as a scoped future feature only after core production mail delivery and order-notification behavior are verified.
+
+- Confirm the business need and exact recipients for Telegram alerts
+- Decide which order events matter:
+  placed only, or also accepted/rejected/processing/completed/cancelled
+- Evaluate implementation options:
+  WooCommerce plugin, automation bridge, or custom bot/webhook integration
+- Document feasibility, operational risk, and ownership before any implementation
