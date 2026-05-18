@@ -6,7 +6,7 @@
 
 ## Current Focus
 
-**Next:** Standardize the live sponsor-funded production stack so `https://hopp.delvedeepasia.org` is not just working, but operating through a clean long-term workflow: verify mail/smoke tests, document the split between code-managed state and WP-admin-managed state, and finish the remaining production operations rules.
+**Next:** Standardize the live sponsor-funded production stack so `https://hopp.delvedeepasia.org` is not just working, but operating through a clean long-term workflow: finish live mail verification, document the split between code-managed state and WP-admin-managed state, and complete the remaining production operations rules.
 
 Full task spec: `current_state/project_status.md` -> `Standardize Production WordPress Workflow`.
 
@@ -105,6 +105,8 @@ wp-content/
 
 **Git-managed code vs WP-admin-managed operations:** Developers should own theme code, Docker/nginx/bootstrap logic, deployment scripts, and infrastructure documentation through Git. Ops/content teams should own posts, pages, products, menus, media, routine editorial settings, and approved business settings through WP Admin. Sensitive operational settings such as payment callbacks, SMTP, reading settings, and WooCommerce page assignments must still be documented and changed carefully.
 
+**Production mail path is now repo-owned:** The live VM no longer needs a WP-admin SMTP plugin as the source of truth. SMTP transport, sender identity, and admin-recipient overrides are now defined through `docker/wordpress/mu-plugins/hopp-production-mail.php` plus host-managed `.env.gcp` values. The remaining live step is filling the real mailbox credentials and verifying inbox delivery on production.
+
 **Manual VM path adopted:** The sponsor-funded VM was created manually in GCP Console for maximum safety. Repo-owned bootstrap and deployment files still apply after VM creation; only the VM creation step itself was done outside the repo automation.
 
 **Canonical branch strategy:** Production is anchored to `main`. Feature work happens on `feature/*`, reviewed integration happens on `development`, and only committed revisions on `main` are eligible for production deployment or rollback references.
@@ -127,6 +129,7 @@ wp-content/
 | `scripts/gcp-startup.sh` | First-boot package install script for the GCP host, including `make` for deploy helpers |
 | `scripts/deploy-production.sh` | Production deploy helper: update `/opt/hopp` to `origin/main` and recreate the stack |
 | `scripts/rollback-production.sh` | Emergency rollback helper for a known-good `main` commit |
+| `docs/production_mail_and_form_verification.md` | Canonical production SMTP path and live verification checklist |
 | `docker/nginx/select-template.sh` | Chooses HTTP bootstrap or HTTPS nginx config based on cert presence |
 | `DESIGN.md` | Visual tokens, layout rules, component inventory |
 | `resources/context.md` | Legacy site description and constraints |
@@ -146,7 +149,7 @@ wp-content/
 
 | Blocker | Impact |
 |---|---|
-| CF7 delivery is not yet verified on a real mail path | Public forms are not production-complete until SMTP or the final mail relay is proven |
+| Live mailbox credentials and inbox verification are still pending | The SMTP bridge is in repo code now, but public forms and order mail are not production-complete until Hostinger mailbox delivery is proven |
 | Backup and restore path is not yet automated | A production incident would still rely too much on manual recovery unless DB/uploads backup and restore are documented and tested |
 | Final primary domain strategy is not yet settled | `hopp.delvedeepasia.org` works now, but any eventual move back to `humansofphnompenh.com` needs an explicit cutover plan |
 

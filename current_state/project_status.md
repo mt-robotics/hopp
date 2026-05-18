@@ -1,6 +1,6 @@
 # Project Status
 
-**Last Updated:** 2026-05-18 (canonical production branch strategy and Git-to-VM deploy path defined; deferred GitHub Actions CI/CD follow-up added to backlog; email alert notes absorbed into production workflow; Telegram alert moved to backlog)
+**Last Updated:** 2026-05-18 (canonical production branch strategy and Git-to-VM deploy path defined; deferred GitHub Actions CI/CD follow-up added to backlog; production mail path standardized into repo-owned SMTP/MU-plugin scaffolding; Telegram alert moved to backlog)
 
 ---
 
@@ -11,7 +11,8 @@
 - The sponsor-funded production VM setup is complete: the server is provisioned, serving the imported site, and normalized under the `/opt/hopp` group-owned operating model.
 - The canonical production branch strategy is now defined: `feature/*` for task work, `development` for integration, and `main` as the only production branch and rollback reference.
 - The canonical server deploy path is now defined: production runs from the `/opt/hopp` checkout on the VM, deploys from `origin/main` through `./scripts/deploy-production.sh`, and uses `./scripts/rollback-production.sh <sha>` for emergency rollback to a known-good `main` commit.
-- The main unresolved project area is production workflow standardization: document what is Git-managed vs WP-admin-managed, verify production mail delivery, add backup/restore and rollback procedures, and finalize production access rules.
+- Production mail is now standardized in code: the repo owns the SMTP bridge and admin-recipient overrides, but the live mailbox credentials and inbox verification are still pending on the VM.
+- The main unresolved project area is production workflow standardization: document what is Git-managed vs WP-admin-managed, finish live mail verification, add backup/restore and rollback procedures, and finalize production access rules.
 - Several UI/content items remain blocked on external input: final brand color direction, Privacy Policy/Terms ownership and content, a replacement Home hero asset, and any additional approved copy/media.
 - Historical implementation details remain archived in `current_state/milestone.md`; this file should now stay focused on active tasks, blockers, and next operational work.
 
@@ -200,15 +201,18 @@ The live site is now important enough that a working restore path matters more t
 
 Production mail behavior is still not verified end to end. Until this is done, public forms and WooCommerce order notifications cannot be treated as production-ready.
 
-- Choose the real mail path:
-  SMTP plugin, transactional email provider, or host relay
-- Configure sender identity, SPF/DKIM/DMARC if needed for the chosen provider
+- The real mail path is now defined in repo code:
+  host-managed `.env.gcp` values -> repo-owned MU plugin -> PHPMailer SMTP
+- Live DNS already points `humansofphnompenh.com` mail to Hostinger (`mx1.hostinger.com`, `mx2.hostinger.com`) and publishes SPF through `include:_spf.mail.hostinger.com`, so Hostinger SMTP is the canonical provider path unless the business migrates mail later
+- The current live VM still has placeholder recipient/sender values in WordPress (`admin@example.com`) and no valid sendmail binary, so the remaining work is real mailbox credential entry plus inbox verification, not more runtime guessing
 - Verify all public CF7 forms end to end:
   Artist, Career, Contact Us, Pitch Your Pal
 - Verify WooCommerce order email behavior end to end:
-  confirm whether a customer/admin email is sent immediately after order placement and which order-status transitions also trigger email notifications
-- Decide whether the default WooCommerce status-email behavior is acceptable or needs business-specific changes
-- Record the expected inboxes and alert contacts for failed delivery
+  for the current ABA flow, successful payment moves the order to `completed`, so the key checks are WooCommerce admin `New order` on `pending -> completed` and customer `Completed order` on `completed`
+- Decide whether the default WooCommerce `completed` customer email is acceptable for an ABA-paid order or needs business-specific copy changes
+- Record the final operational inboxes and alert contacts for failed delivery after the first verified live test
+- Full runbook:
+  `docs/production_mail_and_form_verification.md`
 
 #### 🔲 Add production smoke-test checklist and rollback procedure
 
