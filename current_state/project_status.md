@@ -1,6 +1,6 @@
 # Project Status
 
-**Last Updated:** 2026-05-18 (canonical production branch strategy and Git-to-VM deploy path defined; deferred GitHub Actions CI/CD follow-up added to backlog; production mail path standardized into repo-owned SMTP/MU-plugin scaffolding; Telegram alert moved to backlog)
+**Last Updated:** 2026-05-18 (canonical production branch strategy and Git-to-VM deploy path defined; code-vs-admin ownership boundary documented; production mail path standardized into repo-owned SMTP/MU-plugin scaffolding; Telegram alert moved to backlog)
 
 ---
 
@@ -12,7 +12,7 @@
 - The canonical production branch strategy is now defined: `feature/*` for task work, `development` for integration, and `main` as the only production branch and rollback reference.
 - The canonical server deploy path is now defined: production runs from the `/opt/hopp` checkout on the VM, deploys from `origin/main` through `./scripts/deploy-production.sh`, and uses `./scripts/rollback-production.sh <sha>` for emergency rollback to a known-good `main` commit.
 - Production mail is now standardized in code: the repo owns the SMTP bridge and admin-recipient overrides, but the live mailbox credentials and inbox verification are still pending on the VM.
-- The main unresolved project area is production workflow standardization: document what is Git-managed vs WP-admin-managed, finish live mail verification, add backup/restore and rollback procedures, and finalize production access rules.
+- The main unresolved project area is production workflow standardization: finish the remaining live mail boundary, add backup/restore and rollback procedures, and finalize production access rules around the now-documented ownership model.
 - Several UI/content items remain blocked on external input: final brand color direction, Privacy Policy/Terms ownership and content, a replacement Home hero asset, and any additional approved copy/media.
 - Historical implementation details remain archived in `current_state/milestone.md`; this file should now stay focused on active tasks, blockers, and next operational work.
 
@@ -147,7 +147,7 @@ The site is reachable and serving real content, but the production operating mod
 
 - ✅ Define the canonical branch strategy for production
 - ✅ Define the canonical server deploy path from Git to VM
-- 🔲 Separate code-managed state from WP-admin-managed state
+- ✅ Separate code-managed state from WP-admin-managed state
 - 🔲 Add backup and restore automation
 - 🔲 Add production mail delivery and form verification
 - 🔲 Add production smoke-test checklist and rollback procedure
@@ -174,17 +174,17 @@ This sub-task is complete. The production VM now has an explicit repo-owned depl
 - Emergency rollback command is `./scripts/rollback-production.sh <known-good-main-sha>`
 - The full operational runbook is documented in `docs/production_vm_deploy.md`
 
-#### 🔲 Separate code-managed state from WP-admin-managed state
+#### ✅ Separate code-managed state from WP-admin-managed state
 
-To keep the project maintainable, developers should own theme code, deploy scripts, and infrastructure code, while ops teams should own posts, pages, products, menus, media, form submissions, and routine site settings in WP Admin.
+This sub-task is complete. The production workflow now has an explicit ownership boundary between Git-managed runtime code, host-managed secrets, and WP-admin-managed business/content state.
 
-- Document which settings are code-owned:
-  theme PHP/CSS/JS, Docker Compose, nginx templates, upload limits, runtime patch hooks
-- Document which settings are WP-admin-owned:
-  posts, pages, products, menus, widgets if any, media, WooCommerce catalog content, CF7 form entries/notifications, general editorial settings
-- Identify the small set of sensitive WP settings that must be controlled carefully even in admin:
-  permalinks, WooCommerce page assignments, payment gateway settings, SMTP plugin settings, reading settings
-- Add a change rule so repo code does not silently overwrite ops-managed admin content
+- The canonical ownership rule now lives in `docs/production_state_ownership.md`
+- Git-managed state is explicitly defined as theme/runtime/infrastructure code plus repo-owned operational hooks and runbooks
+- WP-admin-managed state is explicitly defined as posts, pages, products, menus, media, catalog content, and normal editorial/business data
+- Host-managed secrets are explicitly separated into `/opt/hopp/.env.gcp`
+- Sensitive settings that still live in admin or third-party portals are now called out explicitly:
+  permalinks, reading/front-page assignments, WooCommerce page assignments, payment settings, and ABA merchant-side whitelist assumptions
+- Future backup, access-control, rollback, and cutover work can now reference this boundary instead of redefining it each time
 
 #### 🔲 Add backup and restore automation
 

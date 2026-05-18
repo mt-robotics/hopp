@@ -6,7 +6,7 @@
 
 ## Current Focus
 
-**Next:** Standardize the live sponsor-funded production stack so `https://hopp.delvedeepasia.org` is not just working, but operating through a clean long-term workflow: finish live mail verification, document the split between code-managed state and WP-admin-managed state, and complete the remaining production operations rules.
+**Next:** Standardize the live sponsor-funded production stack so `https://hopp.delvedeepasia.org` is not just working, but operating through a clean long-term workflow: complete the remaining production operations rules around backups, smoke tests, access control, and final domain cutover.
 
 Full task spec: `current_state/project_status.md` -> `Standardize Production WordPress Workflow`.
 
@@ -103,7 +103,7 @@ wp-content/
 
 **Production ownership is group-based:** The server app path should live at `/opt/hopp` with ownership `root:hopp`. Every real operator gets an individual Linux user and membership in group `hopp`; the deployment must not depend on one personal account owning the repository tree.
 
-**Git-managed code vs WP-admin-managed operations:** Developers should own theme code, Docker/nginx/bootstrap logic, deployment scripts, and infrastructure documentation through Git. Ops/content teams should own posts, pages, products, menus, media, routine editorial settings, and approved business settings through WP Admin. Sensitive operational settings such as payment callbacks, SMTP, reading settings, and WooCommerce page assignments must still be documented and changed carefully.
+**Git-managed code vs WP-admin-managed operations:** The ownership boundary is now explicit in `docs/production_state_ownership.md`. Developers own theme/runtime/infrastructure code through Git; ops/content teams own normal content and business data in WP Admin; host secrets stay in `/opt/hopp/.env.gcp`; and a small set of sensitive admin-side settings must still be changed deliberately and logged.
 
 **Production mail path is now repo-owned:** The live VM no longer needs a WP-admin SMTP plugin as the source of truth. SMTP transport, sender identity, and admin-recipient overrides are now defined through `docker/wordpress/mu-plugins/hopp-production-mail.php` plus host-managed `.env.gcp` values. The remaining live step is filling the real mailbox credentials and verifying inbox delivery on production.
 
@@ -125,6 +125,7 @@ wp-content/
 | `docs/local_import_checklist.md` | Step-by-step local import checklist for the live XML export |
 | `docs/sponsored_gcp_deployment_plan.md` | Current recommendation for the sponsor-funded production GCP host |
 | `docs/production_vm_deploy.md` | Canonical Git-to-VM deploy and rollback runbook for the live host |
+| `docs/production_state_ownership.md` | Canonical boundary for Git-managed code, WP-admin-managed state, and host-managed secrets |
 | `scripts/gcp-provision-vm.sh` | Creates the recommended Compute Engine VM and networking primitives |
 | `scripts/gcp-startup.sh` | First-boot package install script for the GCP host, including `make` for deploy helpers |
 | `scripts/deploy-production.sh` | Production deploy helper: update `/opt/hopp` to `origin/main` and recreate the stack |
