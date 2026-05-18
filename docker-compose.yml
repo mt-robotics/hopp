@@ -44,6 +44,7 @@ services:
       - ./docker/php/uploads.ini:/usr/local/etc/php/conf.d/hopp-uploads.ini:ro
       - ./docker/wordpress/start-wordpress.sh:/usr/local/bin/hopp-wordpress-start.sh:ro
       - ./docker/wordpress/apply-aba-payway-patch.php:/usr/local/share/hopp/apply-aba-payway-patch.php:ro
+      - ./docker/wordpress/mu-plugins:/usr/local/share/hopp/mu-plugins:ro
     networks:
       - hopp-network
 
