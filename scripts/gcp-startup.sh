@@ -35,6 +35,7 @@ Bootstrap completed:
 
 Next:
 1. Copy or clone the repo into /opt/hopp
-2. Populate .env.gcp with real secrets
-3. Run the Compose stack with docker compose -f docker-compose.yml -f docker-compose.gcp.yml --env-file .env.gcp up -d
+2. Check out main in /opt/hopp
+3. Populate .env.gcp with real secrets
+4. Run ./scripts/deploy-production.sh from /opt/hopp
 EOF

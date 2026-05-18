@@ -119,12 +119,27 @@ Rules:
 - If the server needs a hotfix, write it back into Git immediately and merge it to `main`
 - Production verification and rollback should always reference a `main` commit, not an untracked server edit
 
+## Canonical VM Deploy Path
+
+The production VM deploy path is now:
+
+```text
+main commit -> ssh hopp-prod -> /opt/hopp -> ./scripts/deploy-production.sh
+```
+
+Operational rules:
+
+- `/opt/hopp` is the canonical production checkout on the VM
+- `.env.gcp` stays host-managed on the VM and is never overwritten by Git
+- normal deploys use `./scripts/deploy-production.sh`
+- emergency rollbacks use `./scripts/rollback-production.sh <known-good-main-sha>`
+- the full runbook lives in `docs/production_vm_deploy.md`
+
 ## Deployment Safety
 
 This project must be developed and tested locally first. Production deployment should happen only from reviewed `main` commits after the production workflow tasks are complete. Production deployment remains blocked until:
 
 - Live content is exported and imported locally
 - Local theme passes full page, mobile, product/cart, form, and console-error checks
-- Canonical deploy and rollback procedures are documented
 - Production mail delivery is verified
 - Backup and restore procedures are documented

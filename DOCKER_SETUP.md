@@ -92,6 +92,14 @@ Production host ownership model:
 
 This is the handoff-safe standard for this project. Temporary helper users are acceptable during setup, but long-term access should be through real named operator accounts in group `hopp`.
 
+The canonical production deploy path on that host is now:
+
+```text
+main commit -> ssh hopp-prod -> /opt/hopp -> ./scripts/deploy-production.sh
+```
+
+Use `./scripts/rollback-production.sh <known-good-main-sha>` only for emergency rollback to an earlier `main` commit. The full operational runbook lives in `docs/production_vm_deploy.md`.
+
 ---
 
 ## Prerequisites
