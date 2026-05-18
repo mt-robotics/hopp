@@ -199,18 +199,20 @@ The live site is now important enough that a working restore path matters more t
 
 #### 🔲 Add production mail delivery and form verification
 
-Production mail behavior is still not verified end to end. Until this is done, public forms and WooCommerce order notifications cannot be treated as production-ready.
+Production mail behavior is now partially verified. Public CF7 delivery works on production through the repo-owned SMTP path, but WooCommerce order-notification verification is still blocked by the ABA merchant-side domain whitelist.
 
 - The real mail path is now defined in repo code:
   host-managed `.env.gcp` values -> repo-owned MU plugin -> PHPMailer SMTP
 - Live DNS already points `humansofphnompenh.com` mail to Hostinger (`mx1.hostinger.com`, `mx2.hostinger.com`) and publishes SPF through `include:_spf.mail.hostinger.com`, so Hostinger SMTP is the canonical provider path unless the business migrates mail later
-- The current live VM still has placeholder recipient/sender values in WordPress (`admin@example.com`) and no valid sendmail binary, so the remaining work is real mailbox credential entry plus inbox verification, not more runtime guessing
-- Verify all public CF7 forms end to end:
-  Artist, Career, Contact Us, Pitch Your Pal
+- Production SMTP is now proven end to end on `hopp.delvedeepasia.org` with a temporary Zoho mailbox:
+  the Artist CF7 submission succeeded live, the file-upload path now works, and mail was received successfully
+- The remaining CF7 pages are lower-risk follow-up checks, not architectural unknowns, because the hardest live path (file upload + mail send) already passed
 - Verify WooCommerce order email behavior end to end:
   for the current ABA flow, successful payment moves the order to `completed`, so the key checks are WooCommerce admin `New order` on `pending -> completed` and customer `Completed order` on `completed`
-- Decide whether the default WooCommerce `completed` customer email is acceptable for an ABA-paid order or needs business-specific copy changes
-- Record the final operational inboxes and alert contacts for failed delivery after the first verified live test
+- Current blocker:
+  live ABA checkout on `hopp.delvedeepasia.org` returns `Requested Domain is not in whitelist`, so the WooCommerce email path cannot be verified until `humansofphnompenh.com` is cut over to this server or the ABA whitelist is updated
+- Decide whether the default WooCommerce `completed` customer email is acceptable for an ABA-paid order or needs business-specific copy changes once the whitelist/domain blocker is removed
+- Record the final operational inboxes and alert contacts for failed delivery after the first verified WooCommerce order test
 - Full runbook:
   `docs/production_mail_and_form_verification.md`
 
