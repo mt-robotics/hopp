@@ -15,7 +15,7 @@ The goal is to build and verify the site locally first, then promote reviewed ch
 - Custom single-product template now renders recovered product copy from the XML export where available
 - Form pages migrated from Forminator to Contact Form 7 in local staging
 - ABA PayWay checkout patch is now preserved through a repo-owned WordPress startup hook so container rebuilds do not drop the working gateway fix
-- Production mail now has a repo-owned SMTP/recipient bridge, but live mailbox credentials and inbox verification are still required before forms/order mail are truly production-ready
+- Production mail, smoke-test, rollback, backup/restore, access-control, and primary-domain cutover workflows are now standardized in repo-owned scripts and runbooks
 - Production site must not be changed until V2 validation against real content/plugins is complete
 
 ## Planned Features
@@ -149,11 +149,15 @@ Operational rules:
 - emergency rollbacks use `./scripts/rollback-production.sh <known-good-main-sha>`
 - the full runbook lives in `docs/production_vm_deploy.md`
 
+First production operations doc to read:
+
+- `docs/production_operations_index.md`
+
 ## Deployment Safety
 
 This project must be developed and tested locally first. Production deployment should happen only from reviewed `main` commits after the production workflow tasks are complete. Production deployment remains blocked until:
 
 - Live content is exported and imported locally
 - Local theme passes full page, mobile, product/cart, form, and console-error checks
-- Production mail delivery is verified
-- Backup and restore procedures are documented
+- Repo-owned production operations runbooks and scripts are in place
+- Final primary-domain cutover and whitelisted-domain live verification are executed
