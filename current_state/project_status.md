@@ -1,6 +1,6 @@
 # Project Status
 
-**Last Updated:** 2026-05-18 (canonical production branch strategy and Git-to-VM deploy path defined; email alert notes absorbed into production workflow; Telegram alert moved to backlog)
+**Last Updated:** 2026-05-18 (canonical production branch strategy and Git-to-VM deploy path defined; deferred GitHub Actions CI/CD follow-up added to backlog; email alert notes absorbed into production workflow; Telegram alert moved to backlog)
 
 ---
 
@@ -249,6 +249,7 @@ A standard production project needs clear operational boundaries. Without that, 
 - 🔲 Add favicon / WordPress Site Icon
 - 🔲 Audit media asset weight and optimization
 - 🔲 Evaluate Telegram order-status alert integration
+- 🔲 Add GitHub Actions deployment wrapper for the production VM path
 
 ## Post-V1 Task Details
 
@@ -294,3 +295,13 @@ Telegram order alerts are a potential operations enhancement, not a current prod
 - Evaluate implementation options:
   WooCommerce plugin, automation bridge, or custom bot/webhook integration
 - Document feasibility, operational risk, and ownership before any implementation
+
+### 🔲 Add GitHub Actions deployment wrapper for the production VM path
+
+The canonical production deploy path is now stable and manual: update `main`, SSH to the VM, and run `./scripts/deploy-production.sh`. A future CI/CD task can automate that same path without redefining the runtime contract.
+
+- Add a GitHub Actions workflow that deploys only reviewed `main` revisions
+- Store the VM SSH key, host, and any required connection metadata in GitHub Secrets
+- Have the workflow SSH into the VM, `cd /opt/hopp`, and run `./scripts/deploy-production.sh`
+- Decide whether deploys should trigger automatically on `main` pushes or require a manual workflow dispatch
+- Add a minimal post-deploy smoke check so CI/CD confirms the wrapper succeeded
