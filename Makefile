@@ -9,6 +9,7 @@
 #   make restart         - Restart all local services
 #   make rebuild         - Recreate containers with the current env file
 #   make ps              - Show service status
+#   make gcp-provision   - Provision the sponsor-funded GCP VM
 #   make gcp-up          - Start the GCP preview stack
 #   make gcp-down        - Stop the GCP preview stack
 #   make gcp-rebuild     - Recreate GCP preview containers
@@ -65,7 +66,7 @@ include .env.gcp
            # overriding --env-file .env.local values in docker compose commands
 endif
 
-.PHONY: init gcp-init up down restart rebuild ps gcp-up gcp-down gcp-rebuild gcp-ps gcp-cert logs logs-db shell-wordpress shell-db clean help
+.PHONY: init gcp-init gcp-provision up down restart rebuild ps gcp-up gcp-down gcp-rebuild gcp-ps gcp-cert logs logs-db shell-wordpress shell-db clean help
 
 init:
 	@if [ -f "$(ENV_FILE)" ]; then \
@@ -82,6 +83,10 @@ gcp-init:
 		cp .env.example $(GCP_ENV_FILE); \
 		echo "Created $(GCP_ENV_FILE) from .env.example"; \
 	fi
+
+gcp-provision:
+	@echo "Provisioning the sponsor-funded GCP VM..."
+	./scripts/gcp-provision-vm.sh
 
 up:
 	@echo "Starting local WordPress environment with $(ENV_FILE)..."
@@ -122,6 +127,8 @@ gcp-cert:
 	@test -n "$(LETSENCRYPT_EMAIL)" || (echo "Set LETSENCRYPT_EMAIL in .env.gcp"; exit 1)
 	@echo "Requesting Let's Encrypt certificate for $(DOMAIN_NAME)..."
 	docker compose --env-file $(GCP_ENV_FILE) -f $(COMPOSE_FILE) -f $(GCP_OVERRIDE) run --rm certbot certonly --webroot -w /var/www/certbot -d $(DOMAIN_NAME) --email $(LETSENCRYPT_EMAIL) --agree-tos --no-eff-email
+	@echo "Recreating nginx so it switches from bootstrap HTTP to HTTPS..."
+	docker compose --env-file $(GCP_ENV_FILE) -f $(COMPOSE_FILE) -f $(GCP_OVERRIDE) up -d --force-recreate nginx
 
 logs:
 	@echo "Following WordPress logs (Ctrl+C to stop)..."
@@ -149,6 +156,7 @@ help:
 	@echo "Setup:"
 	@echo "  make init          - Create .env.local from .env.example if missing"
 	@echo "  make gcp-init      - Create .env.gcp from .env.example if missing"
+	@echo "  make gcp-provision - Provision the sponsor-funded GCP VM"
 	@echo ""
 	@echo "Local WordPress:"
 	@echo "  make up            - Start the local WordPress environment"

@@ -42,6 +42,13 @@ PHP upload limits are configured in `docker/php/uploads.ini` and mounted into th
 
 These limits support the Contact Form 7 artwork/CV upload forms and must be preserved in preview or production containers.
 
+The WordPress container now also mounts a repo-owned ABA PayWay startup patch path:
+
+- `docker/wordpress/start-wordpress.sh`
+- `docker/wordpress/apply-aba-payway-patch.php`
+
+On every WordPress container boot, that startup path checks whether `wp-content/plugins/aba-payway-woocommerce-payment-gateway/PayWayApiCheckout.php` exists and still has the unpatched vendor code. If so, it rewrites the plugin file in place so the ABA gateway keeps the PHP 8.3-safe `payment_options` normalization behavior after rebuilds. If the plugin is missing, it skips cleanly. If the plugin file has drifted to an unexpected version, startup fails loudly instead of silently serving a broken checkout.
+
 Constraints:
 
 - No server access
@@ -49,11 +56,41 @@ Constraints:
 - Live active theme is confirmed as Divi
 - Installed e-commerce plugin is confirmed as WooCommerce
 
-If you are preparing the GCP-hosted public preview, use `docker-compose.gcp.yml` together with `make gcp-up`. This file stays focused on local Docker workflow.
+If you are preparing the sponsor-funded GCP host, first provision the VM with `make gcp-provision`, then use `docker-compose.gcp.yml` together with `make gcp-up`. This file stays focused on local Docker workflow.
 
-For HTTPS on the GCP preview, the nginx template exposes `/.well-known/acme-challenge/` and the GCP compose file includes a `certbot` service. Populate `DOMAIN_NAME` and `LETSENCRYPT_EMAIL` in `.env.gcp`, then use the `certbot/certbot` container with the shared webroot volume to request the certificate before switching `WORDPRESS_PUBLIC_URL` to `https://...`.
+For HTTPS on the GCP host, the nginx template exposes `/.well-known/acme-challenge/` and the GCP compose file includes a `certbot` service. Populate `DOMAIN_NAME`, `LETSENCRYPT_EMAIL`, and `WORDPRESS_PUBLIC_URL` in `.env.gcp`, then use the `certbot/certbot` container with the shared webroot volume to request the certificate before switching traffic to `https://...`.
+
+The deployment domain is intentionally centralized in `.env.gcp`. If you temporarily deploy to `hopp.delvedeepasia.org` and later switch back to `humansofphnompenh.com`, update these values in `.env.gcp` on the host copy:
+
+- `WORDPRESS_VIRTUAL_HOST`
+- `WORDPRESS_LOCAL_URL`
+- `DOMAIN_NAME`
+- `WORDPRESS_PUBLIC_URL`
+
+The GCP override is now production-safe by default:
+
+- `WORDPRESS_ENVIRONMENT_TYPE=production`
+- `HOPP_ENABLE_DEMO_SEED=false`
+- nginx `client_max_body_size 12m`
+
+Keep those values in `.env.gcp` unless you are intentionally creating a temporary non-production environment.
 
 The Makefile includes `make gcp-cert` for that certificate request step.
+
+The VM provisioner is repo-owned:
+
+- `scripts/gcp-provision-vm.sh` reserves or reuses a static IP, ensures HTTP/HTTPS firewall rules exist, and creates the recommended `e2-medium` / `50 GB pd-balanced` Compute Engine VM
+- `scripts/gcp-startup.sh` runs as the instance startup script and installs Docker Engine, Docker Compose plugin, and Git on first boot
+
+Production host ownership model:
+
+- Keep application files under `/opt/hopp`
+- Own the app directory as `root:hopp`, not as a personal user
+- Add each real operator as an individual Linux user and add that user to group `hopp`
+- Use group write permissions for deploy work; do not depend on a single personal account such as `monireach`
+- Keep system-managed paths such as `/etc`, Docker service config, and `/etc/letsencrypt` root-managed
+
+This is the handoff-safe standard for this project. Temporary helper users are acceptable during setup, but long-term access should be through real named operator accounts in group `hopp`.
 
 ---
 
@@ -79,6 +116,15 @@ Theme mount:
 ```
 
 This mount allows theme file edits to appear in WordPress without rebuilding the container.
+
+Runtime patch mounts:
+
+```text
+./docker/wordpress/start-wordpress.sh:/usr/local/bin/hopp-wordpress-start.sh
+./docker/wordpress/apply-aba-payway-patch.php:/usr/local/share/hopp/apply-aba-payway-patch.php
+```
+
+These files are part of the deployment artifact. Recreating the WordPress container reruns the startup patch logic automatically.
 
 ---
 
