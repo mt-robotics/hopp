@@ -91,7 +91,7 @@ See `DOCKER_SETUP.md` for the setup plan and environment variable reference.
 | `docker-compose.gcp.yml` | GCP preview override |
 | `docker/wordpress/` | WordPress startup scripts, including the ABA PayWay runtime patch path |
 | `scripts/gcp-provision-vm.sh` | GCP VM provisioner for the sponsor-funded production host |
-| `scripts/gcp-startup.sh` | First-boot host bootstrap for Docker, Compose, and Git |
+| `scripts/gcp-startup.sh` | First-boot host bootstrap for Docker, Compose, Git, and `make` |
 | `DESIGN.md` | Design system and implementation source of truth |
 | `PROJECT.md` | Internal navigation, architecture, and current focus |
 | `current_state/project_status.md` | Active roadmap and blockers |
