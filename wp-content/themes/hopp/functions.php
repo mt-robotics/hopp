@@ -10,6 +10,7 @@ define( 'HOPP_LOCAL_WOOCOMMERCE_VISIBILITY_VERSION', '20260508.1' );
 function hopp_setup(): void {
 	add_theme_support( 'title-tag' );
 	add_theme_support( 'post-thumbnails' );
+	add_theme_support( 'site-icon' );
 	add_theme_support( 'html5', array( 'search-form', 'comment-form', 'comment-list', 'gallery', 'caption', 'style', 'script' ) );
 	add_theme_support( 'responsive-embeds' );
 
@@ -20,6 +21,20 @@ function hopp_setup(): void {
 	);
 }
 add_action( 'after_setup_theme', 'hopp_setup' );
+
+function hopp_output_theme_site_icons(): void {
+	if ( function_exists( 'has_site_icon' ) && has_site_icon() ) {
+		return;
+	}
+
+	$icon_base = get_template_directory_uri() . '/assets/images';
+	?>
+	<link rel="icon" href="<?php echo esc_url( $icon_base . '/favicon_hopp-32x32.png' ); ?>" sizes="32x32">
+	<link rel="icon" href="<?php echo esc_url( $icon_base . '/favicon_hopp-192x192.png' ); ?>" sizes="192x192">
+	<link rel="apple-touch-icon" href="<?php echo esc_url( $icon_base . '/favicon_hopp-180x180.png' ); ?>">
+	<?php
+}
+add_action( 'wp_head', 'hopp_output_theme_site_icons' );
 
 function hopp_enqueue_assets(): void {
 	wp_enqueue_style(
