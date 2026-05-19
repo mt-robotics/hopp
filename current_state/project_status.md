@@ -98,6 +98,14 @@
 - ✅ Replace footer social icons with source-aligned icons
 - 🔲 Replace the Home hero background after designer update
 - 🔲 Gather and add remaining approved content
+- 🔄 Execute Primary-Domain Cutover And Final Live Verification
+- 🔲 Run First Production Backup/Restore Drill
+- 🔲 Run browser visual QA with screenshots after Playwright or another browser test tool is installed
+- 🔲 Performance audit (Core Web Vitals — LCP, CLS, FID)
+- ✅ Add favicon / WordPress Site Icon
+- 🔲 Audit media asset weight and optimization
+- 🔲 Evaluate Telegram order-status alert integration
+- 🔲 Add GitHub Actions deployment wrapper for the production VM path
 - ✅ Redesign footer layout and spacing
 - ✅ Fix Stories dropdown layering above page banners
 - ✅ Apply reusable contextual CTA component across pages
@@ -146,19 +154,6 @@ The team noted that more content may need to be added. This needs project manage
 - Add only approved copy/media to the relevant WordPress content or theme-controlled sections
 - Re-run visual checks on any page whose content length changes materially
 
-## Post-V1 Backlog
-
-- 🔄 Execute Primary-Domain Cutover And Final Live Verification
-- 🔲 Run First Production Backup/Restore Drill
-- 🔲 Run browser visual QA with screenshots after Playwright or another browser test tool is installed
-- 🔲 Performance audit (Core Web Vitals — LCP, CLS, FID)
-- 🔲 Add favicon / WordPress Site Icon
-- 🔲 Audit media asset weight and optimization
-- 🔲 Evaluate Telegram order-status alert integration
-- 🔲 Add GitHub Actions deployment wrapper for the production VM path
-
-## Post-V1 Task Details
-
 ### 🔄 Execute Primary-Domain Cutover And Final Live Verification
 
 The workflow is now standardized, but the final public move back to the brand domain is still an operational execution task on the real server. This is the step that should remove the current ABA whitelist blocker and close the last live WooCommerce-mail verification gap.
@@ -203,14 +198,6 @@ No performance measurement has been done on the imported-content staging site. L
 - Run Lighthouse or PageSpeed Insights against the local staging site (or the GCP preview once deployed)
 - Address any LCP element not loading eagerly, CLS from layout shifts, or blocking scripts
 
-### 🔲 Add favicon / WordPress Site Icon
-
-The site currently has no confirmed favicon/site icon tracked in the project plan. This needs either a brand-approved icon asset or a clean fallback from the existing logo mark.
-
-- Add a favicon/site icon through the theme or WordPress Site Icon configuration
-- Include standard browser icon sizes and verify the tab icon renders locally
-- Document the chosen source asset so deployment can reproduce it
-
 ### 🔲 Audit media asset weight and optimization
 
 The imported site now uses many images and external thumbnails. A performance pass must verify whether asset count, dimensions, and file sizes are slowing down the site.
@@ -240,3 +227,12 @@ The canonical production deploy path is now stable and manual: update `main`, SS
 - Have the workflow SSH into the VM, `cd /opt/hopp`, and run `./scripts/deploy-production.sh`
 - Decide whether deploys should trigger automatically on `main` pushes or require a manual workflow dispatch
 - Add a minimal post-deploy smoke check so CI/CD confirms the wrapper succeeded
+
+### 🔲 Operationalize WP-Admin Ownership For Theme-Controlled Content And Settings
+
+The ownership boundary is documented in `docs/production_state_ownership.md`, but some important site surfaces are still controlled by hardcoded theme content instead of normal WordPress operations. This must be resolved before V1 handover so the ops team can manage the site without routine code edits.
+
+- Audit all major theme-controlled surfaces and classify each as Git-managed, WP-admin-managed, or host-managed
+- Move ops-owned content/settings out of hardcoded theme PHP where practical, especially homepage/editorial copy and other business-owned page content
+- Keep true runtime/infrastructure concerns in code: deploy scripts, nginx/TLS, SMTP bridge, ABA patching, and container/runtime configuration
+- Document the final operator workflow clearly so the handover explains what ops can change in WP Admin and what still requires code or host access
