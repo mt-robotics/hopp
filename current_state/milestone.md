@@ -1,6 +1,6 @@
 # Completed Milestones
 
-**Last Updated:** 2026-05-18
+**Last Updated:** 2026-05-19
 
 > Full details of every completed task. For active tasks and roadmap, see `current_state/project_status.md`.
 
@@ -10,6 +10,7 @@
 
 | Milestone | Completed | Tests |
 |---|---|---|
+| Add favicon / WordPress Site Icon | 2026-05-19 | PHP lint, local browser verification |
 | Navigation, Context CTA, and Return-to-Top Refinements | 2026-05-11 | PHP lint, JS syntax, HTTP checks, Playwright screenshots |
 | Set up GCP-hosted public preview | 2026-05-18 | Manual public-preview verification |
 | Set up sponsor-funded GCP production server | 2026-05-18 | Manual production verification |
@@ -30,6 +31,22 @@
 | V1 Local WordPress UI/UX Demo Theme | 2026-04-30 | PHP lint, Docker Compose config, local route checks |
 
 ---
+
+## ✅ Add favicon / WordPress Site Icon (2026-05-19)
+
+**Implementation:** Added a theme-level favicon fallback using the original site's exported icon assets while preserving WordPress Site Icon as the long-term ops-owned override path.
+
+- ✅ Added `site-icon` theme support in `wp-content/themes/hopp/functions.php`
+- ✅ Added `wp_head` fallback icon tags for `32x32`, `192x192`, and Apple touch icon assets in `wp-content/themes/hopp/assets/images/`
+- ✅ Kept WP Admin ownership path intact by skipping the fallback when `has_site_icon()` is configured in WordPress
+- ✅ Confirmed the icon assets are present in the theme and render on the local `.149` environment after the user's URL update
+
+**Verification:**
+
+- ✅ `php -l wp-content/themes/hopp/functions.php`
+- ✅ Local browser verification on the `.149` WordPress URL
+
+**Final state:** The site now has a repo-managed favicon fallback, while ops can later take ownership through WordPress Site Icon without further code changes.
 
 ## ✅ V1 Local WordPress UI/UX Demo Theme (2026-04-30)
 
