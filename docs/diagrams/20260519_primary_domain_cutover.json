@@ -1,0 +1,142 @@
+{
+  "title": "Primary Domain Cutover — production VM flow",
+  "nodes": [
+    {
+      "id": "cutover_inputs",
+      "name": "primary_domain_cutover — inputs",
+      "node_type": "config",
+      "column": 0,
+      "outputs": [
+        { "name": "server_checkout", "type": "/opt/hopp main" },
+        { "name": "final_domain", "type": "humansofphnompenh.com" },
+        { "name": "public_url", "type": "https://humansofphnompenh.com" },
+        { "name": "ops_mailbox", "type": "real inbox" }
+      ]
+    },
+    {
+      "id": "dns_owner",
+      "name": "DNS provider update",
+      "node_type": "library",
+      "column": 1,
+      "inputs": [
+        { "name": "final_domain", "type": "humansofphnompenh.com" }
+      ],
+      "outputs": [
+        { "name": "domain_points_to_vm", "type": "bool" }
+      ]
+    },
+    {
+      "id": "aba_whitelist",
+      "name": "ABA merchant whitelist",
+      "node_type": "library",
+      "column": 1,
+      "inputs": [
+        { "name": "final_domain", "type": "humansofphnompenh.com" }
+      ],
+      "outputs": [
+        { "name": "aba_domain_allowed", "type": "bool" }
+      ]
+    },
+    {
+      "id": "backup_script",
+      "name": "./scripts/backup-production.sh",
+      "node_type": "function",
+      "column": 1,
+      "inputs": [
+        { "name": "server_checkout", "type": "/opt/hopp main" }
+      ],
+      "outputs": [
+        { "name": "backup_bundle", "type": "Path" }
+      ]
+    },
+    {
+      "id": "env_update",
+      "name": "update .env.gcp domain values",
+      "node_type": "function",
+      "column": 2,
+      "inputs": [
+        { "name": "final_domain", "type": "humansofphnompenh.com" },
+        { "name": "public_url", "type": "https://humansofphnompenh.com" },
+        { "name": "ops_mailbox", "type": "real inbox" },
+        { "name": "backup_bundle", "type": "Path", "internal": true }
+      ],
+      "outputs": [
+        { "name": "updated_env", "type": ".env.gcp" }
+      ]
+    },
+    {
+      "id": "deploy_stack",
+      "name": "./scripts/deploy-production.sh",
+      "node_type": "function",
+      "column": 3,
+      "inputs": [
+        { "name": "updated_env", "type": ".env.gcp" }
+      ],
+      "outputs": [
+        { "name": "running_stack", "type": "containers" }
+      ]
+    },
+    {
+      "id": "issue_cert",
+      "name": "make gcp-cert",
+      "node_type": "function",
+      "column": 3,
+      "inputs": [
+        { "name": "updated_env", "type": ".env.gcp" }
+      ],
+      "outputs": [
+        { "name": "tls_ready", "type": "bool" }
+      ]
+    },
+    {
+      "id": "smoke_test",
+      "name": "./scripts/smoke-test-production.sh",
+      "node_type": "function",
+      "column": 4,
+      "inputs": [
+        { "name": "running_stack", "type": "containers", "internal": true },
+        { "name": "tls_ready", "type": "bool", "internal": true },
+        { "name": "domain_points_to_vm", "type": "bool", "internal": true }
+      ],
+      "outputs": [
+        { "name": "smoke_pass", "type": "bool" }
+      ],
+      "exceptions": [
+        { "name": "UnexpectedHttpStatus" }
+      ]
+    },
+    {
+      "id": "manual_verify",
+      "name": "manual mail + commerce verification",
+      "node_type": "function",
+      "column": 5,
+      "inputs": [
+        { "name": "smoke_pass", "type": "bool", "internal": true },
+        { "name": "aba_domain_allowed", "type": "bool", "internal": true },
+        { "name": "ops_mailbox", "type": "real inbox" }
+      ],
+      "outputs": [
+        { "name": "cf7_mail_verified", "type": "bool" },
+        { "name": "aba_checkout_verified", "type": "bool" },
+        { "name": "woo_emails_verified", "type": "bool" }
+      ]
+    }
+  ],
+  "edges": [
+    { "from_node": "cutover_inputs", "from_port": "final_domain", "to_node": "dns_owner", "to_port": "final_domain" },
+    { "from_node": "cutover_inputs", "from_port": "final_domain", "to_node": "aba_whitelist", "to_port": "final_domain" },
+    { "from_node": "cutover_inputs", "from_port": "server_checkout", "to_node": "backup_script", "to_port": "server_checkout" },
+    { "from_node": "cutover_inputs", "from_port": "final_domain", "to_node": "env_update", "to_port": "final_domain" },
+    { "from_node": "cutover_inputs", "from_port": "public_url", "to_node": "env_update", "to_port": "public_url" },
+    { "from_node": "cutover_inputs", "from_port": "ops_mailbox", "to_node": "env_update", "to_port": "ops_mailbox" },
+    { "from_node": "backup_script", "from_port": "backup_bundle", "to_node": "env_update", "to_port": "backup_bundle" },
+    { "from_node": "env_update", "from_port": "updated_env", "to_node": "deploy_stack", "to_port": "updated_env" },
+    { "from_node": "env_update", "from_port": "updated_env", "to_node": "issue_cert", "to_port": "updated_env" },
+    { "from_node": "deploy_stack", "from_port": "running_stack", "to_node": "smoke_test", "to_port": "running_stack" },
+    { "from_node": "issue_cert", "from_port": "tls_ready", "to_node": "smoke_test", "to_port": "tls_ready" },
+    { "from_node": "dns_owner", "from_port": "domain_points_to_vm", "to_node": "smoke_test", "to_port": "domain_points_to_vm" },
+    { "from_node": "smoke_test", "from_port": "smoke_pass", "to_node": "manual_verify", "to_port": "smoke_pass" },
+    { "from_node": "aba_whitelist", "from_port": "aba_domain_allowed", "to_node": "manual_verify", "to_port": "aba_domain_allowed" },
+    { "from_node": "cutover_inputs", "from_port": "ops_mailbox", "to_node": "manual_verify", "to_port": "ops_mailbox" }
+  ]
+}

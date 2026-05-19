@@ -148,7 +148,7 @@ The team noted that more content may need to be added. This needs project manage
 
 ## Post-V1 Backlog
 
-- 🔲 Execute Primary-Domain Cutover And Final Live Verification
+- 🔄 Execute Primary-Domain Cutover And Final Live Verification
 - 🔲 Run First Production Backup/Restore Drill
 - 🔲 Run browser visual QA with screenshots after Playwright or another browser test tool is installed
 - 🔲 Performance audit (Core Web Vitals — LCP, CLS, FID)
@@ -159,13 +159,23 @@ The team noted that more content may need to be added. This needs project manage
 
 ## Post-V1 Task Details
 
-### 🔲 Execute Primary-Domain Cutover And Final Live Verification
+### 🔄 Execute Primary-Domain Cutover And Final Live Verification
 
 The workflow is now standardized, but the final public move back to the brand domain is still an operational execution task on the real server. This is the step that should remove the current ABA whitelist blocker and close the last live WooCommerce-mail verification gap.
 
 - Final primary hostname decision is now explicit:
   `https://humansofphnompenh.com`
+- Canonical hostname behavior is now explicit:
+  `www.humansofphnompenh.com` should redirect to `https://humansofphnompenh.com` through nginx on the sponsor-funded VM
 - Use `docs/production_operations_index.md` as the first operator guide, then follow the cutover commands/checks from the production workflow files it points to
+- Current execution state on 2026-05-19:
+  the VM checkout has been refreshed to current `origin/main`, a fresh backup exists at `/opt/hopp/backups/20260519T081412Z`, and the transition host smoke test still passes
+- Current external blockers:
+  `humansofphnompenh.com` still points to the old Hostinger IP instead of `34.21.157.41`, and the ABA merchant-side whitelist still needs the final brand domain
+- Director-side information still required before the final env switch:
+  GoDaddy update for `humansofphnompenh.com` -> `34.21.157.41`, confirmation that no conflicting apex `AAAA` record should remain unless IPv6 is intentionally configured, and the real Hostinger SMTP mailbox details (`from` address, host, port, security mode, username, password, sender name)
+- ABA verification rule is now explicit:
+  there is no separate pre-confirmation path; once DNS points at the VM and the VM is switched to `humansofphnompenh.com`, run the live ABA checkout test directly and treat the result as the whitelist proof
 - Do not mark this done until:
   `humansofphnompenh.com` is live on the sponsor-funded VM, HTTPS is valid, CF7 mail arrives, and the ABA/WooCommerce order-email path is verified on the whitelisted domain
 

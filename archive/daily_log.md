@@ -209,3 +209,10 @@
 - Verified the browser-policy constraint from current platform docs: first-visit autoplay with sound cannot be guaranteed across modern browsers, so the canonical behavior will be muted autoplay first with an immediate sound toggle and remembered best-effort sound preference for later visits
 - Agreed the Home hero delivery plan before implementation: self-host the optimized hero video instead of using a paid video CDN, accept the documentary-style recording overlay if it remains in the final export, and wait for the designer's final approved asset
 - Final asset contract for the blocked Home hero task: roughly 20-second loop-friendly export, no burned subtitles, intended for a looping homepage hero rather than a separate long-form player treatment
+- Started the `Execute Primary-Domain Cutover And Final Live Verification` task under vibe-code on branch `feature/primary-domain-cutover`
+- Verified live cutover blockers with direct evidence: `humansofphnompenh.com` still resolves to Hostinger `156.67.222.232`, while the sponsor-funded VM remains `34.21.157.41`; the VM `.env.gcp` still targets `hopp.delvedeepasia.org`
+- Refreshed the server checkout on `hopp-prod` from stale `origin/main` `8f9ab8a` to current reviewed `origin/main` `4075cbd` so the backup/restore/smoke helper scripts now exist on the VM
+- Created the required pre-cutover production backup on the VM at `/opt/hopp/backups/20260519T081412Z`
+- Verified the current transition host still passes the automated smoke suite on `https://hopp.delvedeepasia.org`
+- Execution is now blocked only on external actions outside the repo/VM: DNS must point `humansofphnompenh.com` to `34.21.157.41`, and the ABA merchant-side whitelist must include `humansofphnompenh.com` before the actual domain/env/TLS cutover can proceed safely
+- Locked the remaining cutover decisions: `www.humansofphnompenh.com` should redirect to apex via nginx on the VM, the director needs to provide the final Hostinger SMTP mailbox credentials/details alongside the GoDaddy DNS change, and ABA whitelist confirmation will be determined by the first live checkout test after cutover rather than a separate pre-check
