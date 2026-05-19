@@ -129,11 +129,14 @@ The footer currently needs Privacy Policy and Terms links, but the exact policy 
 
 ### 🔲 Replace the Home hero background after designer update
 
-The current Home hero background is mapped from imported media, but the team expects a new design/background image. This task is blocked on receiving the final designer asset or direction.
+The current Home hero background is mapped from imported media, but the team now wants a looping homepage hero video instead of a replacement still image. Implementation is blocked until the designer provides the final loop-ready export.
 
-- Blocked until the approved Home background image or specific redesign instruction is available
-- Replace the mapped Home hero image without disturbing other page hero mappings
-- Verify desktop, tablet, mobile crop behavior after replacement
+- Blocked until the designer provides the approved Home hero video export: about 20 seconds, no burned subtitles, and edited to loop cleanly
+- Delivery decision is now fixed: self-host the optimized hero video in the theme/repo path; do not use a paid video CDN for this feature
+- Browser-policy contract is fixed: autoplay muted on first visit, show a visible sound toggle immediately, and remember the user's sound preference for later best-effort unmuted autoplay when the browser allows it
+- The currently observed documentary-style recording overlay/HUD is acceptable if it remains part of the approved export
+- Replace the mapped Home hero image with the video hero without disturbing other page hero mappings; keep a poster/fallback image path for non-autoplay or slow-load cases
+- Verify desktop, tablet, and mobile behavior after implementation, including crop safety, overlay readability, and sound-toggle usability
 
 ### 🔲 Gather and add remaining approved content
 
