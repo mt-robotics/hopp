@@ -218,3 +218,41 @@
 - Locked the remaining cutover decisions: `www.humansofphnompenh.com` should redirect to apex via nginx on the VM, the director needs to provide the final Hostinger SMTP mailbox credentials/details alongside the GoDaddy DNS change, and ABA whitelist confirmation will be determined by the first live checkout test after cutover rather than a separate pre-check
 - Added a theme-level favicon fallback using three exported icon assets from the original site, while keeping WordPress Site Icon as the override path when ops later configure it in WP Admin
 - Verified the favicon locally after the user's LAN URL changed to `.149`, then updated project tracking to mark the favicon task complete, move all formerly post-V1 tasks into the V1 checklist, and add the new V1 handover task `Operationalize WP-Admin Ownership For Theme-Controlled Content And Settings`
+- Added `wp-cli` to the local WordPress Docker image so the project can inspect and validate real WordPress content/state directly during theme handover work
+- Operationalized the first major WP-admin ownership pass in the theme: homepage hero/section copy now comes from front-page admin fields, main editorial page bodies now come from normal WordPress page content, page hero intros now come from excerpts, page hero images now prefer featured images/page media, and the footer intro now follows the WordPress site tagline
+- Finished the footer ownership shift: footer navigation now uses a dedicated WP menu location with primary-menu fallback, footer social links use a WP menu location with seeded default social items, and footer legal links now use a WP menu location while still falling back to plain placeholder text until the separate Privacy/Terms linking task is resolved
+- Verified the new ownership path locally with `wp-cli`, PHP lint, rendered-page HTML checks, and a temporary front-page custom-field write/read test that was reverted immediately
+
+## 2026-05-20
+
+- Replaced the first raw-URL hero-video concept with a real ops-facing `Hero Media` workflow on `Pages > Home`: a unified image/video picker using the WordPress media library, with no pasted media URLs exposed to operations
+- Root-caused the first hero-media persistence bug: preview changes were updating client UI only; proved the WordPress REST storage path was valid and moved hero-media saves onto the page REST endpoint so image/video/poster changes now persist immediately
+- Fixed key hero-state regressions:
+  explicit hero-image removal no longer silently falls back to the old slug-mapped image
+  `Video` mode is now authoritative, so poster-only uses the poster image and empty video mode no longer inherits the previous image hero
+- Added ops-controlled homepage video audio behavior:
+  `Start muted` keeps a visible unmute/mute control on the public hero
+  `No sound (always muted)` keeps the hero permanently silent
+- Changed homepage presentation rules for video mode:
+  when the homepage hero is a real video, the large hero copy and CTA block are hidden entirely so the video stands alone
+  WP Admin now warns ops that those homepage hero text/button fields are inactive while `Hero media type = Video`
+- Split homepage hero sizing behavior by media type:
+  image heroes keep the existing shallower editorial frame
+  homepage video heroes now fill the remaining first-screen viewport below the sticky header, producing the intended full-screen-cover effect without moving the video behind the header bar
+- Root-caused a scope misunderstanding during the WP-admin handover work: the user wanted a consistent editor UX pattern across key pages, not merely cleanup of imported Divi shortcode noise. Logged the reusable lesson in `archive/crucial_notes.md` so future sessions explicitly disambiguate between narrow content cleanup and broader admin-UX consistency requests before implementing
+- Fixed the lingering homepage/non-home editor mismatch:
+  the homepage-only `Homepage Content` box is now restricted to the actual static front page, and the legacy Divi bodies on the key imported pages were migrated once into clean stored editor HTML with per-page backup meta preserved
+- Generalized the ops-facing editor model beyond the homepage:
+  hero-managed pages (`About Us`, `Products`, `Stories`, `Series`, `Artist`, `Career`, `Contact Us`, `Pitch Your Pal`) now use the same structured/classic admin pattern as Home, with `Hero Media` as the shared side panel, a dedicated `Hero Content` box writing to `post_excerpt`, and either a `Page Content` editor or a clear template note depending on whether the template actually uses body content
+- Removed misleading runtime fallback intro copy on hero pages so clearing `Hero intro text` in WP Admin now truly clears the public hero instead of silently falling back to hardcoded template prose
+- Added explicit page-type handling for WooCommerce system pages:
+  `Cart`, `Checkout`, and `My account` now open as locked system pages in admin, with clear operator guidance, block editor disabled, and irrelevant hero/featured-image controls removed
+- Added a dedicated document-page pattern for `CONTEST GUIDELINES`, `Termsandconditions artist`, and `Refund and Returns Policy`:
+  these pages now use a calmer HOPP-native document layout on the frontend plus a single rich `Document Content` editor in admin; refined the document list indentation afterward so bullet points align correctly within the narrower reading column
+- Investigated the legacy utility page `Message Us` thoroughly before deletion risk was assessed:
+  confirmed it is not used by the current theme, menus, WordPress core page assignments, or WooCommerce system-page configuration; confirmed the current contact flow uses CF7 form `HOPP Contact Message` instead; and agreed the page itself is safe to remove from the public site
+- The user moved `Message Us` to Trash and intentionally left permanent deletion for later
+- Established the final remaining page-triage boundary for the next session:
+  `Press`, `Product`, and the Khmer placeholder page `មិនមានខ្លឹមសារនៅទីនេះទេ។` are the last questionable/placeholder pages still needing keep/repurpose/trash decisions
+- Clarified the larger unfinished platform goal for the next session:
+  this project now has implemented page-type behavior for the major existing pages, but it does not yet have the full ops-controlled page-creation workflow. A later pass still needs to define the approved page-type/template set explicitly and decide how `Add Page` should be constrained or guided so new pages can only be created from the supported website-specific page types

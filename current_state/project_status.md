@@ -98,6 +98,7 @@
 - ✅ Replace footer social icons with source-aligned icons
 - 🔲 Replace the Home hero background after designer update
 - 🔲 Gather and add remaining approved content
+- 🔄 Operationalize WP-Admin Ownership For Theme-Controlled Content And Settings
 - 🔄 Execute Primary-Domain Cutover And Final Live Verification
 - 🔲 Run First Production Backup/Restore Drill
 - 🔲 Run browser visual QA with screenshots after Playwright or another browser test tool is installed
@@ -137,14 +138,22 @@ The footer currently needs Privacy Policy and Terms links, but the exact policy 
 
 ### 🔲 Replace the Home hero background after designer update
 
-The current Home hero background is mapped from imported media, but the team now wants a looping homepage hero video instead of a replacement still image. Implementation is blocked until the designer provides the final loop-ready export.
+The current Home hero background task has moved past planning and is now mostly implemented. The remaining work is to replace the current temporary/local video with the final approved designer export and then run final visual QA.
 
-- Blocked until the designer provides the approved Home hero video export: about 20 seconds, no burned subtitles, and edited to loop cleanly
+- The original designer-source requirement is still the same for the final asset: about 20 seconds, no burned subtitles, and edited to loop cleanly
 - Delivery decision is now fixed: self-host the optimized hero video in the theme/repo path; do not use a paid video CDN for this feature
-- Browser-policy contract is fixed: autoplay muted on first visit, show a visible sound toggle immediately, and remember the user's sound preference for later best-effort unmuted autoplay when the browser allows it
+- Browser-policy contract is fixed: autoplay muted on first visit; the implemented ops-facing audio modes are `Start muted` and `No sound (always muted)`
 - The currently observed documentary-style recording overlay/HUD is acceptable if it remains part of the approved export
-- Replace the mapped Home hero image with the video hero without disturbing other page hero mappings; keep a poster/fallback image path for non-autoplay or slow-load cases
-- Verify desktop, tablet, and mobile behavior after implementation, including crop safety, overlay readability, and sound-toggle usability
+- The `Pages > Home` screen now uses a unified `Hero Media` panel for image/video selection, poster image selection, and video audio mode; no raw media URLs are exposed to ops
+- Homepage presentation rule is now fixed:
+  image hero => show the normal homepage hero copy/buttons
+  video hero => hide the homepage hero copy/buttons completely so the video stands alone
+- The `Homepage Content` editor now warns ops when `Hero media type = Video`, clarifying that the homepage hero copy/buttons are inactive until the hero switches back to `Image`
+- Video hero sizing is now separate from image hero sizing:
+  the homepage video hero fills the remaining first-screen viewport below the sticky header instead of using the shallower image-hero frame
+- Final remaining work:
+  replace the current temporary/local video with the approved designer export
+  verify desktop/tablet/mobile framing, poster fallback, audio-mode behavior, and overall first-screen presentation
 
 ### 🔲 Gather and add remaining approved content
 
@@ -228,11 +237,20 @@ The canonical production deploy path is now stable and manual: update `main`, SS
 - Decide whether deploys should trigger automatically on `main` pushes or require a manual workflow dispatch
 - Add a minimal post-deploy smoke check so CI/CD confirms the wrapper succeeded
 
-### 🔲 Operationalize WP-Admin Ownership For Theme-Controlled Content And Settings
+### 🔄 Operationalize WP-Admin Ownership For Theme-Controlled Content And Settings
 
-The ownership boundary is documented in `docs/production_state_ownership.md`, but some important site surfaces are still controlled by hardcoded theme content instead of normal WordPress operations. This must be resolved before V1 handover so the ops team can manage the site without routine code edits.
+Started on 2026-05-19. The ownership boundary is now largely operational for the main editorial surfaces that previously required theme edits, but the task is not fully complete yet.
 
 - Audit all major theme-controlled surfaces and classify each as Git-managed, WP-admin-managed, or host-managed
-- Move ops-owned content/settings out of hardcoded theme PHP where practical, especially homepage/editorial copy and other business-owned page content
+- Delivered in this pass:
+  homepage hero and section copy live on the static front-page edit screen through the `HOPP Front Page Content` meta box; main editorial page bodies come from normal WordPress page content; page hero intros come from page excerpts; page hero images prefer featured images/page media; footer intro follows the WordPress site tagline; and footer navigation/social/legal surfaces are now managed through WordPress menu locations
+- Follow-up operationalization completed on 2026-05-20:
+  the `Pages > Home` screen now uses a unified `Hero Media` control for image/video hero selection, poster image handling, and video audio mode; no raw media URLs are exposed to ops; homepage video mode now clearly warns that hero copy/buttons are hidden while video is active
+- Extended the handover architecture on 2026-05-20:
+  key pages are now explicitly classified by page type rather than left in a mixed WordPress state. Hero-section pages use the shared structured editor pattern with `Hero Media` plus dedicated hero/body meta boxes; WooCommerce system pages (`Cart`, `Checkout`, `My account`) now render as locked system pages in admin with no irrelevant hero or featured-image controls; document-style pages (`CONTEST GUIDELINES`, `Termsandconditions artist`, `Refund and Returns Policy`) now use a calmer theme-native document layout on the frontend and a single rich `Document Content` editor in admin
+- Remaining page-type cleanup after this session:
+  `Message Us` has been moved to Trash because it is legacy form-staging content with no current runtime dependency; the final triage still pending is the last questionable/placeholder group (`Press`, `Product`, and the Khmer placeholder page `មិនមានខ្លឹមសារនៅទីនេះទេ។`)
+- Important remaining ownership/platform work:
+  page-type behavior is now implemented for the major existing pages, but the full operator-controlled page-creation workflow is not finished yet. A future pass still needs to define the approved page-type/template set explicitly for this website and decide how WP Admin should constrain or guide `Add Page` so operations create new pages only from the supported page types (`Homepage`, `Hero-section page`, `System page`, `Document page`, and any final approved additional type)
 - Keep true runtime/infrastructure concerns in code: deploy scripts, nginx/TLS, SMTP bridge, ABA patching, and container/runtime configuration
 - Document the final operator workflow clearly so the handover explains what ops can change in WP Admin and what still requires code or host access
