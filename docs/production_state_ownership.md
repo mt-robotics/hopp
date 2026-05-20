@@ -60,6 +60,13 @@ These items belong to normal WordPress or WooCommerce operations and should be c
 - menus and menu ordering
 - media library content
 - editorial copy, featured images, SEO/editorial metadata if later added
+- homepage editorial copy in the static front page edit screen, including the custom `HOPP Front Page Content` fields for hero and section text
+- homepage hero media in the static front page edit screen through the custom `Hero Media` panel:
+  image hero, video hero, poster image, and homepage video audio mode
+- page hero intro copy via each page's excerpt field
+- page hero/section imagery via featured images and normal page/media content
+- site tagline in Settings > General, which now feeds the footer intro text
+- footer navigation, footer social links, and footer legal links via Appearance > Menus
 - CF7 submissions and normal form-entry handling
 - WooCommerce catalog content:
   prices, product descriptions, stock, product images, attributes, order records
@@ -69,6 +76,15 @@ These items belong to normal WordPress or WooCommerce operations and should be c
 WP-admin-managed rule:
 
 - if it is day-to-day content or business data that should survive deploys unchanged, it belongs to WP Admin or the database layer, not Git
+
+Homepage hero operational rule:
+
+- if the homepage `Hero media type` is `Image`, the homepage hero text/buttons from `Homepage Content` are shown normally
+- if the homepage `Hero media type` is `Video`, the homepage hero text/buttons are intentionally hidden so the video stands alone
+- the hidden homepage text/buttons are not deleted; they remain editable in WP Admin and become active again if ops switches the hero back to `Image`
+- homepage video audio is ops-managed through `Video audio mode`:
+  `Start muted` keeps a visible sound toggle on the public hero
+  `No sound (always muted)` keeps the hero permanently silent
 
 ---
 
