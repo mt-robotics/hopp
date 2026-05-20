@@ -24,7 +24,9 @@ services:
       - hopp-network
 
   wordpress:
-    image: wordpress:6.8-php8.3-apache
+    build:
+      context: .
+      dockerfile: docker/wordpress/Dockerfile
     container_name: hopp_wordpress
     restart: unless-stopped
     command: ["sh", "/usr/local/bin/hopp-wordpress-start.sh"]

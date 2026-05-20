@@ -99,4 +99,33 @@
 		syncReturnToTop();
 		window.addEventListener("scroll", syncReturnToTop, { passive: true });
 	}
+
+	document.querySelectorAll(".hopp-hero-audio-toggle").forEach(function (button) {
+		const wrapper = button.closest(".hero__media-wrap, .page-hero__media-wrap");
+		const video = wrapper ? wrapper.querySelector("video[data-hopp-audio-mode='start_muted']") : null;
+
+		if (!video) {
+			return;
+		}
+
+		const syncAudioState = function () {
+			const mutedLabel = button.getAttribute("data-muted-label") || "Unmute";
+			const unmutedLabel = button.getAttribute("data-unmuted-label") || "Mute";
+			const isMuted = video.muted;
+
+			button.textContent = isMuted ? mutedLabel : unmutedLabel;
+			button.setAttribute("aria-pressed", String(!isMuted));
+			button.setAttribute("aria-label", isMuted ? "Unmute hero video" : "Mute hero video");
+		};
+
+		button.addEventListener("click", function () {
+			video.muted = !video.muted;
+			if (!video.muted) {
+				video.volume = 1;
+			}
+			syncAudioState();
+		});
+
+		syncAudioState();
+	});
 })();
