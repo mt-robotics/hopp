@@ -20,10 +20,14 @@ echo \
 apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
+if ! getent group hopp >/dev/null; then
+  groupadd hopp
+fi
+
 systemctl enable docker
 systemctl restart docker
 
-install -m 0755 -d /opt/hopp
+install -d -m 2775 -o root -g hopp /opt/hopp
 
 cat >/etc/motd <<'EOF'
 Humans of Phnom Penh GCP host
@@ -33,6 +37,7 @@ Bootstrap completed:
 - Docker Compose plugin installed
 - Git installed
 - Make installed
+- Group-based app path prepared at /opt/hopp (root:hopp)
 
 Next:
 1. Copy or clone the repo into /opt/hopp
