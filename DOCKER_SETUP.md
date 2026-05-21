@@ -63,11 +63,22 @@ If you are preparing the sponsor-funded GCP host, first provision the VM with `m
 
 For HTTPS on the GCP host, the nginx template exposes `/.well-known/acme-challenge/` and the GCP compose file includes a `certbot` service. Populate `DOMAIN_NAME`, `LETSENCRYPT_EMAIL`, and `WORDPRESS_PUBLIC_URL` in `.env.gcp`, then use the `certbot/certbot` container with the shared webroot volume to request the certificate before switching traffic to `https://...`.
 
+If the production cutover needs `www` to redirect to the apex host over HTTPS, also set:
+
+- `WWW_DOMAIN=www.humansofphnompenh.com`
+
+The repo-owned GCP nginx path will then:
+
+- request the certificate for both the apex and `www` hostnames
+- serve the apex domain normally
+- redirect `https://www...` to `https://humansofphnompenh.com`
+
 The deployment domain is intentionally centralized in `.env.gcp`. If you temporarily deploy to `hopp.delvedeepasia.org` and later switch back to `humansofphnompenh.com`, update these values in `.env.gcp` on the host copy:
 
 - `WORDPRESS_VIRTUAL_HOST`
 - `WORDPRESS_LOCAL_URL`
 - `DOMAIN_NAME`
+- `WWW_DOMAIN`
 - `WORDPRESS_PUBLIC_URL`
 
 The GCP override is now production-safe by default:

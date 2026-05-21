@@ -8,6 +8,7 @@ services:
       - "443:443"
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
+      - WWW_DOMAIN=${WWW_DOMAIN:-}
     volumes:
       - ./nginx/templates:/etc/nginx/hopp-templates:ro
       - ./docker/nginx/select-template.sh:/docker-entrypoint.d/10-hopp-select-template.sh:ro

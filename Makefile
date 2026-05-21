@@ -128,7 +128,11 @@ gcp-cert:
 	@test -n "$(DOMAIN_NAME)" || (echo "Set DOMAIN_NAME in .env.gcp"; exit 1)
 	@test -n "$(LETSENCRYPT_EMAIL)" || (echo "Set LETSENCRYPT_EMAIL in .env.gcp"; exit 1)
 	@echo "Requesting Let's Encrypt certificate for $(DOMAIN_NAME)..."
-	docker compose --env-file $(GCP_ENV_FILE) -f $(COMPOSE_FILE) -f $(GCP_OVERRIDE) run --rm certbot certonly --webroot -w /var/www/certbot -d $(DOMAIN_NAME) --email $(LETSENCRYPT_EMAIL) --agree-tos --no-eff-email
+	@domains="-d $(DOMAIN_NAME)"; \
+	if [ -n "$(WWW_DOMAIN)" ]; then \
+		domains="$$domains -d $(WWW_DOMAIN)"; \
+	fi; \
+	docker compose --env-file $(GCP_ENV_FILE) -f $(COMPOSE_FILE) -f $(GCP_OVERRIDE) run --rm certbot certonly --webroot --cert-name $(DOMAIN_NAME) -w /var/www/certbot $$domains --email $(LETSENCRYPT_EMAIL) --agree-tos --no-eff-email
 	@echo "Recreating nginx so it switches from bootstrap HTTP to HTTPS..."
 	docker compose --env-file $(GCP_ENV_FILE) -f $(COMPOSE_FILE) -f $(GCP_OVERRIDE) up -d --force-recreate nginx
 
