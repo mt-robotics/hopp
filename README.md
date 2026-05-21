@@ -16,7 +16,7 @@ The goal is to build and verify the site locally first, then promote reviewed ch
 - Form pages migrated from Forminator to Contact Form 7 in local staging
 - ABA PayWay checkout patch is now preserved through a repo-owned WordPress startup hook so container rebuilds do not drop the working gateway fix
 - Production mail, smoke-test, rollback, backup/restore, access-control, and primary-domain cutover workflows are now standardized in repo-owned scripts and runbooks
-- Production site must not be changed until V2 validation against real content/plugins is complete
+- A dedicated replacement VM for final dual-stack cutover was created on 2026-05-21 in `hopp-vpc` / `hopp-subnet`; the remaining live work is to deploy the stack there, switch DNS, and complete final mail/ABA verification
 
 ## Planned Features
 
@@ -96,6 +96,7 @@ See `DOCKER_SETUP.md` for the setup plan and environment variable reference.
 | `docker/wordpress/mu-plugins/` | Repo-owned production MU plugins, including SMTP/recipient routing |
 | `scripts/gcp-provision-vm.sh` | GCP VM provisioner for the sponsor-funded production host |
 | `scripts/gcp-startup.sh` | First-boot host bootstrap for Docker, Compose, Git, and `make` |
+| `docs/gcp_cloud_shell_replacement_vm.md` | Cloud Shell runbook for creating the dedicated-network replacement VM |
 | `DESIGN.md` | Design system and implementation source of truth |
 | `PROJECT.md` | Internal navigation, architecture, and current focus |
 | `current_state/project_status.md` | Active roadmap and blockers |

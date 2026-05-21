@@ -1,6 +1,6 @@
 # Project Status
 
-**Last Updated:** 2026-05-18 (production workflow standardized end-to-end in repo-owned runbooks and helper scripts; primary-domain cutover execution split into its own next task)
+**Last Updated:** 2026-05-21 (replacement VM created on dedicated HOPP VPC/subnet; Docker bootstrap and `root:hopp` operating model verified)
 
 ---
 
@@ -13,6 +13,7 @@
 - The canonical server deploy path is now defined: production runs from the `/opt/hopp` checkout on the VM, deploys from `origin/main` through `./scripts/deploy-production.sh`, and uses `./scripts/rollback-production.sh <sha>` for emergency rollback to a known-good `main` commit.
 - Production mail is now standardized in code and docs: the repo owns the SMTP bridge, verification checklist, and cutover dependency, while the final whitelisted-domain order/mail verification remains part of the next live cutover task.
 - The production workflow is now standardized in repo-owned docs and helper scripts: deploy, rollback, smoke checks, backup/restore, access/change rules, mail-routing policy, and final-domain cutover sequence all have a canonical home in the repo.
+- The replacement cutover host now exists: `hopp-prod-v2` was created in `asia-southeast1-c` on `hopp-vpc` / `hopp-subnet` with static public IPv4 `34.124.236.208`, static public IPv6 `2600:1900:4080:16a::/96`, Docker/Compose installed, and `/opt/hopp` verified under the `root:hopp` ownership model.
 - The main unresolved production work is no longer "how should we operate this stack?" but "when do we execute the final primary-domain cutover and live whitelisted-domain verification on the server?"
 - Several UI/content items remain blocked on external input: final brand color direction, Privacy Policy/Terms ownership and content, a replacement Home hero asset, and any additional approved copy/media.
 - Historical implementation details remain archived in `current_state/milestone.md`; this file should now stay focused on active tasks, blockers, and next operational work.
@@ -172,12 +173,17 @@ The workflow is now standardized, but the final public move back to the brand do
 - Canonical hostname behavior is now explicit:
   `www.humansofphnompenh.com` should redirect to `https://humansofphnompenh.com` through nginx on the sponsor-funded VM
 - Use `docs/production_operations_index.md` as the first operator guide, then follow the cutover commands/checks from the production workflow files it points to
-- Current execution state on 2026-05-19:
-  the VM checkout has been refreshed to current `origin/main`, a fresh backup exists at `/opt/hopp/backups/20260519T081412Z`, and the transition host smoke test still passes
+- Current execution state on 2026-05-21:
+  the original transition VM still exists and still serves `https://hopp.delvedeepasia.org`
+  the VM checkout had already been refreshed to current `origin/main`, a fresh backup exists at `/opt/hopp/backups/20260519T081412Z`, and the transition host smoke test had already passed before this network-separation phase
+  a dedicated VPC `hopp-vpc` and subnet `hopp-subnet` were created in `asia-southeast1` with dual-stack (`IPv4 and IPv6`) enabled, IPv6 access type `External`, and subnet IPv4 range `10.20.0.0/24`
+  the required ingress rules were created on `hopp-vpc` for `tcp:80,443` on both IPv4 (`0.0.0.0/0`) and IPv6 (`::/0`), while SSH access was retained
+  the replacement VM `hopp-prod-v2` now exists inside `hopp-vpc` / `hopp-subnet` in zone `asia-southeast1-c`, with static public IPv4 `34.124.236.208`, static public IPv6 `2600:1900:4080:16a::/96`, Docker bootstrap complete, and operator access normalized to the `hopp` group model
+  the next operational step is to clone the repo into `/opt/hopp` on `hopp-prod-v2`, populate `.env.gcp`, deploy the current stack there, and only then resume the hostname/TLS cutover
 - Current external blockers:
-  `humansofphnompenh.com` still points to the old Hostinger IP instead of `34.21.157.41`, and the ABA merchant-side whitelist still needs the final brand domain
+  `humansofphnompenh.com` must ultimately point only to the final replacement VM addresses, and the ABA merchant-side whitelist still needs the final brand domain
 - Director-side information still required before the final env switch:
-  GoDaddy update for `humansofphnompenh.com` -> `34.21.157.41`, confirmation that no conflicting apex `AAAA` record should remain unless IPv6 is intentionally configured, and the real Hostinger SMTP mailbox details (`from` address, host, port, security mode, username, password, sender name)
+  confirmation that DNS should point `A` to `34.124.236.208` and `AAAA` to `2600:1900:4080:16a::`, confirmation that no conflicting legacy apex `AAAA` record should remain, and the real Hostinger SMTP mailbox details (`from` address, host, port, security mode, username, password, sender name)
 - ABA verification rule is now explicit:
   there is no separate pre-confirmation path; once DNS points at the VM and the VM is switched to `humansofphnompenh.com`, run the live ABA checkout test directly and treat the result as the whitelist proof
 - Do not mark this done until:

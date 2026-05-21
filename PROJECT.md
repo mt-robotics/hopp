@@ -17,15 +17,15 @@ Full task spec: `current_state/project_status.md` -> `Execute Primary-Domain Cut
 | Layer | Technology |
 |---|---|
 | CMS | WordPress |
-| Theme | Custom WordPress theme, planned directory `wp-content/themes/hopp/` |
-| Styling | HTML, CSS, JavaScript; Tailwind CDN or local Tailwind build to be decided during theme implementation |
+| Theme | Custom WordPress theme in `wp-content/themes/hopp/` |
+| Styling | Theme-native HTML, CSS, and JavaScript |
 | Design source | `DESIGN.md` using Google Stitch DESIGN.md format |
 | Database | MySQL via Docker Compose for local WordPress |
 | E-commerce | WooCommerce |
 | Forms | Contact Form 7 |
 | Local infra | Docker Compose, WordPress container, MySQL container, named volumes |
-| Cloud hosting | Google Cloud Platform (GCP) - sponsor-funded Compute Engine VM, currently one `e2-medium` with `50 GB pd-balanced` |
-| Production access | WP admin access available; sponsor-funded VM access available through `ssh hopp-prod` and group-managed `/opt/hopp` ownership |
+| Cloud hosting | Google Cloud Platform (GCP) - sponsor-funded Compute Engine VMs; current transition host plus a replacement `e2-medium` / `50 GB pd-balanced` VM on the dedicated HOPP VPC |
+| Production access | WP admin access available; sponsor-funded VM access available through GCP SSH and group-managed `/opt/hopp` ownership |
 
 ---
 
@@ -51,6 +51,7 @@ Full task spec: `current_state/project_status.md` -> `Execute Primary-Domain Cut
 │   ├── error_log.md           # Debugging investigations
 │   ├── current_site_audit.md  # Public site content/component audit
 │   ├── demo_design_plan.md    # V1 demo page/component design plan
+│   ├── gcp_cloud_shell_replacement_vm.md # Dedicated-VPC replacement VM runbook
 │   └── live_wordpress_deployment.md # Live WP admin deployment runbook
 ├── docker-compose.yml         # Shared WordPress + MySQL base
 ├── docker/nginx/              # Nginx bootstrap selector for HTTP-first / HTTPS-after-cert startup
@@ -59,29 +60,12 @@ Full task spec: `current_state/project_status.md` -> `Execute Primary-Domain Cut
 ├── nginx/templates/           # Bootstrap HTTP and SSL nginx templates for production
 ├── scripts/                   # GCP VM provisioning and host bootstrap scripts
 ├── index.html                 # Current static prototype/reference
-└── resources/
-    └── context.md             # Legacy website and business context
+├── resources/
+│   └── context.md             # Legacy website and business context
 ├── wp-content/
 │   └── themes/
 │       └── hopp/              # Bind-mounted local theme directory
 ```
-
-Planned once theme work starts:
-
-```text
-wp-content/
-└── themes/
-    └── hopp/
-        ├── style.css
-        ├── functions.php
-        ├── assets/js/navigation.js
-        ├── index.php
-        ├── header.php
-        ├── footer.php
-        └── templates...
-```
-
----
 
 ## Key Decisions
 
@@ -109,6 +93,10 @@ wp-content/
 
 **Manual VM path adopted:** The sponsor-funded VM was created manually in GCP Console for maximum safety. Repo-owned bootstrap and deployment files still apply after VM creation; only the VM creation step itself was done outside the repo automation.
 
+**Dedicated-network cutover path adopted:** Because the original `hopp-prod` VM shares the `default` VPC/subnet with another server, the final dual-stack cutover should proceed through a replacement HOPP VM on the dedicated `hopp-vpc` / `hopp-subnet` network instead of mutating the shared network in place.
+
+**Replacement VM now exists:** On 2026-05-21, the replacement VM `hopp-prod-v2` was created in `asia-southeast1-c` on `hopp-vpc` / `hopp-subnet` with static public IPv4/IPv6 and verified Docker bootstrap. The next operational step is to clone the repo into `/opt/hopp`, populate `.env.gcp`, deploy the stack there, and continue cutover validation.
+
 **Canonical branch strategy:** Production is anchored to `main`. Feature work happens on `feature/*`, reviewed integration happens on `development`, and only committed revisions on `main` are eligible for production deployment or rollback references.
 
 **Canonical VM deploy path:** Production deploys now happen by SSHing to the VM, using the `/opt/hopp` checkout, fast-forwarding that checkout to `origin/main`, and recreating the stack from the repo-owned GCP Compose path. The standard entrypoint is `./scripts/deploy-production.sh`; emergency rollback uses `./scripts/rollback-production.sh <known-good-main-sha>`. `.env.gcp` remains host-managed on the VM and is not Git-managed.
@@ -128,6 +116,8 @@ wp-content/
 | `docs/sponsored_gcp_deployment_plan.md` | Current recommendation for the sponsor-funded production GCP host |
 | `docs/production_operations_index.md` | First-stop operator guide for production commands and custom-vs-normal WP boundaries |
 | `docs/production_vm_deploy.md` | Canonical Git-to-VM deploy and rollback runbook for the live host |
+| `docs/hopp_dedicated_vpc_setup.md` | Exact record of the dedicated HOPP VPC/subnet and ingress firewall setup created for the replacement-VM cutover path |
+| `docs/gcp_cloud_shell_replacement_vm.md` | Exact Cloud Shell command path used to create and verify the replacement VM |
 | `docs/production_state_ownership.md` | Canonical boundary for Git-managed code, WP-admin-managed state, and host-managed secrets |
 | `scripts/gcp-provision-vm.sh` | Creates the recommended Compute Engine VM and networking primitives |
 | `scripts/gcp-startup.sh` | First-boot package install script for the GCP host, including `make` for deploy helpers |
@@ -140,9 +130,9 @@ wp-content/
 | `docker/nginx/select-template.sh` | Chooses HTTP bootstrap or HTTPS nginx config based on cert presence |
 | `DESIGN.md` | Visual tokens, layout rules, component inventory |
 | `resources/context.md` | Legacy site description and constraints |
-| docs/current_site_audit.md | Public site page inventory, components, forms, e-commerce risk classification |
-| docs/demo_design_plan.md | V1 demo design direction, page plans, component plan, implementation order |
-| DOCKER_SETUP.md | Docker setup, env vars, local workflow |
+| `docs/current_site_audit.md` | Public site page inventory, components, forms, e-commerce risk classification |
+| `docs/demo_design_plan.md` | V1 demo design direction, page plans, component plan, implementation order |
+| `DOCKER_SETUP.md` | Docker setup, env vars, local workflow |
 
 | `docs/live_wordpress_deployment.md` | Live WordPress admin-only deployment runbook |
 | `.env.example` | Safe environment variable reference |

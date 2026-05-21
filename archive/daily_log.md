@@ -256,3 +256,16 @@
   `Press`, `Product`, and the Khmer placeholder page `មិនមានខ្លឹមសារនៅទីនេះទេ។` are the last questionable/placeholder pages still needing keep/repurpose/trash decisions
 - Clarified the larger unfinished platform goal for the next session:
   this project now has implemented page-type behavior for the major existing pages, but it does not yet have the full ops-controlled page-creation workflow. A later pass still needs to define the approved page-type/template set explicitly and decide how `Add Page` should be constrained or guided so new pages can only be created from the supported website-specific page types
+- Began the infrastructure-separation path for final cutover so HOPP no longer needs to share the `default` VPC/subnet with `finluybackend`:
+  created a dedicated VPC `hopp-vpc`
+  created a dedicated subnet `hopp-subnet` in region `asia-southeast1`
+  subnet stack type was set to dual-stack (`IPv4 and IPv6`)
+  subnet IPv6 access type was set to `External`
+  subnet IPv4 range was set to `10.20.0.0/24`
+  dynamic routing was left `Regional` with default best-path mode
+- Added the required HOPP web ingress rules on `hopp-vpc`:
+  `allow-web-traffic` -> ingress allow from `0.0.0.0/0` to all instances in the network on `tcp:80,443`
+  `allow-web-traffic-ipv6` -> ingress allow from `::/0` to all instances in the network on `tcp:80,443`
+  existing SSH access was retained through `hopp-vpc-allow-ssh`
+- Stopped before replacing the production VM:
+  next session should create the replacement HOPP VM inside `hopp-vpc` / `hopp-subnet`, deploy the current stack there, and only then continue the hostname/TLS cutover workflow
